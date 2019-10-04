@@ -9,11 +9,14 @@ import requests
 from PIL import ImageDraw, ImageColor, ImageFont, Image
 
 
-def sigmoid(x):
+def sigmoid(x: np.array):
     return 1 / (1 + np.exp(-x))
 
 
 def plot_conv_kernel(w, labels=None):
+    if len(w.shape) < 4:
+        w = np.expand_dims(w, -1)
+        
     cols = math.ceil(math.sqrt(w.shape[3]))
     rows = math.ceil(w.shape[3] / cols)
 
@@ -36,6 +39,38 @@ def plot_conv_kernel(w, labels=None):
 
     plt.show()
 
+    
+def plot_activation_map(am):
+    std = am.std()
+    
+    if std != 0:
+        am /= std
+        
+    am = sigmoid(am)
+    plt.imshow(
+        am, 
+        vmin=0, 
+        vmax=1, 
+        cmap=plt.get_cmap('RdYlGn')
+    )
+    plt.xticks([])
+    plt.yticks([])
+
+def plot_activation_volume(av, side=3):
+    activation_depth = av.shape[-1]
+    nrows = side
+    ncols = side
+    idxs = np.linspace(0, activation_depth-1, nrows*ncols).round().astype(int)
+
+    plt.figure(figsize=[4 * ncols, 4 * nrows])
+    for i, idx in enumerate(idxs):
+        current_av = av[:, :, idx]
+        plt.subplot(nrows, ncols, i+1)
+        plt.title(f'channel = {idx}')
+        plot_activation_map(current_av)
+        
+    plt.show()
+
 
 def load_from_internet(url):
     # Loading the image from the Internet
@@ -53,6 +88,7 @@ def load_tiny_batch():
     return OrderedDict({name: load_from_internet(url) for name, url in image_urls.items()})
 
 
+# https://stackoverflow.com/a/4744625
 def crop_and_resize_for_imagenet(image):
     width = image.size[0]
     height = image.size[1]
@@ -62,7 +98,6 @@ def crop_and_resize_for_imagenet(image):
     ideal_height = 224
     ideal_aspect = ideal_width / float(ideal_height)
 
-    # https://stackoverflow.com/a/4744625
     if aspect > ideal_aspect:
         # Then crop the left and right edges:
         new_width = int(ideal_aspect * height)
@@ -185,40 +220,6 @@ def draw_boxes(image, boxes, class_names, scores, max_boxes=10, min_score=0.1):
 
     return image
 
-def sigmoid(x):
-    return np.exp(x) / (1 + np.exp(x))
-
-
-def plot_activation_map(am):
-    std = am.std()
-    
-    if std != 0:
-        am /= std
-        
-    am = sigmoid(am)
-    plt.imshow(
-        am, 
-        vmin=0, 
-        vmax=1, 
-        cmap=plt.get_cmap('RdYlGn')
-    )
-    plt.xticks([])
-    plt.yticks([])
-
-def plot_activation_volume(av, side=3):
-    activation_depth = av.shape[-1]
-    nrows = side
-    ncols = side
-    idxs = np.linspace(0, activation_depth-1, nrows*ncols).round().astype(int)
-
-    plt.figure(figsize=[4 * ncols, 4 * nrows])
-    for i, idx in enumerate(idxs):
-        current_av = av[:, :, idx]
-        plt.subplot(nrows, ncols, i+1)
-        plt.title(f'channel = {idx}')
-        plot_activation_map(current_av)
-        
-    plt.show()
     
 def plot_gradient(grad):
     grad /= grad.std()
