@@ -13,9 +13,24 @@ def sigmoid(x: np.array):
     return 1 / (1 + np.exp(-x))
 
 
-def plot_conv_kernel(w, labels=None):
-    if len(w.shape) < 4:
+def plot_conv_kernel(w: np.ndarray, labels: list = None):
+    """
+    Plots the kernel weights as a grid of images.
+    The input's shape must be (height, weight, input channels, output channels).
+    If the input is 3-dimensional, it's assumed to have 1 output channel.
+    
+    Before plotting, this function rescales the kernel
+    by making its std = 1, so that pixel values are significantly different.
+    Finally, it applies sigmoid activation to fit the weights into (0, 1) range.
+    
+    :param w: the kernel to plot
+    :param labels: optional list of labels for each output channel
+    """
+    
+    if len(w.shape) == 3:
         w = np.expand_dims(w, -1)
+    elif len(w.shape) != 4:
+        raise Exception('Kernel must be either 3- or 4-dimensional array')
         
     cols = math.ceil(math.sqrt(w.shape[3]))
     rows = math.ceil(w.shape[3] / cols)
@@ -40,13 +55,22 @@ def plot_conv_kernel(w, labels=None):
     plt.show()
 
     
-def plot_activation_map(am):
+def plot_activation_map(am: np.ndarray):
+    """
+    Plots the activation map as a color-coded image.
+    
+    Red colors correspond to negative activation, green colors - positive.
+    To make pixel values different from each other, activation is rescaled to std = 1.
+    
+    :param am: the activation map of shape (height, width)
+    """
     std = am.std()
     
     if std != 0:
         am /= std
         
     am = sigmoid(am)
+    
     plt.imshow(
         am, 
         vmin=0, 
@@ -56,29 +80,69 @@ def plot_activation_map(am):
     plt.xticks([])
     plt.yticks([])
 
+    
 def plot_activation_volume(av, side=3):
+    """
+    Plots the activation volume as a grid of color-coded images.
+    See plot_activation_map for details on color-coding.
+    
+    Note that the grid will consist of side*side cells.
+    If the activation volume has more channels than that,
+    they will be plotted with a stride that makes
+    the count of channels match the count of grid cells.
+    
+    :param av: the activation map of shape (height, width, channels)
+    :param side: size of a single row/column of the grid
+    """
     activation_depth = av.shape[-1]
     nrows = side
     ncols = side
-    idxs = np.linspace(0, activation_depth-1, nrows*ncols).round().astype(int)
+    
+    # Applies a stride that makes the count of channels
+    # match the count of cells in the gtid.
+    channels = np.linspace(0, activation_depth-1, nrows*ncols)
+    channels = channels.round().astype(int)
 
     plt.figure(figsize=[4 * ncols, 4 * nrows])
-    for i, idx in enumerate(idxs):
-        current_av = av[:, :, idx]
-        plt.subplot(nrows, ncols, i+1)
-        plt.title(f'channel = {idx}')
+    
+    for idx, channel in enumerate(channels):
+        current_av = av[:, :, channel]
+        
+        plt.subplot(nrows, ncols, idx+1)
+        plt.title(f'channel = {channel}')
         plot_activation_map(current_av)
         
     plt.show()
 
+    
+def plot_gradient(grad):
+    """
+    Plots the gradient as an image.
+    
+    Gradient values will be rescaled to std = 1,
+    and sigmoid will be appplied before plotting.
+    
+    :param grad: an array of shape (height, width)
+    """
+    grad /= grad.std()
+    grad = sigmoid(grad)
+    plt.imshow(grad)
+    plt.xticks([])
+    plt.yticks([])
 
+    
 def load_from_internet(url):
-    # Loading the image from the Internet
+    """
+    Loads an image by URL.
+    """
     raw_bytes = requests.get(url).content
     return Image.open(BytesIO(raw_bytes))
 
 
 def load_tiny_batch():
+    """
+    Loads a tiny batch of images.
+    """
     image_urls = {
         'cat'        : 'https://farm7.staticflickr.com/6152/6150418513_01f9c2927c_z.jpg',
         'dog'        : 'https://farm1.staticflickr.com/52/139518224_136aa37a7d_z.jpg',
@@ -88,8 +152,13 @@ def load_tiny_batch():
     return OrderedDict({name: load_from_internet(url) for name, url in image_urls.items()})
 
 
-# https://stackoverflow.com/a/4744625
 def crop_and_resize_for_imagenet(image):
+    """
+    Crops and resizes the image into the shape
+    expected by ImageNet models.
+    
+    Source: https://stackoverflow.com/a/4744625
+    """
     width = image.size[0]
     height = image.size[1]
     aspect = width / float(height)
@@ -115,33 +184,36 @@ def crop_and_resize_for_imagenet(image):
 
 
 def plot_image(pixels):
+    """
+    Simply plots an image from its pixels.
+    Pixel values must be either integers in [0, 255], or floats in [0, 1].
+    """
     plt.imshow(pixels)
     plt.yticks([])
     plt.xticks([])
 
 
-def plot_images_grid(images_raw):
-    mpl.rcParams.update({'figure.dpi': 100})
+def plot_images_grid(images):
+    """
+    Plots the dictionary of images as a grid.
+    
+    The dictionary's keys will be used as titles,
+    while the values are expected to be images.
+    
+    :param images: dictionary of images
+    """
 
     ncols = 2
-    nrows = math.ceil(len(images_raw) / ncols)
+    nrows = math.ceil(len(images) / ncols)
 
     plt.figure(figsize=[15, nrows * 6], dpi=100)
-    for idx, name in enumerate(images_raw):
+    
+    for idx, name in enumerate(images):
         plt.subplot(nrows, ncols, idx + 1)
         plt.title(name)
-        plot_image(images_raw[name])
+        plot_image(images[name])
 
 
-def display_image(image):
-    fig = plt.figure(figsize=[10, 10], dpi=100)
-    plt.grid(False)
-    plt.yticks([])
-    plt.xticks([])
-    plt.imshow(image)
-
-
-# https://colab.research.google.com/github/tensorflow/hub/blob/master/examples/colab/object_detection.ipynb
 def draw_bounding_box_on_image(image,
                                ymin,
                                xmin,
@@ -151,7 +223,11 @@ def draw_bounding_box_on_image(image,
                                font,
                                thickness=4,
                                display_str_list=()):
-    """Adds a bounding box to an image."""
+    """
+    Adds a bounding box to an image.
+    
+    Source: https://colab.research.google.com/github/tensorflow/hub/blob/master/examples/colab/object_detection.ipynb
+    """
     draw = ImageDraw.Draw(image)
     im_width, im_height = image.size
     (left, right, top, bottom) = (xmin * im_width, xmax * im_width,
@@ -186,9 +262,12 @@ def draw_bounding_box_on_image(image,
         text_bottom -= text_height - 2 * margin
 
 
-# https://colab.research.google.com/github/tensorflow/hub/blob/master/examples/colab/object_detection.ipynb
 def draw_boxes(image, boxes, class_names, scores, max_boxes=10, min_score=0.1):
-    """Overlay labeled boxes on an image with formatted scores and label names."""
+    """
+    Overlay labeled boxes on an image with formatted scores and label names.
+    
+    Source: https://colab.research.google.com/github/tensorflow/hub/blob/master/examples/colab/object_detection.ipynb
+    """
     colors = list(ImageColor.colormap.values())
     font = ImageFont.load_default()
 
@@ -219,11 +298,3 @@ def draw_boxes(image, boxes, class_names, scores, max_boxes=10, min_score=0.1):
         np.copyto(image, np.array(image_pil))
 
     return image
-
-    
-def plot_gradient(grad):
-    grad /= grad.std()
-    grad = sigmoid(grad)
-    plt.imshow(grad)
-    plt.xticks([])
-    plt.yticks([])
