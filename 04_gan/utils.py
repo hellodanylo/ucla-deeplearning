@@ -1,34 +1,55 @@
-import math
+import numpy as np
 import matplotlib.pyplot as plt
+from PIL import Image
+import os
 
-def plot_images_grid(images, classes, dictionary):
-    """
-    Plots the dictionary of images as a grid.
-    
-    The dictionary's keys will be used as titles,
-    while the values are expected to be images.
-    
-    :param images: dictionary of images
-    """
 
-    ncols = 2
-    nrows = math.ceil(len(images) / ncols)
-
-    plt.figure(figsize=[15, nrows * 6])
+def plot_strided_grid(images, ncols=5, nrows=5):
+    """
+    Plots some of the images in a grid of given size.
     
-    for idx, (image, class_id) in enumerate(zip(images, classes)):
-        class_label = dictionary.iloc[class_id]
-        
-        plt.subplot(nrows, ncols, idx + 1)
-        plt.title(class_label)
-        plot_image(image)
-        
-        
-def plot_image(pixels):
+    Applies a stride that makes the count of images
+    match the count of cells in the grid.
     """
-    Simply plots an image from its pixels.
-    Pixel values must be either integers in [0, 255], or floats in [0, 1].
+    n_images = images.shape[0]
+    n_cells = ncols * nrows
+    
+    idxs = np.linspace(0, n_images-1, n_cells)
+    idxs = idxs.round().astype(int)
+
+    fig = plt.figure(figsize=[2*ncols, 2*nrows])
+    fig.subplots_adjust(hspace=0, wspace=0)
+
+    for cell_id, image_id in enumerate(idxs):
+        plt.subplot(nrows, ncols, cell_id+1)
+        plt.title(image_id)
+        plt.imshow(images[image_id])
+        plt.xticks([])
+        plt.yticks([])
+
+    plt.tight_layout()
+    
+
+def save_images(images, prefix):
     """
-    plt.imshow(pixels)
-    plt.yticks([])
-    plt.xticks([])
+    Saves the images to a local folder.
+    Use gif.sh script to animate the images.
+    """
+    
+    previous_folders = [
+        int(n.split(prefix)[1]) for n in os.listdir('.') 
+        if n.startswith(prefix)
+    ]
+
+    if len(previous_folders) > 0:
+        next_id = max(previous_folders) + 1
+    else:
+        next_id = 0
+
+    folder = f'{prefix}{next_id}'
+    os.system(f'mkdir -p {folder}')
+    
+    for idx, image in enumerate(images):
+        Image.fromarray(image.astype('uint8')).save(f'{folder}/{idx}.png')
+
+    print(f'Images are saved to {folder}')
