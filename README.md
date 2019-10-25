@@ -1,6 +1,6 @@
 # Advanced Workshop on Machine Learning
 
-This is the official repository with course material for UCLA Advanced Workshop on Machine Learning (MSBA-434).
+This is the official repository with course material for UCLA Advanced Workshop on Machine Learning (MGMTMSA-434).
 The repository will be updated as the course progresses.
 
 The course consists of 5 module:
