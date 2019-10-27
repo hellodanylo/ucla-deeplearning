@@ -1,5 +1,7 @@
 # Advanced Workshop on Machine Learning
 
+https://ccle.ucla.edu/course/view/19F-MGMTMSA434-1?show_all=1
+
 This is the official repository with course material for UCLA Advanced Workshop on Machine Learning (MGMTMSA-434).
 The repository will be updated as the course progresses.
 
