@@ -148,7 +148,7 @@ def forecast_mean(
     for name, segment in dataset.segments.items():
         segment_features = segment['x']['temperature']
         segment_target_hat = predict_mean(segment_features, prediction_window)
-        segment_target_hat.index = segment['y']
+        segment_target_hat.index = segment['y'].index
 
         mean_target_hat[name] = TargetSegment(name)
         mean_target_hat[name]['y'] = segment_target_hat
