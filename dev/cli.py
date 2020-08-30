@@ -253,9 +253,10 @@ def sagemaker_down():
 
 
 def sagemaker_wait_deleted():
-    print("Waiting for to be deleted...")
+    name = sagemaker_notebook_name()
+    print(f"Waiting {name} for to be deleted (about 2 minutes)...")
     boto_sagemaker().get_waiter("notebook_instance_deleted").wait(
-        NotebookInstanceName=sagemaker_notebook_name()
+        NotebookInstanceName=name
     )
 
 
