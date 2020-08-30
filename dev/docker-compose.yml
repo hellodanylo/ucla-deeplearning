@@ -1,0 +1,43 @@
+version: '3.7'
+
+volumes:
+  mlflow_backend:
+    driver: local
+
+services:
+  jupyter:
+    container_name: ucla_jupyter
+    hostname: ucla_jupyter
+    build:
+      context: image-python
+    volumes:
+      - ../:/app/git
+      - mlflow_backend:/app/mlflow_backend
+    ports:
+      - 7000:80
+    command: [
+      '/opt/conda/bin/jupyter',
+      'lab',
+      '--notebook-dir=/app',
+      '--ip=0.0.0.0',
+      '--port=80',
+      '--no-browser',
+      '--allow-root'
+    ]
+
+  mlflow:
+    container_name: ucla_mlflow
+    hostname: ucla_mlflow
+    build:
+      context: image-python
+    ports:
+      - 7001:5000
+    volumes:
+      - mlflow_backend:/app/mlflow_backend
+    command: [
+      'mlflow',
+      'server',
+      '--backend-store-uri', 'sqlite:////app/mlflow_backend/sqlite.db',
+      '--default-artifact-root', '/app/mlflow_backend/artifacts',
+      '--host', '0.0.0.0'
+    ]

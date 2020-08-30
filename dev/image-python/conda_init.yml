@@ -1,0 +1,32 @@
+channels:
+  - anaconda
+  - conda-forge
+dependencies:
+  - dask>=2
+  - ffmpeg
+  - ipython>=7.10
+  - ipykernel>=5
+  - ipywidgets=7.5.1
+  - jupyterlab>=2.0
+  - line_profiler>=2
+  - matplotlib>=3
+  - mlflow=1.10.0
+  - nodejs=10.13.0
+  - numpy>=1.15
+  - pandas>=1
+  - pip
+  - protobuf=3.11.2
+  - pyarrow>=0.11
+  - python=3.7.3
+  - requests>=2
+  - s3fs
+  - scikit-learn>=0.21
+  - seaborn>=0.9
+  - statsmodels=0.11.1
+  - tensorflow-gpu=2.2.0
+  - tensorflow-hub
+  - x264
+  - pip:
+    - boto3>=1.9
+    - clize>=4
+    - pydevd-pycharm==191.7141.48

@@ -1,0 +1,18 @@
+name: ucla-dev
+channels:
+  - marta-sd
+  - defaults
+  - conda-forge
+dependencies:
+  - ipython=7.2.0
+  - pip=18.1=py37_0
+  - python=3.7.1
+  - terraform=0.12.24
+  - terragrunt=0.23.28
+  - black=19.10b0
+  - pip:
+      - awscli==1.18.34
+      - clize==4.1.1
+      - boto3==1.11.15
+      - docker==4.2.0
+      - python-dotenv==0.12.0

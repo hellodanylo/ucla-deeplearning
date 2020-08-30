@@ -13,3 +13,27 @@ The course consists of 5 module:
 5. Ensemble Methods
 
 Copyright: Danylo Vashchilenko, 2019.
+
+# Setup
+
+* Install Miniconda package manager (https://docs.conda.io/en/latest/miniconda.html)
+* `conda env create -f dev/conda_init.yml`
+* `conda activate ucla-dev`
+* `aws configure --profile ucla`
+
+# Development CLI
+* `./dev/cli.py --help` -- provides help information about every command
+
+# Creating a SageMaker Notebook
+* `./dev/cli.py terraform-up`
+* `./dev/cli.py sagemaker-up`
+
+# Using a SageMaker Notebook
+* `./dev/cli.py sagemaker-start`
+* `./dev/cli.py sagemaker-stop`
+
+# Local Jupyter
+* `./dev/cli.py jupyter-up`
+* `./dev/cli.py jupyter-start`
+* `./dev/cli.py jupyter-stop`
+* `./dev/cli.py jupyter-down`
