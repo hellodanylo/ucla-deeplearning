@@ -9,7 +9,7 @@ services:
     container_name: ucla_jupyter
     hostname: ucla_jupyter
     build:
-      context: image-python
+      context: docker-jupyter
     volumes:
       - ../:/app/git
       - mlflow_backend:/app/mlflow_backend
@@ -29,7 +29,7 @@ services:
     container_name: ucla_mlflow
     hostname: ucla_mlflow
     build:
-      context: image-python
+      context: docker-jupyter
     ports:
       - 7001:5000
     volumes:

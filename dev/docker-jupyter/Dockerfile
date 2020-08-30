@@ -16,7 +16,7 @@ RUN apt-get update -qy && apt-get install -qy \
     >/dev/null 2>&1
 
 COPY conda_init.yml ./conda.yml
-#COPY conda_lock.yml ./tf2_lock.yml
+#COPY conda_lock.yml ./conda.yml
 
 RUN conda env update -n base -f conda.yml
 

@@ -12,6 +12,8 @@ EOF
 sudo -u ec2-user tee >"$PROJECT_PATH/setup.sh" <<'EOF'
 #!/usr/bin/env bash
 
+name="${sagemaker_notebook_name}"
+
 sudo yum install -y htop
 
 conda activate JupyterSystemEnv
@@ -28,6 +30,12 @@ source $PROJECT_PATH/miniconda/bin/activate
 conda env create -n ucla_deeplearning -q -f "$PROJECT_PATH/conda_lock.yml"
 
 touch $PROJECT_PATH/done.txt
+aws dynamodb update-item \
+  --table-name ucla-deep-learning-notebooks \
+  --key {\"name\":{\"S\":\"$name\"}} \
+  --attribute-updates {\"state\":{\"Value\":{\"S\":\"installed\"}}}
+
+
 EOF
 chmod +x "$PROJECT_PATH/setup.sh"
 

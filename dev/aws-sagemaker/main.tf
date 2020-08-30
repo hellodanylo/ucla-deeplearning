@@ -4,6 +4,8 @@ terraform {
       version = "3.4.0"
     }
   }
+
+  backend "s3" {}
 }
 
 provider "aws" {
@@ -11,11 +13,7 @@ provider "aws" {
   profile = "ucla"
 }
 
-variable "name" {
-  type = string
-}
-
-variable "instance_type" {
+variable "sagemaker_notebook_name" {
   type = string
 }
 
@@ -30,9 +28,14 @@ resource "aws_iam_role" "sagemaker" {
   assume_role_policy = file("${path.module}/sagemaker_assume_role.json")
 }
 
-resource "aws_iam_role_policy_attachment" "sagemaker_service_policy" {
+resource "aws_iam_role_policy_attachment" "sagemaker_self" {
   role       = aws_iam_role.sagemaker.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonSageMakerFullAccess"
+}
+
+resource "aws_iam_role_policy_attachment" "sagemaker_dynamodb" {
+  role       = aws_iam_role.sagemaker.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess"
 }
 
 resource "aws_security_group" "sagemaker" {
@@ -55,19 +58,29 @@ resource "aws_security_group" "sagemaker" {
 }
 
 locals {
-  conda_lock_yml = file("${path.module}/../image-python/conda_lock.yml")
+  conda_lock_yml = file("${path.module}/../docker-jupyter/conda_lock.yml")
 
   notebook_on_create = templatefile("${path.module}/notebook_on_create.sh", {
     conda_lock_yml = local.conda_lock_yml
+    sagemaker_notebook_name = var.sagemaker_notebook_name
   })
 
   notebook_on_start = file("${path.module}/notebook_on_start.sh")
-
 }
 resource "aws_sagemaker_notebook_instance_lifecycle_configuration" "ucla_deeplearning" {
-  name      = "conda-ucla-deeplearning"
+  name      = "ucla-deep-learning-conda-env"
   on_create = base64encode(local.notebook_on_create)
   on_start = base64encode(local.notebook_on_start)
+}
+
+resource "aws_dynamodb_table" "table" {
+  name = "ucla-deep-learning-notebooks"
+  billing_mode = "PAY_PER_REQUEST"
+  attribute {
+    name = "name"
+    type = "S"
+  }
+  hash_key = "name"
 }
 
 output "sagemaker_lifecycle_name" {
@@ -84,4 +97,8 @@ output "security_group_id" {
 
 output "role_arn" {
   value = aws_iam_role.sagemaker.arn
+}
+
+output "dynamodb_table_name" {
+  value = aws_dynamodb_table.table.name
 }

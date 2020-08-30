@@ -2,7 +2,6 @@ channels:
   - anaconda
   - conda-forge
 dependencies:
-  - dask>=2
   - ffmpeg
   - ipython>=7.10
   - ipykernel>=5
@@ -13,7 +12,7 @@ dependencies:
   - mlflow=1.10.0
   - nodejs=10.13.0
   - numpy>=1.15
-  - pandas>=1
+  - pandas=1.1.0
   - pip
   - protobuf=3.11.2
   - pyarrow>=0.11
@@ -24,9 +23,5 @@ dependencies:
   - seaborn>=0.9
   - statsmodels=0.11.1
   - tensorflow-gpu=2.2.0
-  - tensorflow-hub
+  - tensorflow-hub=0.8.0
   - x264
-  - pip:
-    - boto3>=1.9
-    - clize>=4
-    - pydevd-pycharm==191.7141.48
