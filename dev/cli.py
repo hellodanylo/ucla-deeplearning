@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+
 import json
 import os
 import subprocess
@@ -22,7 +23,7 @@ sagemaker = aws.client("sagemaker")
 
 
 def find_container_by_name(name) -> Optional[Container]:
-    containers = docker.from_env().containers.list()
+    containers = docker.from_env().containers.list(all=True)
     for container in containers:
         if container.name == name:
             return container
@@ -30,18 +31,22 @@ def find_container_by_name(name) -> Optional[Container]:
     return None
 
 
-def jupyter_start():
+def jupyter_start(gpu: bool = False):
     subprocess.run(
         [
             *["docker", "run"],
             *["--name", container_jupyter],
             *["--hostname", container_jupyter],
-            *["-v", f"{project_path}:/app/git"],
+            *["-v", f"{project_path}:/app/ucla_deeplearning"],
             *["-v", "ucla_mlflow_backend:/app/mlflow_backend"],
             *["-v", "ucla_jupyter_settings:/root/.local/share/jupyter/runtime"],
             *["-v", "ucla_jupyter_settings:/root/.jupyter"],
+            '-p', '3000:80',
             "-d",  # detached mode
-            *["--gpus", "all"],  # enable access to CUDA
+            
+             # enable access to CUDA
+            *(["--gpus", "all"] if gpu else []), 
+
             "-it",
             container_jupyter,
             "/opt/conda/bin/jupyter",
@@ -54,6 +59,8 @@ def jupyter_start():
         ]
     )
 
+    print('Jupyter available')
+
 
 def jupyter_stop():
     container = find_container_by_name(container_jupyter)
@@ -64,12 +71,14 @@ def jupyter_stop():
 def jupyter_down():
     container = find_container_by_name(container_jupyter)
     if container is None:
+        print('No container found')
         return
 
     if container.status == "running":
         container.stop()
 
     container.remove()
+    print(f'Removed {container.name}')
 
 
 def jupyter_up():
