@@ -291,6 +291,8 @@ def aws_init():
     with open(os.path.join(project_path, "dev", "cli.env"), "w") as f:
         f.write(f"PROJECT_USER={new_project_user}")
 
+    subprocess.run(['aws', '--profile', 'ucla', 'configure'])
+    
     try:
         user = boto_session().client("iam").list_account_aliases()["AccountAliases"][0]
     except Exception as e:
