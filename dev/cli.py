@@ -152,9 +152,7 @@ def sagemaker_stop():
 
     name = sagemaker_notebook_name()
     if status == "InService":
-        boto_sagemaker().stop_notebook_instance(
-            NotebookInstanceName=name
-        )
+        boto_sagemaker().stop_notebook_instance(NotebookInstanceName=name)
     elif status == "Stopped":
         return
     elif status != "Stopping":
@@ -191,19 +189,27 @@ def run(args, cwd=None, capture_output=False, env=None):
 
 
 def sagemaker_up(instance_type="ml.t2.xlarge"):
-    s3_output = terraform_output("aws-s3")
-    name = sagemaker_notebook_name()
+    notebook_name = sagemaker_notebook_name()
+    bucket_name = s3_bucket_name()
 
     run(
-        ["terragrunt", "apply", "-auto-approve", "-var", f"sagemaker_notebook_name={name}"],
+        [
+            "terragrunt",
+            "apply",
+            "-auto-approve",
+            "-var",
+            f"sagemaker_notebook_name={notebook_name}",
+        ],
         cwd=os.path.join(project_path, "dev", "aws-sagemaker"),
-        env=s3_output,
+        env={"s3_bucket_name": bucket_name},
     )
 
-    sagemaker_output = terraform_output("aws-sagemaker", env=s3_output)
+    sagemaker_output = terraform_output(
+        "aws-sagemaker", env={"s3_bucket_name": bucket_name}
+    )
 
     params = dict(
-        NotebookInstanceName=name,
+        NotebookInstanceName=notebook_name,
         InstanceType=instance_type,
         SubnetId=sagemaker_output["subnet_id"],
         SecurityGroupIds=[sagemaker_output["security_group_id"]],
@@ -213,14 +219,16 @@ def sagemaker_up(instance_type="ml.t2.xlarge"):
         DefaultCodeRepository=github_repo,
     )
 
-    dynamodb_set_notebook_state(name, 'created')
+    dynamodb_set_notebook_state(notebook_name, "created")
 
     print(json.dumps(params, indent=True))
     boto_sagemaker().create_notebook_instance(**params)
     sagemaker_wait_in_service()
 
-    while dynamodb_get_notebook_state(name) == 'created':
-        print('Waiting for notebook environment to finish installation (about 20 minutes)...')
+    while dynamodb_get_notebook_state(notebook_name) == "created":
+        print(
+            "Waiting for notebook environment to finish installation (about 20 minutes)..."
+        )
         sleep(60)
 
     sagemaker_stop()
@@ -242,13 +250,18 @@ def sagemaker_down():
 
         sagemaker_wait_deleted()
 
-    s3_output = terraform_output("aws-s3")
     name = sagemaker_notebook_name()
 
     run(
-        ["terragrunt", "destroy", "-auto-approve", "-var", f"sagemaker_notebook_name={name}"],
+        [
+            "terragrunt",
+            "destroy",
+            "-auto-approve",
+            "-var",
+            f"sagemaker_notebook_name={name}",
+        ],
         cwd=os.path.join(project_path, "dev", "aws-sagemaker"),
-        env=s3_output,
+        env={"s3_bucket_name": s3_bucket_name()},
     )
 
 
@@ -308,15 +321,14 @@ def s3_down():
             "destroy",
             "-auto-approve",
             "-var",
-            f"project_user={s3_bucket_name()}",
+            f"s3_bucket_name={s3_bucket_name()}",
         ],
         cwd=os.path.join(project_path, "dev", "aws-s3"),
     )
 
 
 def terraform_output_sagemaker():
-    s3_output = terraform_output("aws-s3")
-    return terraform_output("aws-sagemaker", env=s3_output)
+    return terraform_output("aws-sagemaker", env={"s3_bucket_name": s3_bucket_name()})
 
 
 def dynamodb_set_notebook_state(name: str, state: str):
@@ -338,7 +350,7 @@ def dynamodb_get_notebook_state(name):
     return response["Item"]["state"]["S"]
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     clize.run(
         [
             jupyter_start,
