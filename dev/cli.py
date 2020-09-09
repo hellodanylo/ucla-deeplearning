@@ -126,11 +126,26 @@ def shell():
     embed()
 
 
-def sagemaker_start():
-    if get_notebook_status() == "Stopped":
-        boto_sagemaker().start_notebook_instance(
-            NotebookInstanceName=sagemaker_notebook_name()
+def sagemaker_resize(instance_type):
+    old_instance_type = get_notebook_instance_type()
+
+    if old_instance_type == instance_type:
+        print(f"The instance type is already {instance_type}")
+    else:
+        sagemaker_stop()
+        boto_sagemaker().update_notebook_instance(
+            NotebookInstanceName=sagemaker_notebook_name(), InstanceType=instance_type
         )
+        print('Waiting for the notebook to finish resizing...')
+        sagemaker_wait_stopped(quiet=True)
+        print(f"Changed instance type from {old_instance_type} to {instance_type}")
+
+
+def sagemaker_start():
+    instance_name = sagemaker_notebook_name()
+
+    if get_notebook_status() == "Stopped":
+        boto_sagemaker().start_notebook_instance(NotebookInstanceName=instance_name)
 
     sagemaker_wait_in_service()
     sagemaker_print_url()
@@ -149,21 +164,40 @@ def sagemaker_wait_in_service():
     )
 
 
-def sagemaker_stop():
+def sagemaker_wait_stopped(quiet=False):
+    name = sagemaker_notebook_name()
+
+    if not quiet:
+        print(f"Waiting for notebook {name} to be stopped (about 1 minute)...")
+
+    boto_sagemaker().get_waiter("notebook_instance_stopped").wait(
+        NotebookInstanceName=name
+    )
+
+
+def sagemaker_stop(force=False):
     status = get_notebook_status()
 
     name = sagemaker_notebook_name()
     if status == "InService":
+        if not force:
+            confirm = input("All unsaved changes are lost when the notebook is stopped. Confirm? [y/n]: ")
+            if confirm != 'y':
+                return
         boto_sagemaker().stop_notebook_instance(NotebookInstanceName=name)
     elif status == "Stopped":
         return
     elif status != "Stopping":
         raise Exception(f"Unexpected {name} notebook status: {status}")
 
-    print(f"Waiting for notebook {name} to be stopped (about 1 minute)...")
-    boto_sagemaker().get_waiter("notebook_instance_stopped").wait(
-        NotebookInstanceName=name
-    )
+    sagemaker_wait_stopped()
+
+
+def get_notebook_instance_type():
+    instance_type = boto_sagemaker().describe_notebook_instance(
+        NotebookInstanceName=sagemaker_notebook_name()
+    )["InstanceType"]
+    return instance_type
 
 
 def get_notebook_status():
@@ -190,7 +224,7 @@ def run(args, cwd=None, capture_output=False, env=None):
     )
 
 
-def sagemaker_up(instance_type="ml.t2.xlarge"):
+def sagemaker_up(instance_type="ml.t2.xlarge", storage_gb=20):
     notebook_name = sagemaker_notebook_name()
     bucket_name = s3_bucket_name()
 
@@ -217,7 +251,7 @@ def sagemaker_up(instance_type="ml.t2.xlarge"):
         SecurityGroupIds=[sagemaker_output["security_group_id"]],
         RoleArn=sagemaker_output["role_arn"],
         LifecycleConfigName=sagemaker_output["sagemaker_lifecycle_name"],
-        VolumeSizeInGB=20,
+        VolumeSizeInGB=storage_gb,
         DefaultCodeRepository=github_repo,
     )
 
@@ -233,7 +267,7 @@ def sagemaker_up(instance_type="ml.t2.xlarge"):
         )
         sleep(60)
 
-    sagemaker_stop()
+    sagemaker_stop(force=True)
     sagemaker_start()
 
 
@@ -246,7 +280,7 @@ def sagemaker_down():
 
         if status != "Deleting":
             confirm = input(
-                "Are you sure you want to delete the notebook and all files in it? [y/n]: "
+                "Are files saved in the notebook will be lost when the notebook is deleted. Confirm [y/n]: "
             )
             if confirm != "y":
                 return
@@ -298,8 +332,8 @@ def aws_init():
     with open(os.path.join(project_path, "dev", "cli.env"), "w") as f:
         f.write(f"PROJECT_USER={new_project_user}")
 
-    subprocess.run(['aws', '--profile', 'ucla', 'configure'])
-    
+    subprocess.run(["aws", "--profile", "ucla", "configure"])
+
     try:
         user = boto_session().client("iam").list_account_aliases()["AccountAliases"][0]
     except Exception as e:
@@ -371,6 +405,7 @@ if __name__ == "__main__":
             sagemaker_start,
             sagemaker_stop,
             sagemaker_down,
+            sagemaker_resize,
             s3_up,
             s3_down,
             shell,
