@@ -62,14 +62,11 @@ class Segment:
         self.segment_name = segment_name
         self.frames = {}
 
-
     def __getitem__(self, item):
         return self.frames[item]
 
-
     def __setitem__(self, key, value):
         self.frames[key] = value
-
 
     def to_pq_workdir(self, workdir):
         for name, frame in self.frames.items():

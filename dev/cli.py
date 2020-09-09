@@ -81,13 +81,17 @@ def jupyter_start(gpu: bool = False):
         ]
     )
 
-    print("Jupyter available")
+    sleep(5)
+
+    subprocess.run(["docker", "exec", container_jupyter, "jupyter", "notebook", "list"])
+    print("Jupyter available at http://localhost:3000 - token can be found above.")
 
 
 def jupyter_stop():
     container = find_container_by_name(container_jupyter)
     if container is not None:
         container.stop()
+        container.remove()
 
 
 def jupyter_down():
@@ -103,19 +107,19 @@ def jupyter_down():
     print(f"Removed {container.name}")
 
 
-def jupyter_up():
+def jupyter_up(*, gpu=False):
     run(
         [
             "docker",
             "build",
             "-t",
-            "ucla_jupyter",
+            container_jupyter,
             os.path.join(project_path, "dev", "docker-jupyter"),
         ]
     )
 
     jupyter_stop()
-    jupyter_start()
+    jupyter_start(gpu=gpu)
 
 
 def shell():
@@ -133,10 +137,8 @@ def sagemaker_start():
 
 
 def sagemaker_print_url():
-    url = boto_sagemaker().describe_notebook_instance(
-        NotebookInstanceName=sagemaker_notebook_name()
-    )["Url"]
-    print(f"https://{url}/lab")
+    url = f"https://us-west-2.console.aws.amazon.com/sagemaker/home?region=us-west-2#/notebook-instances/openNotebook/{sagemaker_notebook_name()}?view=lab"
+    print(url)
 
 
 def sagemaker_wait_in_service():
@@ -233,7 +235,6 @@ def sagemaker_up(instance_type="ml.t2.xlarge"):
 
     sagemaker_stop()
     sagemaker_start()
-    sagemaker_print_url()
 
 
 def sagemaker_down():
@@ -244,6 +245,12 @@ def sagemaker_down():
             sagemaker_stop()
 
         if status != "Deleting":
+            confirm = input(
+                "Are you sure you want to delete the notebook and all files in it? [y/n]: "
+            )
+            if confirm != "y":
+                return
+
             boto_sagemaker().delete_notebook_instance(
                 NotebookInstanceName=sagemaker_notebook_name()
             )

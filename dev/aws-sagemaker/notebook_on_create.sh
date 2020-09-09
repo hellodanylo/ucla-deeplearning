@@ -14,7 +14,7 @@ sudo -u ec2-user tee >"$PROJECT_PATH/setup.sh" <<'EOF'
 
 name="${sagemaker_notebook_name}"
 
-sudo yum install -y htop
+
 
 conda activate JupyterSystemEnv
 jupyter labextension install --no-build jupyterlab_vim
