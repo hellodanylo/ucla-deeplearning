@@ -61,6 +61,7 @@ def jupyter_start(gpu: bool = False):
             *["docker", "run"],
             *["--name", container_jupyter],
             *["--hostname", container_jupyter],
+            "--rm",  # remove after stopping
             *["-v", f"{project_path}:/app/ucla_deeplearning"],
             *["-v", "ucla_mlflow_backend:/app/mlflow_backend"],
             *["-v", "ucla_jupyter_settings:/root/.local/share/jupyter/runtime"],
@@ -91,7 +92,6 @@ def jupyter_stop():
     container = find_container_by_name(container_jupyter)
     if container is not None:
         container.stop()
-        container.remove()
 
 
 def jupyter_down():
@@ -136,7 +136,7 @@ def sagemaker_resize(instance_type):
         boto_sagemaker().update_notebook_instance(
             NotebookInstanceName=sagemaker_notebook_name(), InstanceType=instance_type
         )
-        print('Waiting for the notebook to finish resizing...')
+        print("Waiting for the notebook to finish resizing...")
         sagemaker_wait_stopped(quiet=True)
         print(f"Changed instance type from {old_instance_type} to {instance_type}")
 
@@ -181,8 +181,10 @@ def sagemaker_stop(force=False):
     name = sagemaker_notebook_name()
     if status == "InService":
         if not force:
-            confirm = input("All unsaved changes are lost when the notebook is stopped. Confirm? [y/n]: ")
-            if confirm != 'y':
+            confirm = input(
+                "All unsaved changes are lost when the notebook is stopped. Confirm? [y/n]: "
+            )
+            if confirm != "y":
                 return
         boto_sagemaker().stop_notebook_instance(NotebookInstanceName=name)
     elif status == "Stopped":
