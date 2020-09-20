@@ -13,7 +13,7 @@ def sigmoid(x: np.array):
     return 1 / (1 + np.exp(-x))
 
 
-def plot_conv_kernel(w: np.ndarray, labels: list = None):
+def plot_conv_kernel(w: np.ndarray, labels: list = None, side_inches=2):
     """
     Plots the kernel weights as a grid of images.
     The input's shape must be (height, weight, input channels, output channels).
@@ -38,7 +38,7 @@ def plot_conv_kernel(w: np.ndarray, labels: list = None):
     if labels is None:
         labels = range(w.shape[3])
 
-    plt.figure(figsize=[2 * cols, 2 * rows])
+    plt.figure(figsize=[side_inches * cols, side_inches * rows])
     for i in range(w.shape[3]):
         wt = w[:, :, :, i]
 
