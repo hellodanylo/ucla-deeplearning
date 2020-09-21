@@ -2,24 +2,47 @@ import os
 import subprocess
 
 import nbformat
+from nbconvert.preprocessors import ExecutePreprocessor
+from nbformat import NotebookNode
 
-reports = subprocess.run(
-    ["find", "/app/ucla_deeplearning", "-name", "*.ipynb"], capture_output=True
-).stdout.decode().split('\n')
 
-reports = [r for r in reports if 'checkpoint' not in r]
+def find_notebooks():
+    reports = (
+        subprocess.run(
+            ["find", "/app/ucla_deeplearning", "-name", "*.ipynb"], capture_output=True
+        )
+        .stdout.decode()
+        .split("\n")
+    )
 
-for report_path in reports:
-    basename = os.path.basename(report_path).split(".")[0]
+    reports = [
+        r
+        for r in reports
+        if "checkpoint" not in r and "Template" not in r and r != ""
+    ]
 
-    with open(report_path, "r") as f:
-        notebook = nbformat.read(f, as_version=4)
+    return reports
+
+
+def render_notebook(path):
+    with open(path, "r") as f:
+        notebook = nbformat.read(f, as_version=4)  # type: NotebookNode
 
     ep = ExecutePreprocessor(timeout=600, kernel_name="python3")
-    ep.preprocess(notebook, {"metadata": {"path": "."}})
-    del os.environ["MLQ_DATABASE_NAME"]
+    ep.preprocess(notebook, {"metadata": {"path": os.path.dirname(path)}})
 
-    html = nbconvert.exporters.export(nbconvert.exporters.HTMLExporter(), notebook)[0]
 
-    with open(f"{output_dir}/{basename}.html", "w") as f:
-        f.write(html)
+notebooks = sorted(find_notebooks())
+# notebooks = ['/app/ucla_deeplearning/01_dnn/UndercompleteAutoencoder.ipynb']
+
+failed_notebooks = []
+for report_path in notebooks:
+    try:
+        print(report_path)
+        render_notebook(report_path)
+    except Exception as e:
+        failed_notebooks.append(report_path)
+        print(e)
+
+print("Failed notebooks:")
+print("\n".join(failed_notebooks))

@@ -66,6 +66,8 @@ def jupyter_start(gpu: bool = False):
             *["-v", "ucla_mlflow_backend:/app/mlflow_backend"],
             *["-v", "ucla_jupyter_settings:/root/.local/share/jupyter/runtime"],
             *["-v", "ucla_jupyter_settings:/root/.jupyter"],
+            *["-v", "ucla_jupyter_keras:/root/.keras"],
+            *["-v", f"{os.environ['HOME']}/.aws:/root/.aws"],
             "-p",
             "3000:80",
             "-d",  # detached mode
@@ -107,7 +109,7 @@ def jupyter_down():
     print(f"Removed {container.name}")
 
 
-def jupyter_up(*, gpu=False):
+def jupyter_build():
     run(
         [
             "docker",
@@ -118,6 +120,8 @@ def jupyter_up(*, gpu=False):
         ]
     )
 
+
+def jupyter_up(*, gpu=False):
     jupyter_stop()
     jupyter_start(gpu=gpu)
 
@@ -128,17 +132,25 @@ def shell():
 
 def sagemaker_resize(instance_type):
     old_instance_type = get_notebook_instance_type()
-
     if old_instance_type == instance_type:
         print(f"The instance type is already {instance_type}")
-    else:
+        return
+
+    if get_notebook_status() != 'stopped':
+        should_start = True
         sagemaker_stop()
-        boto_sagemaker().update_notebook_instance(
-            NotebookInstanceName=sagemaker_notebook_name(), InstanceType=instance_type
-        )
-        print("Waiting for the notebook to finish resizing...")
-        sagemaker_wait_stopped(quiet=True)
-        print(f"Changed instance type from {old_instance_type} to {instance_type}")
+    else:
+        should_start = False
+
+    boto_sagemaker().update_notebook_instance(
+        NotebookInstanceName=sagemaker_notebook_name(), InstanceType=instance_type
+    )
+    print("Waiting for the notebook to finish resizing...")
+    sagemaker_wait_stopped(quiet=True)
+    print(f"Changed instance type from {old_instance_type} to {instance_type}")
+
+    if should_start:
+        sagemaker_start()
 
 
 def sagemaker_start():
@@ -277,16 +289,16 @@ def sagemaker_down():
     status = get_notebook_status()
 
     if status != "Deleted":
+        confirm = input(
+            "Are files saved in the notebook will be lost when the notebook is deleted. Confirm [y/n]: "
+        )
+        if confirm != "y":
+            return
+
         if status == "InService":
-            sagemaker_stop()
+            sagemaker_stop(force=True)
 
         if status != "Deleting":
-            confirm = input(
-                "Are files saved in the notebook will be lost when the notebook is deleted. Confirm [y/n]: "
-            )
-            if confirm != "y":
-                return
-
             boto_sagemaker().delete_notebook_instance(
                 NotebookInstanceName=sagemaker_notebook_name()
             )
@@ -398,6 +410,7 @@ def dynamodb_get_notebook_state(name):
 if __name__ == "__main__":
     clize.run(
         [
+            jupyter_build,
             jupyter_start,
             jupyter_stop,
             jupyter_up,
