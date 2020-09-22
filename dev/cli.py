@@ -122,6 +122,7 @@ def jupyter_build():
 
 
 def jupyter_up(*, gpu=False):
+    jupyter_build()
     jupyter_stop()
     jupyter_start(gpu=gpu)
 

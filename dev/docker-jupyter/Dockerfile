@@ -1,4 +1,4 @@
-FROM continuumio/miniconda3:4.7.12
+FROM continuumio/miniconda3:4.8.2
 
 WORKDIR /root
 
@@ -15,8 +15,8 @@ RUN apt-get update -qy && apt-get install -qy \
     build-essential \
     >/dev/null 2>&1
 
-COPY conda_init.yml ./conda.yml
-#COPY conda_lock.yml ./conda.yml
+#COPY conda_init.yml ./conda.yml
+COPY conda_lock.yml ./conda.yml
 
 RUN conda env update -n base -f conda.yml
 

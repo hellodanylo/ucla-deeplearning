@@ -28,14 +28,9 @@ resource "aws_iam_role" "sagemaker" {
   assume_role_policy = file("${path.module}/sagemaker_assume_role.json")
 }
 
-resource "aws_iam_role_policy_attachment" "sagemaker_self" {
+resource "aws_iam_role_policy_attachment" "sagemaker_admin" {
   role       = aws_iam_role.sagemaker.name
-  policy_arn = "arn:aws:iam::aws:policy/AmazonSageMakerFullAccess"
-}
-
-resource "aws_iam_role_policy_attachment" "sagemaker_dynamodb" {
-  role       = aws_iam_role.sagemaker.name
-  policy_arn = "arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess"
+  policy_arn = "arn:aws:iam::aws:policy/AdministratorAccess"
 }
 
 resource "aws_security_group" "sagemaker" {
