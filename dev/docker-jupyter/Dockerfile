@@ -22,6 +22,7 @@ RUN conda env update -n base -f conda.yml
 
 # https://github.com/axelfahy/jupyterlab-vim
 RUN jupyter labextension install @axlair/jupyterlab_vim
+RUN jupyter labextension disable @axlair/jupyterlab_vim
 
 RUN git clone https://github.com/keras-team/keras-tuner
 RUN cd keras-tuner && git checkout 1.0.2rc1 && pip install .
