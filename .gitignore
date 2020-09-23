@@ -5,3 +5,5 @@
 **/.terraform
 **/*tfstate*
 dev/cli.env
+key.private
+key.public

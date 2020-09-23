@@ -397,6 +397,41 @@ def dynamodb_set_notebook_state(name: str, state: str):
     )
 
 
+def ec2_ssh(*cmd):
+    connection = terraform_output('aws-ec2', env={"s3_bucket_name": s3_bucket_name()})['ec2']
+    ip = connection["public_ip"]
+    key_path = f"{project_path}/dev/aws-ec2/key.private"
+    username = connection["username"]
+
+    args = [
+        "ssh",
+        "-i",
+        key_path,
+        "-o",
+        "StrictHostKeyChecking=no",
+        "-o",
+        "UserKnownHostsFile=/dev/null",
+        *cmd,
+        f"{username}@{ip}"
+    ]
+
+    print(f"Running {args}")
+    subprocess.run(args)
+
+
+def ec2_tunnel():
+    local_docker_path = f"{project_path}/dev/aws-ec2/docker.sock"
+
+    cmd = [
+        "-L", f"{local_docker_path}:/var/run/docker.sock",
+        "-L", "5000:localhost:80",
+    ]
+
+    subprocess.run(["rm", "-f", local_docker_path])
+    ec2_ssh(*cmd)
+    subprocess.run(["rm", "-f", local_docker_path])
+
+
 def dynamodb_get_notebook_state(name):
     db = boto_session().client("dynamodb")
     response = db.get_item(
@@ -424,6 +459,8 @@ if __name__ == "__main__":
             sagemaker_resize,
             s3_up,
             s3_down,
+            ec2_ssh,
+            ec2_tunnel,
             shell,
         ]
     )
