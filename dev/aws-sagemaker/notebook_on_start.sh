@@ -7,7 +7,7 @@ sudo -u ec2-user -i <<'EOF'
   PROJECT_PATH=/home/ec2-user/SageMaker/setup
 
   source "$PROJECT_PATH/miniconda/bin/activate"
-
+  conda init
   conda activate ucla_deeplearning
   python -m ipykernel install --user --name ucla_deeplearning --display-name "ucla_deeplearning"
 

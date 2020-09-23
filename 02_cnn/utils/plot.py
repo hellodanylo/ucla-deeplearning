@@ -11,6 +11,10 @@ from PIL import ImageDraw, ImageFont, Image
 from PIL.ImageFont import FreeTypeFont
 from cachetools import LRUCache, cached
 
+try:
+    get_ipython().run_line_magic('config', 'InlineBackend.figure_format = "retina"')
+except:
+    pass
 
 def sigmoid(x: np.ndarray) -> np.ndarray:
     return 1 / (1 + np.exp(-x))

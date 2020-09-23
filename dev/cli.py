@@ -55,7 +55,7 @@ def find_container_by_name(name) -> Optional[Container]:
     return None
 
 
-def jupyter_start(gpu: bool = False):
+def jupyter_start(gpu: bool = False, instructor: bool = False):
     subprocess.run(
         [
             *["docker", "run"],
@@ -68,6 +68,14 @@ def jupyter_start(gpu: bool = False):
             *["-v", "ucla_jupyter_settings:/root/.jupyter"],
             *["-v", "ucla_jupyter_keras:/root/.keras"],
             *["-v", f"{os.environ['HOME']}/.aws:/root/.aws"],
+            *(
+                [
+                    "-v",
+                    f"{os.environ['HOME']}/git/lab/ucla-deeplearning-instructor:/app/ucla_deeplearning/instructor",
+                ]
+                if instructor
+                else []
+            ),
             "-p",
             "3000:80",
             "-d",  # detached mode
@@ -121,10 +129,10 @@ def jupyter_build():
     )
 
 
-def jupyter_up(*, gpu=False):
+def jupyter_up(*, gpu: bool = False, instructor: bool = False):
     jupyter_build()
     jupyter_stop()
-    jupyter_start(gpu=gpu)
+    jupyter_start(gpu=gpu, instructor=instructor)
 
 
 def shell():
@@ -137,7 +145,7 @@ def sagemaker_resize(instance_type):
         print(f"The instance type is already {instance_type}")
         return
 
-    if get_notebook_status() != 'stopped':
+    if get_notebook_status() != "stopped":
         should_start = True
         sagemaker_stop()
     else:
@@ -398,7 +406,9 @@ def dynamodb_set_notebook_state(name: str, state: str):
 
 
 def ec2_ssh(*cmd):
-    connection = terraform_output('aws-ec2', env={"s3_bucket_name": s3_bucket_name()})['ec2']
+    connection = terraform_output("aws-ec2", env={"s3_bucket_name": s3_bucket_name()})[
+        "ec2"
+    ]
     ip = connection["public_ip"]
     key_path = f"{project_path}/dev/aws-ec2/key.private"
     username = connection["username"]
@@ -412,7 +422,7 @@ def ec2_ssh(*cmd):
         "-o",
         "UserKnownHostsFile=/dev/null",
         *cmd,
-        f"{username}@{ip}"
+        f"{username}@{ip}",
     ]
 
     print(f"Running {args}")
@@ -423,8 +433,10 @@ def ec2_tunnel():
     local_docker_path = f"{project_path}/dev/aws-ec2/docker.sock"
 
     cmd = [
-        "-L", f"{local_docker_path}:/var/run/docker.sock",
-        "-L", "5000:localhost:80",
+        "-L",
+        f"{local_docker_path}:/var/run/docker.sock",
+        "-L",
+        "5000:localhost:80",
     ]
 
     subprocess.run(["rm", "-f", local_docker_path])
