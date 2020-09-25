@@ -9,6 +9,7 @@ dependencies:
   - ipykernel>=5
   - ipywidgets=7.5.1
   - jupyterlab>=2.0
+  - jupyterlab-git>=0.21.1
   - line_profiler>=2
   - matplotlib>=3
   - mlflow=1.10.0

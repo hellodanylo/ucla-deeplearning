@@ -63,7 +63,7 @@ def jupyter_start(gpu: bool = False, instructor: bool = False):
             *["--hostname", container_jupyter],
             "--rm",  # remove after stopping
             *["-v", f"{project_path}:/app/ucla_deeplearning"],
-            *["-v", "ucla_mlflow_backend:/app/mlflow_backend"],
+            # *["-v", "ucla_mlflow_backend:/app/mlflow_backend"],
             *["-v", "ucla_jupyter_settings:/root/.local/share/jupyter/runtime"],
             *["-v", "ucla_jupyter_settings:/root/.jupyter"],
             *["-v", "ucla_jupyter_keras:/root/.keras"],
@@ -117,20 +117,22 @@ def jupyter_down():
     print(f"Removed {container.name}")
 
 
-def jupyter_build():
+def jupyter_build(instructor: bool = False):
     run(
         [
             "docker",
             "build",
             "-t",
             container_jupyter,
+            "--build-arg",
+            f"STUDENT={'false' if instructor else 'true'}",
             os.path.join(project_path, "dev", "docker-jupyter"),
         ]
     )
 
 
 def jupyter_up(*, gpu: bool = False, instructor: bool = False):
-    jupyter_build()
+    jupyter_build(instructor=instructor)
     jupyter_stop()
     jupyter_start(gpu=gpu, instructor=instructor)
 
@@ -402,6 +404,16 @@ def dynamodb_set_notebook_state(name: str, state: str):
     db.put_item(
         TableName=terraform_output_sagemaker()["dynamodb_table_name"],
         Item={"name": {"S": name}, "state": {"S": state}},
+    )
+
+
+def ec2_up():
+    bucket_name = s3_bucket_name()
+
+    run(
+        ["terragrunt", "apply", "-auto-approve",],
+        cwd=os.path.join(project_path, "dev", "aws-ec2"),
+        env={"s3_bucket_name": bucket_name},
     )
 
 
