@@ -61,14 +61,22 @@ def find_container_by_name(name, remote: bool = False) -> Optional[Container]:
 
 
 def jupyter_start(gpu: bool = False, instructor: bool = False, remote: bool = False):
+
     docker_cli(
         "run",
         *["--name", container_jupyter],
         *["--hostname", container_jupyter],
         "--rm",  # remove after stopping
-        *["-v", f"{project_path}:/app/ucla_deeplearning"],
-        # *["-v", "ucla_mlflow_backend:/app/mlflow_backend"],
+        *(
+            [
+                "-v",
+                f"{project_path}:/app/ucla_deeplearning"
+                if not remote
+                else "ucla_jupyter_git:/app/ucla_deeplearning",
+            ]
+        ),
         *["-v", "ucla_jupyter_settings:/root/.local/share/jupyter/runtime"],
+        *["-v", "ucla_jupyter_ssh:/root/.ssh"],
         *["-v", "ucla_jupyter_keras:/root/.keras"],
         *["-v", f"{os.environ['HOME']}/.aws:/root/.aws"],
         *(
@@ -94,10 +102,9 @@ def jupyter_start(gpu: bool = False, instructor: bool = False, remote: bool = Fa
         "--allow-root",
         remote=remote,
     )
-
     sleep(5)
 
-    subprocess.run(["docker", "exec", container_jupyter, "jupyter", "notebook", "list"])
+    docker_cli("exec", container_jupyter, "jupyter", "notebook", "list", remote=remote)
     print("Jupyter available at http://localhost:3000 - token can be found above.")
 
 
@@ -474,7 +481,7 @@ def ec2_tunnel():
         "-L",
         f"{local_docker_path}:/var/run/docker.sock",
         "-L",
-        "5000:localhost:80",
+        "5000:localhost:3000",
     ]
 
     subprocess.run(["rm", "-f", local_docker_path])
@@ -496,6 +503,18 @@ def ec2_wait_started(instance_id: str):
     print("Running")
 
 
+def ec2_stop():
+    instance_id = terraform_output_ec2()["ec2"]["instance_id"]
+
+    ec2 = boto_session().client("ec2")
+    ec2.stop_instances(InstanceIds=[instance_id])
+
+    print("Waiting to stop...")
+    waiter = ec2.get_waiter("instance_stopped")
+    waiter.wait(InstanceIds=[instance_id])
+    print("Stopped")
+
+
 def dynamodb_get_notebook_state(name: str):
     db = boto_session().client("dynamodb")
     response = db.get_item(
@@ -510,6 +529,7 @@ def dynamodb_get_notebook_state(name: str):
 if __name__ == "__main__":
     clize.run(
         [
+            docker_cli,
             jupyter_build,
             jupyter_start,
             jupyter_stop,
