@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-
+import docker
 import json
 import os
 import subprocess
@@ -9,13 +9,13 @@ from typing import Optional
 
 import boto3
 import clize
-import docker
 import dotenv
 from IPython import embed
 from docker.models.containers import Container
 
 project_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-container_jupyter = "ucla_jupyter"
+container_jupyter = "ucla-jupyter"
+image_jupyter = "ucla_jupyter"
 github_repo = "https://github.com/hellodanylo/ucla-deeplearning.git"
 project_env_path = os.path.join(project_path, "dev", "cli.env")
 
@@ -46,8 +46,13 @@ def s3_bucket_name():
     return f"ucla-deep-learning-{project_user}-private"
 
 
-def find_container_by_name(name) -> Optional[Container]:
-    containers = docker.from_env().containers.list(all=True)
+def find_container_by_name(name, remote: bool = False) -> Optional[Container]:
+    docker_host = (
+        "unix:///var/run/docker.sock"
+        if not remote
+        else f"unix://{project_path}/dev/aws-ec2/docker.sock"
+    )
+    containers = docker.DockerClient(base_url=docker_host).containers.list(all=True)
     for container in containers:
         if container.name == name:
             return container
@@ -55,41 +60,39 @@ def find_container_by_name(name) -> Optional[Container]:
     return None
 
 
-def jupyter_start(gpu: bool = False, instructor: bool = False):
-    subprocess.run(
-        [
-            *["docker", "run"],
-            *["--name", container_jupyter],
-            *["--hostname", container_jupyter],
-            "--rm",  # remove after stopping
-            *["-v", f"{project_path}:/app/ucla_deeplearning"],
-            # *["-v", "ucla_mlflow_backend:/app/mlflow_backend"],
-            *["-v", "ucla_jupyter_settings:/root/.local/share/jupyter/runtime"],
-            *["-v", "ucla_jupyter_settings:/root/.jupyter"],
-            *["-v", "ucla_jupyter_keras:/root/.keras"],
-            *["-v", f"{os.environ['HOME']}/.aws:/root/.aws"],
-            *(
-                [
-                    "-v",
-                    f"{os.environ['HOME']}/git/lab/ucla-deeplearning-instructor:/app/ucla_deeplearning/instructor",
-                ]
-                if instructor
-                else []
-            ),
-            "-p",
-            "3000:80",
-            "-d",  # detached mode
-            *(["--gpus", "all"] if gpu else []),
-            "-it",
-            container_jupyter,
-            "/opt/conda/bin/jupyter",
-            "lab",
-            "--notebook-dir=/app",
-            "--ip=0.0.0.0",
-            "--port=80",
-            "--no-browser",
-            "--allow-root",
-        ]
+def jupyter_start(gpu: bool = False, instructor: bool = False, remote: bool = False):
+    docker_cli(
+        "run",
+        *["--name", container_jupyter],
+        *["--hostname", container_jupyter],
+        "--rm",  # remove after stopping
+        *["-v", f"{project_path}:/app/ucla_deeplearning"],
+        # *["-v", "ucla_mlflow_backend:/app/mlflow_backend"],
+        *["-v", "ucla_jupyter_settings:/root/.local/share/jupyter/runtime"],
+        *["-v", "ucla_jupyter_keras:/root/.keras"],
+        *["-v", f"{os.environ['HOME']}/.aws:/root/.aws"],
+        *(
+            [
+                "-v",
+                f"{os.environ['HOME']}/git/lab/ucla-deeplearning-instructor:/app/ucla_deeplearning/instructor",
+            ]
+            if instructor
+            else []
+        ),
+        "-p",
+        "3000:80",
+        "-d",  # detached mode
+        *(["--gpus", "all"] if gpu else []),
+        "-it",
+        image_jupyter,
+        "/opt/conda/bin/jupyter",
+        "lab",
+        "--notebook-dir=/app",
+        "--ip=0.0.0.0",
+        "--port=80",
+        "--no-browser",
+        "--allow-root",
+        remote=remote,
     )
 
     sleep(5)
@@ -98,14 +101,14 @@ def jupyter_start(gpu: bool = False, instructor: bool = False):
     print("Jupyter available at http://localhost:3000 - token can be found above.")
 
 
-def jupyter_stop():
-    container = find_container_by_name(container_jupyter)
+def jupyter_stop(remote: bool = False):
+    container = find_container_by_name(container_jupyter, remote=remote)
     if container is not None:
         container.stop()
 
 
-def jupyter_down():
-    container = find_container_by_name(container_jupyter)
+def jupyter_down(remote: bool = False):
+    container = find_container_by_name(container_jupyter, remote=remote)
     if container is None:
         print("No container found")
         return
@@ -117,28 +120,40 @@ def jupyter_down():
     print(f"Removed {container.name}")
 
 
-def jupyter_build(instructor: bool = False):
+def docker_cli(*cmd, remote: bool = False):
     run(
         [
             "docker",
-            "build",
-            "-t",
-            container_jupyter,
-            "--build-arg",
-            f"STUDENT={'false' if instructor else 'true'}",
-            os.path.join(project_path, "dev", "docker-jupyter"),
+            *(
+                ["-H", f"unix://{project_path}/dev/aws-ec2/docker.sock"]
+                if remote
+                else []
+            ),
+            *cmd,
         ]
     )
 
 
-def jupyter_up(*, gpu: bool = False, instructor: bool = False):
-    jupyter_build(instructor=instructor)
-    jupyter_stop()
-    jupyter_start(gpu=gpu, instructor=instructor)
+def jupyter_build(instructor: bool = False, remote: bool = False):
+    docker_cli(
+        "build",
+        "-t",
+        image_jupyter,
+        "--build-arg",
+        f"STUDENT={'false' if instructor else 'true'}",
+        os.path.join(project_path, "dev", "docker-jupyter"),
+        remote=remote,
+    )
+
+
+def jupyter_up(*, gpu: bool = False, instructor: bool = False, remote: bool = False):
+    jupyter_build(instructor=instructor, remote=remote)
+    jupyter_stop(remote=remote)
+    jupyter_start(gpu=gpu, instructor=instructor, remote=remote)
 
 
 def shell():
-    embed()
+    embed(colors="neutral")
 
 
 def sagemaker_resize(instance_type):
@@ -399,6 +414,10 @@ def terraform_output_sagemaker():
     return terraform_output("aws-sagemaker", env={"s3_bucket_name": s3_bucket_name()})
 
 
+def terraform_output_ec2():
+    return terraform_output("aws-ec2", env={"s3_bucket_name": s3_bucket_name()})
+
+
 def dynamodb_set_notebook_state(name: str, state: str):
     db = boto_session().client("dynamodb")
     db.put_item(
@@ -421,7 +440,14 @@ def ec2_ssh(*cmd):
     connection = terraform_output("aws-ec2", env={"s3_bucket_name": s3_bucket_name()})[
         "ec2"
     ]
-    ip = connection["public_ip"]
+    instances = (
+        boto_session()
+        .client("ec2")
+        .describe_instances(InstanceIds=[connection["instance_id"]])
+    )
+    ip = instances["Reservations"][0]["Instances"][0]["NetworkInterfaces"][0][
+        "Association"
+    ]["PublicIp"]
     key_path = f"{project_path}/dev/aws-ec2/key.private"
     username = connection["username"]
 
@@ -456,7 +482,21 @@ def ec2_tunnel():
     subprocess.run(["rm", "-f", local_docker_path])
 
 
-def dynamodb_get_notebook_state(name):
+def ec2_start():
+    instance_id = terraform_output_ec2()["ec2"]["instance_id"]
+
+    boto_session().client("ec2").start_instances(InstanceIds=[instance_id])
+    ec2_wait_started(instance_id)
+
+
+def ec2_wait_started(instance_id: str):
+    print("Waiting to be running...")
+    waiter = boto_session().client("ec2").get_waiter("instance_running")
+    waiter.wait(InstanceIds=[instance_id])
+    print("Running")
+
+
+def dynamodb_get_notebook_state(name: str):
     db = boto_session().client("dynamodb")
     response = db.get_item(
         TableName=terraform_output_sagemaker()["dynamodb_table_name"],
@@ -481,10 +521,14 @@ if __name__ == "__main__":
             sagemaker_stop,
             sagemaker_down,
             sagemaker_resize,
+            terraform_output_sagemaker,
+            terraform_output_ec2,
             s3_up,
             s3_down,
+            ec2_up,
             ec2_ssh,
             ec2_tunnel,
+            ec2_start,
             shell,
         ]
     )
