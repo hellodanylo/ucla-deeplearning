@@ -60,7 +60,7 @@ def find_container_by_name(name, remote: bool = False) -> Optional[Container]:
     return None
 
 
-def jupyter_start(gpu: bool = False, instructor: bool = False, remote: bool = False):
+def jupyter_create(gpu: bool = False, instructor: bool = False, remote: bool = False):
     """
     Starts the Jupyter container
 
@@ -70,7 +70,7 @@ def jupyter_start(gpu: bool = False, instructor: bool = False, remote: bool = Fa
     :return:
     """
     docker_cli(
-        "run",
+        "create",
         *["--name", container_jupyter],
         *["--hostname", container_jupyter],
         *(
@@ -95,7 +95,6 @@ def jupyter_start(gpu: bool = False, instructor: bool = False, remote: bool = Fa
         ),
         "-p",
         "3000:80",
-        "-d",  # detached mode
         *(["--gpus", "all"] if gpu else []),
         "-it",
         image_jupyter,
@@ -108,8 +107,27 @@ def jupyter_start(gpu: bool = False, instructor: bool = False, remote: bool = Fa
         "--allow-root",
         remote=remote,
     )
-    sleep(5)
 
+
+def jupyter_up(*, gpu: bool = False, instructor: bool = False, remote: bool = False, init: bool = False):
+    """
+    Creates and starts the Jupyter container
+    """
+    jupyter_build(instructor=instructor, remote=remote, init=init)
+    jupyter_down(remote=remote, quiet=True)
+    jupyter_create(gpu=gpu, instructor=instructor, remote=remote)
+    jupyter_start(remote=remote)
+
+
+def jupyter_start(*, remote: bool = False):
+    """
+    Starts the Jupyter container
+
+    :param remote:
+    :return:
+    """
+    docker_cli('start', container_jupyter, remote=remote)
+    sleep(5)
     docker_cli("exec", container_jupyter, "jupyter", "notebook", "list", remote=remote)
     print("Jupyter available at http://localhost:3000 - token can be found above.")
 
@@ -124,6 +142,7 @@ def jupyter_stop(remote: bool = False):
     container = find_container_by_name(container_jupyter, remote=remote)
     if container is not None:
         container.stop()
+        print('Stopped the Jupyter container')
 
 
 def jupyter_down(*, remote: bool = False, quiet: bool = False):
@@ -161,15 +180,6 @@ def docker_cli(*cmd, remote: bool = False):
             *cmd,
         ]
     )
-
-
-def jupyter_up(*, gpu: bool = False, instructor: bool = False, remote: bool = False, init: bool = False):
-    """
-    Builds and starts the Jupyter container
-    """
-    jupyter_build(instructor=instructor, remote=remote, init=init)
-    jupyter_down(remote=remote, quiet=True)
-    jupyter_start(gpu=gpu, instructor=instructor, remote=remote)
 
 
 def jupyter_build(
