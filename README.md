@@ -68,18 +68,23 @@ git clone --depth 1 https://github.com/hellodanylo/ucla-deeplearning.git
 
 # Install the Miniconda package manager: 
 cd ucla-deeplearning
-./dev/host_macos.sh
+bash ./dev/host_macos.sh
 ```
 
 Download and install Docker for Mac:
 https://hub.docker.com/editions/community/docker-ce-desktop-mac/
+
+In the Docker settings ensure that you have:
+* at least 8 GB of memory, preferably around 2/3 of available memory
+* all CPUs available on your system
 
 [](#setup-development-cli)
 # Setup: Development CLI
 Run the following commands in the terminal:
 ```
 # Create ucla-dev environment
-conda env create -f dev/conda_init.yml
+conda config --add channels conda-forge
+conda env create -n ucla-dev -f dev/conda_init.yml
 
 # Activate the environment:
 conda activate ucla-dev
