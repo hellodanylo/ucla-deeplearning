@@ -60,7 +60,7 @@ The following is the summary of these detailed instructions: https://docs.micros
 Run the following commands in the terminal:
 ```
 # Install Homebrew: 
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
+sudo /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
 
 # Install Git:
 brew install git
