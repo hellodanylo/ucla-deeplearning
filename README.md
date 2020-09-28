@@ -57,20 +57,35 @@ The following is the summary of these detailed instructions: https://docs.micros
 
 [](#setup-mac-os)
 ## MacOS
-* Install Homebrew: 
+Run the following commands in the terminal:
 ```
+# Install Homebrew: 
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
-```
-* Install Git: `brew install git`
-* Clone the repository: `git clone https://github.com/hellodanylo/ucla-deeplearning.git`
-* Install the Miniconda package manager: `./dev/host_macos.sh`
 
+# Install Git:
+brew install git
+
+# Clone the repository:
+git clone https://github.com/hellodanylo/ucla-deeplearning.git
+
+# Install the Miniconda package manager: 
+cd ucla-deeplearning
+./dev/host_macos.sh
+```
 
 [](#setup-development-cli)
 # Setup: Development CLI
-* `conda env create -f dev/conda_init.yml`
-* `conda activate ucla-dev`
-* `./dev/cli.py --help` -- provides help information about every command
+Run the following commands in the terminal:
+```
+# Create ucla-dev environment
+conda env create -f dev/conda_init.yml
+
+# Activate the environment:
+conda activate ucla-dev
+
+# See the help for available commands:
+./dev/cli.py --help
+```
 
 # Local Jupyter
 * `./dev/cli.py jupyter-up`
