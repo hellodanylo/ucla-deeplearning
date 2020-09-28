@@ -22,15 +22,14 @@ In order to run the notebooks on your computer and in AWS cloud, you need the fo
 * Docker for Desktop (to run Jupyter container defined `./dev/image-python/Dockerfile`)
 
 How to proceed?
-* If you are using Windows, follow the instructions under [Windows (WSL2 + Ubuntu)](#setup-windows)
-* If you are using Mac OS, follow the instructions under [Mac OS](#setup-mac-os)
+* If you are using Windows, follow the instructions under [Windows](#windows)
+* If you are using Mac OS, follow the instructions under [Mac OS](#macos)
 
 It's strongly advised to use the setup instructions above, but if you would like to manage your own Conda environment:
 * the environment for notebooks defined in: `./dev/docker-jupyter/conda_init.yml`
 * Conda channels defined in: `./dev/docker-jupyter/condarc_student.yml`
 
-[](#setup-windows)
-## Windows (WSL2 + Ubuntu)
+## Windows
 The following is the summary of these detailed instructions: https://docs.microsoft.com/en-us/windows/wsl/install-win10
 1. Upgrade to Windows 10 v2004 
 2. Run the following in PowerShell as Administrator:
@@ -55,7 +54,6 @@ The following is the summary of these detailed instructions: https://docs.micros
     ./dev/host_linux.sh
     ```
 
-[](#setup-mac-os)
 ## MacOS
 Run the following commands in the terminal:
 ```
