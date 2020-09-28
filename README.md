@@ -57,7 +57,10 @@ The following is the summary of these detailed instructions: https://docs.micros
 
 [](#setup-mac-os)
 ## MacOS
-* Install Homebrew: `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"`
+* Install Homebrew: 
+```
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
+```
 * Install Git: `brew install git`
 * Clone the repository: `git clone https://github.com/hellodanylo/ucla-deeplearning.git`
 * Install the Miniconda package manager: `./dev/host_macos.sh`
