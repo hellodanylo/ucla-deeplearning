@@ -64,7 +64,7 @@ Run the following commands in the terminal:
 brew install git
 
 # Clone the repository:
-git clone https://github.com/hellodanylo/ucla-deeplearning.git
+git clone --depth 1 https://github.com/hellodanylo/ucla-deeplearning.git
 
 # Install the Miniconda package manager: 
 cd ucla-deeplearning
