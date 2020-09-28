@@ -73,6 +73,7 @@ def jupyter_start(gpu: bool = False, instructor: bool = False, remote: bool = Fa
         "run",
         *["--name", container_jupyter],
         *["--hostname", container_jupyter],
+        "--rm",  # remove after stopping
         *(
             [
                 "-v",
@@ -141,7 +142,6 @@ def jupyter_down(remote: bool = False):
     if container.status == "running":
         container.stop()
 
-    container.remove()
     print(f"Removed {container.name}")
 
 
