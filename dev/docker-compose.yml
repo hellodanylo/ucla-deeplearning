@@ -1,8 +1,8 @@
 version: '3.7'
 
-volumes:
-  mlflow_backend:
-    driver: local
+#volumes:
+#  mlflow_backend:
+#    driver: local
 
 services:
   jupyter:
@@ -11,8 +11,7 @@ services:
     build:
       context: docker-jupyter
     volumes:
-      - ../:/app/git
-      - mlflow_backend:/app/mlflow_backend
+      - /home/ubuntu/ucla-deeplearning:/app/git
     ports:
       - 7000:80
     command: [
@@ -25,19 +24,19 @@ services:
       '--allow-root'
     ]
 
-  mlflow:
-    container_name: ucla_mlflow
-    hostname: ucla_mlflow
-    build:
-      context: docker-jupyter
-    ports:
-      - 7001:5000
-    volumes:
-      - mlflow_backend:/app/mlflow_backend
-    command: [
-      'mlflow',
-      'server',
-      '--backend-store-uri', 'sqlite:////app/mlflow_backend/sqlite.db',
-      '--default-artifact-root', '/app/mlflow_backend/artifacts',
-      '--host', '0.0.0.0'
-    ]
+#  mlflow:
+#    container_name: ucla_mlflow
+#    hostname: ucla_mlflow
+#    build:
+#      context: docker-jupyter
+#    ports:
+#      - 7001:5000
+#    volumes:
+#      - mlflow_backend:/app/mlflow_backend
+#    command: [
+#      'mlflow',
+#      'server',
+#      '--backend-store-uri', 'sqlite:////app/mlflow_backend/sqlite.db',
+#      '--default-artifact-root', '/app/mlflow_backend/artifacts',
+#      '--host', '0.0.0.0'
+#    ]

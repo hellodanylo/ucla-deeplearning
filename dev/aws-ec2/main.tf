@@ -62,8 +62,8 @@ resource aws_instance "instance" {
   # us-west-2 / Ubuntu 20.04 LTS amd64
   ami           = "ami-06e54d05255faf8f6"
   subnet_id     = aws_default_subnet.default_az1.id
-//  instance_type = "t3.2xlarge"
-  instance_type = "p2.xlarge"
+  instance_type = "t3.2xlarge"
+//  instance_type = "p2.xlarge"
 
   # Security
   key_name = aws_key_pair.key.key_name

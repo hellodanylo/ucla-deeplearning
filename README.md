@@ -17,13 +17,17 @@ Copyright: Danylo Vashchilenko, 2019.
 # Setup
 
 In order to run the notebooks on your computer and in AWS cloud, you need the following components:
-* Miniconda package manager (to install `ucla-dev` environment defined in `./dev/conda_lock.yml`)
-* Docker daemon (to run Jupyter container defined `./dev/image-python/Dockerfile`)
+* Git tool to clone this repository
+* Miniconda package manager (to install `ucla-dev` environment defined in `./dev/conda_init.yml`)
+* Docker for Desktop (to run Jupyter container defined `./dev/image-python/Dockerfile`)
 
 How to proceed?
 * If you are using Windows, follow the instructions under [Windows (WSL2 + Ubuntu)](#setup-windows)
 * If you are using Mac OS, follow the instructions under [Mac OS](#setup-mac-os)
-* If you are using Linux, nice! You probably already know what to do.
+
+It's strongly advised to use the setup instructions above, but if you would like to manage your own Conda environment:
+* the environment for notebooks defined in: `./dev/docker-jupyter/conda_init.yml`
+* Conda channels defined in: `./dev/docker-jupyter/condarc_student.yml`
 
 [](#setup-windows)
 ## Windows (WSL2 + Ubuntu)
@@ -53,7 +57,10 @@ The following is the summary of these detailed instructions: https://docs.micros
 
 [](#setup-mac-os)
 ## MacOS
-* Install Miniconda package manager (https://docs.conda.io/en/latest/miniconda.html)
+* Install Homebrew: `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"`
+* Install Git: `brew install git`
+* Clone the repository: `git clone https://github.com/hellodanylo/ucla-deeplearning.git`
+* Install the Miniconda package manager: `./dev/host_macos.sh`
 
 
 [](#setup-development-cli)

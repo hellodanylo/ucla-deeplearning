@@ -15,7 +15,7 @@ sudo -u ec2-user tee >"$PROJECT_PATH/setup.sh" <<'EOF'
 name="${sagemaker_notebook_name}"
 
 conda activate JupyterSystemEnv
-jupyter labextension install --no-build jupyterlab_vim
+# jupyter labextension install --no-build jupyterlab_vim
 jupyter labextension install --no-build @jupyter-widgets/jupyterlab-manager
 jupyter lab build
 
@@ -28,8 +28,7 @@ source $PROJECT_PATH/miniconda/bin/activate
 conda env create -n ucla_deeplearning -q -f "$PROJECT_PATH/conda_lock.yml"
 
 conda activate ucla_deeplearning
-git clone https://github.com/keras-team/keras-tuner "$PROJECT_PATH/keras-tuner"
-cd "$PROJECT_PATH/keras-tuner" && git checkout 1.0.2rc1 && pip install .
+pip install git+https://github.com/keras-team/keras-tuner@1.0.2rc1
 
 touch $PROJECT_PATH/done.txt
 aws dynamodb update-item \

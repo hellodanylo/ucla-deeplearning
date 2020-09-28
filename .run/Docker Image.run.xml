@@ -1,0 +1,34 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Docker Image" type="docker-deploy" factoryName="docker-image" server-name="ucla-deeplearning">
+    <deployment type="docker-image">
+      <settings>
+        <option name="imageTag" value="ucla_jupyter" />
+        <option name="command" value="" />
+        <option name="containerName" value="ucla_jupyter" />
+        <option name="entrypoint" value="" />
+        <option name="portBindings">
+          <list>
+            <DockerPortBindingImpl>
+              <option name="containerPort" value="80" />
+              <option name="hostPort" value="80" />
+            </DockerPortBindingImpl>
+          </list>
+        </option>
+        <option name="commandLineOptions" value="--gpus all --rm" />
+        <option name="volumeBindings">
+          <list>
+            <DockerVolumeBindingImpl>
+              <option name="containerPath" value="/app/ucla-deeplearning" />
+              <option name="hostPath" value="$PROJECT_DIR$/../../../ubuntu/ucla-deeplearning" />
+            </DockerVolumeBindingImpl>
+            <DockerVolumeBindingImpl>
+              <option name="containerPath" value="/root/.ssh" />
+              <option name="hostPath" value="$PROJECT_DIR$/../../../ubuntu/.ssh" />
+            </DockerVolumeBindingImpl>
+          </list>
+        </option>
+      </settings>
+    </deployment>
+    <method v="2" />
+  </configuration>
+</component>

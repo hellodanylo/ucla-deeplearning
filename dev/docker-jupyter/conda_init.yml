@@ -1,6 +1,3 @@
-channels:
-  - anaconda
-  - conda-forge
 dependencies:
   - boto3=1.15.1
   - cachetools=4.1.1
@@ -29,3 +26,5 @@ dependencies:
   - tensorflow-gpu=2.2.0
   - tensorflow-hub=0.8.0
   - x264
+  - pip:
+      - git+https://github.com/keras-team/keras-tuner@1.0.2rc1

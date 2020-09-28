@@ -67,8 +67,8 @@ def execute_notebook(path: str):
     ep.preprocess(notebook, {"metadata": {"path": os.path.dirname(path)}})
 
 
-notebooks = sorted(find_notebooks())
-# notebooks = ['/app/ucla_deeplearning/01_dnn/UndercompleteAutoencoder.ipynb']
+# notebooks = sorted(find_notebooks())
+notebooks = ['/app/ucla_deeplearning/01_dnn/AssignmentTemplate.ipynb']
 
 failed_notebooks = []
 for report_path in notebooks:

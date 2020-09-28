@@ -15,21 +15,17 @@ RUN apt-get update -qy && apt-get install -qy \
     build-essential \
     >/dev/null 2>&1
 
-COPY conda_init.yml ./conda.yml
-#COPY conda_lock.yml ./conda.yml
+ARG CONDA_RC=condarc_student
+COPY $CONDA_RC /root/.condarc
 
+ARG CONDA_ENV=conda_lock.yml
+COPY $CONDA_ENV /root/conda.yml
 RUN conda env update -n base -f conda.yml
-RUN git clone https://github.com/keras-team/keras-tuner
-RUN cd keras-tuner && git checkout 1.0.2rc1 && pip install .
-
-ARG STUDENT=false
 
 # https://github.com/axelfahy/jupyterlab-vim
-RUN $STUDENT || jupyter labextension install --no-build @axlair/jupyterlab_vim
-
+RUN ($INSTRUCTOR && jupyter labextension install --no-build @axlair/jupyterlab_vim) || true
 RUN jupyter labextension install --no-build @jupyterlab/git
 RUN jupyter serverextension enable --py jupyterlab_git --sys-prefix >/dev/null
-
 RUN jupyter lab build
 
 # Nvidia Runtime

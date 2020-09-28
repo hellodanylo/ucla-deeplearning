@@ -141,20 +141,25 @@ def docker_cli(*cmd, remote: bool = False):
     )
 
 
-def jupyter_build(instructor: bool = False, remote: bool = False):
+def jupyter_build(
+    *, instructor: bool = False, remote: bool = False, init: bool = False
+):
     docker_cli(
         "build",
         "-t",
         image_jupyter,
         "--build-arg",
-        f"STUDENT={'false' if instructor else 'true'}",
+        f"CONDA_RC={'condarc_instructor.yml' if instructor else 'condarc_student.yml'}",
+        "--build-arg",
+        f"CONDA_ENV={'conda_init.yml' if init else 'conda_lock.yml'}",
+        *(["--network", "shell_docker_primary"] if instructor else []),
         os.path.join(project_path, "dev", "docker-jupyter"),
         remote=remote,
     )
 
 
-def jupyter_up(*, gpu: bool = False, instructor: bool = False, remote: bool = False):
-    jupyter_build(instructor=instructor, remote=remote)
+def jupyter_up(*, gpu: bool = False, instructor: bool = False, remote: bool = False, init: bool = False):
+    jupyter_build(instructor=instructor, remote=remote, init=init)
     jupyter_stop(remote=remote)
     jupyter_start(gpu=gpu, instructor=instructor, remote=remote)
 
