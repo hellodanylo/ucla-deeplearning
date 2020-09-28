@@ -73,7 +73,6 @@ def jupyter_start(gpu: bool = False, instructor: bool = False, remote: bool = Fa
         "run",
         *["--name", container_jupyter],
         *["--hostname", container_jupyter],
-        "--rm",  # remove after stopping
         *(
             [
                 "-v",
