@@ -71,6 +71,9 @@ cd ucla-deeplearning
 ./dev/host_macos.sh
 ```
 
+Download and install Docker for Mac:
+https://hub.docker.com/editions/community/docker-ce-desktop-mac/
+
 [](#setup-development-cli)
 # Setup: Development CLI
 Run the following commands in the terminal:

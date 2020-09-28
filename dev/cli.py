@@ -61,7 +61,14 @@ def find_container_by_name(name, remote: bool = False) -> Optional[Container]:
 
 
 def jupyter_start(gpu: bool = False, instructor: bool = False, remote: bool = False):
+    """
+    Starts the Jupyter container
 
+    :param gpu:
+    :param instructor:
+    :param remote:
+    :return:
+    """
     docker_cli(
         "run",
         *["--name", container_jupyter],
@@ -109,12 +116,24 @@ def jupyter_start(gpu: bool = False, instructor: bool = False, remote: bool = Fa
 
 
 def jupyter_stop(remote: bool = False):
+    """
+    Stops the Jupyter container
+
+    :param remote:
+    :return:
+    """
     container = find_container_by_name(container_jupyter, remote=remote)
     if container is not None:
         container.stop()
 
 
 def jupyter_down(remote: bool = False):
+    """
+    Stops and removes the Jupyter container
+
+    :param remote:
+    :return:
+    """
     container = find_container_by_name(container_jupyter, remote=remote)
     if container is None:
         print("No container found")
@@ -141,6 +160,15 @@ def docker_cli(*cmd, remote: bool = False):
     )
 
 
+def jupyter_up(*, gpu: bool = False, instructor: bool = False, remote: bool = False, init: bool = False):
+    """
+    Builds and starts the Jupyter container
+    """
+    jupyter_build(instructor=instructor, remote=remote, init=init)
+    jupyter_stop(remote=remote)
+    jupyter_start(gpu=gpu, instructor=instructor, remote=remote)
+
+
 def jupyter_build(
     *, instructor: bool = False, remote: bool = False, init: bool = False
 ):
@@ -158,17 +186,17 @@ def jupyter_build(
     )
 
 
-def jupyter_up(*, gpu: bool = False, instructor: bool = False, remote: bool = False, init: bool = False):
-    jupyter_build(instructor=instructor, remote=remote, init=init)
-    jupyter_stop(remote=remote)
-    jupyter_start(gpu=gpu, instructor=instructor, remote=remote)
-
-
 def shell():
     embed(colors="neutral")
 
 
 def sagemaker_resize(instance_type):
+    """
+    Resizes the SageMaker notebook (will restart notebook if already started)
+
+    :param instance_type:
+    :return:
+    """
     old_instance_type = get_notebook_instance_type()
     if old_instance_type == instance_type:
         print(f"The instance type is already {instance_type}")
@@ -192,6 +220,11 @@ def sagemaker_resize(instance_type):
 
 
 def sagemaker_start():
+    """
+    Start the SageMaker notebook
+
+    :return:
+    """
     instance_name = sagemaker_notebook_name()
 
     if get_notebook_status() == "Stopped":
@@ -226,6 +259,12 @@ def sagemaker_wait_stopped(quiet=False):
 
 
 def sagemaker_stop(force=False):
+    """
+    Stops the SageMaker notebook
+
+    :param force:
+    :return:
+    """
     status = get_notebook_status()
 
     name = sagemaker_notebook_name()
@@ -277,6 +316,13 @@ def run(args, cwd=None, capture_output=False, env=None):
 
 
 def sagemaker_up(instance_type="ml.t2.xlarge", storage_gb=20):
+    """
+    Creates and starts the SageMaker notebook
+
+    :param instance_type:
+    :param storage_gb:
+    :return:
+    """
     notebook_name = sagemaker_notebook_name()
     bucket_name = s3_bucket_name()
 
@@ -324,6 +370,11 @@ def sagemaker_up(instance_type="ml.t2.xlarge", storage_gb=20):
 
 
 def sagemaker_down():
+    """
+    Stops and removes the SageMaker notebook
+
+    :return:
+    """
     status = get_notebook_status()
 
     if status != "Deleted":
@@ -380,6 +431,11 @@ def terraform_output(module, env=None):
 
 
 def aws_init():
+    """
+    Configures the AWS account access
+
+    :return:
+    """
     new_project_user = input("Enter project user name: ")
     with open(os.path.join(project_path, "dev", "cli.env"), "w") as f:
         f.write(f"PROJECT_USER={new_project_user}")
@@ -397,6 +453,11 @@ def aws_init():
 
 
 def s3_up():
+    """
+    Creates an S3 bucket needed to run SageMaker notebook
+
+    :return:
+    """
     run(
         [
             "terragrunt",
@@ -410,6 +471,11 @@ def s3_up():
 
 
 def s3_down():
+    """
+    Removes the S3 bucket needed to run SageMaker notebook
+
+    :return:
+    """
     run(
         [
             "terragrunt",
@@ -534,22 +600,22 @@ def dynamodb_get_notebook_state(name: str):
 if __name__ == "__main__":
     clize.run(
         [
-            docker_cli,
-            jupyter_build,
+            jupyter_up,
             jupyter_start,
             jupyter_stop,
-            jupyter_up,
             jupyter_down,
             aws_init,
+            s3_up,
+            s3_down,
             sagemaker_up,
             sagemaker_start,
             sagemaker_stop,
-            sagemaker_down,
             sagemaker_resize,
+            sagemaker_down,
+            jupyter_build,
+            docker_cli,
             terraform_output_sagemaker,
             terraform_output_ec2,
-            s3_up,
-            s3_down,
             ec2_up,
             ec2_ssh,
             ec2_tunnel,

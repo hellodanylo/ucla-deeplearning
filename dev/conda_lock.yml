@@ -1,7 +1,3 @@
-name: ucla-dev
-channels:
-  - conda-forge
-  - defaults
 dependencies:
   - _libgcc_mutex=0.1
   - appdirs=1.4.4
@@ -69,5 +65,4 @@ dependencies:
     - sigtools==2.0.2
     - urllib3==1.25.10
     - websocket-client==0.57.0
-prefix: /home/danylo/opt/conda/envs/ucla-dev
 
