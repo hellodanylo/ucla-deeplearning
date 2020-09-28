@@ -73,7 +73,6 @@ def jupyter_start(gpu: bool = False, instructor: bool = False, remote: bool = Fa
         "run",
         *["--name", container_jupyter],
         *["--hostname", container_jupyter],
-        "--rm",  # remove after stopping
         *(
             [
                 "-v",
@@ -127,22 +126,27 @@ def jupyter_stop(remote: bool = False):
         container.stop()
 
 
-def jupyter_down(remote: bool = False):
+def jupyter_down(*, remote: bool = False, quiet: bool = False):
     """
     Stops and removes the Jupyter container
 
+    :param quiet:
     :param remote:
     :return:
     """
     container = find_container_by_name(container_jupyter, remote=remote)
     if container is None:
-        print("No container found")
+        if not quiet:
+            print("No container found")
         return
 
     if container.status == "running":
         container.stop()
 
-    print(f"Removed {container.name}")
+    container.remove()
+
+    if not quiet:
+        print(f"Removed {container.name}")
 
 
 def docker_cli(*cmd, remote: bool = False):
@@ -164,7 +168,7 @@ def jupyter_up(*, gpu: bool = False, instructor: bool = False, remote: bool = Fa
     Builds and starts the Jupyter container
     """
     jupyter_build(instructor=instructor, remote=remote, init=init)
-    jupyter_stop(remote=remote)
+    jupyter_down(remote=remote, quiet=True)
     jupyter_start(gpu=gpu, instructor=instructor, remote=remote)
 
 
