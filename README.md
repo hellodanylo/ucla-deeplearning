@@ -15,10 +15,10 @@ Copyright: Danylo Vashchilenko, 2019.
 ### Table of Contents
 1. [Setup](#setup)
     * [Windows](#windows)
-    * [Mac OS](#macos)
-    * [Dev Tools](#devtools)
-2. [Jupyter on Local Computer](#jupyteronlocalcomputer)
-3. [Jupyter on AWS EC2 Instance](#jupyteronawsec2instance)
+    * [Mac OS](#mac-os)
+    * [Dev Tools](#dev-tools)
+2. [Jupyter on Local Computer](#jupyter-on-local-computer)
+3. [Jupyter on AWS EC2 Instance](#jupyter-on-aws-ec2-instance)
 
 # Setup
 
@@ -60,7 +60,7 @@ The following is the summary of these detailed instructions: https://docs.micros
     ./dev/host_linux.sh
     ```
 
-## MacOS
+## Mac OS
 Run the following commands in the terminal:
 ```
 # Install Homebrew: 
