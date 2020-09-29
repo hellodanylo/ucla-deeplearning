@@ -55,8 +55,8 @@ The following is the summary of these detailed instructions: https://docs.micros
 9. Next, restart the Ubuntu shell.
 10. Finally, the following script installs Miniconda package manager:
     ```
-     cd ucla-deeplearning
-    ./dev/host_linux.sh
+    cd ucla-deeplearning
+    bash ./dev/host_linux.sh
     ```
 
 ## Mac OS
