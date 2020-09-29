@@ -109,7 +109,13 @@ def jupyter_create(gpu: bool = False, instructor: bool = False, remote: bool = F
     )
 
 
-def jupyter_up(*, gpu: bool = False, instructor: bool = False, remote: bool = False, init: bool = False):
+def jupyter_up(
+    *,
+    gpu: bool = False,
+    instructor: bool = False,
+    remote: bool = False,
+    init: bool = False,
+):
     """
     Creates and starts the Jupyter container
     """
@@ -126,7 +132,7 @@ def jupyter_start(*, remote: bool = False):
     :param remote:
     :return:
     """
-    docker_cli('start', container_jupyter, remote=remote)
+    docker_cli("start", container_jupyter, remote=remote)
     sleep(5)
     docker_cli("exec", container_jupyter, "jupyter", "notebook", "list", remote=remote)
     print("Jupyter available at http://localhost:3000 - token can be found above.")
@@ -142,7 +148,7 @@ def jupyter_stop(remote: bool = False):
     container = find_container_by_name(container_jupyter, remote=remote)
     if container is not None:
         container.stop()
-        print('Stopped the Jupyter container')
+        print("Stopped the Jupyter container")
 
 
 def jupyter_down(*, remote: bool = False, quiet: bool = False):
@@ -336,6 +342,9 @@ def sagemaker_up(instance_type="ml.t2.xlarge", storage_gb=20):
     :param storage_gb:
     :return:
     """
+
+    s3_up()
+
     notebook_name = sagemaker_notebook_name()
     bucket_name = s3_bucket_name()
 
@@ -421,6 +430,8 @@ def sagemaker_down():
         env={"s3_bucket_name": s3_bucket_name()},
     )
 
+    s3_down()
+
 
 def sagemaker_wait_deleted():
     name = sagemaker_notebook_name()
@@ -490,7 +501,7 @@ def s3_down():
     :return:
     """
 
-    bucket = boto_session().resource('s3').Bucket(s3_bucket_name())
+    bucket = boto_session().resource("s3").Bucket(s3_bucket_name())
     bucket.objects.all().delete()
 
     run(
@@ -622,8 +633,6 @@ if __name__ == "__main__":
             jupyter_stop,
             jupyter_down,
             aws_init,
-            s3_up,
-            s3_down,
             sagemaker_up,
             sagemaker_start,
             sagemaker_stop,
@@ -631,6 +640,8 @@ if __name__ == "__main__":
             sagemaker_down,
             jupyter_build,
             docker_cli,
+            s3_up,
+            s3_down,
             terraform_output_sagemaker,
             terraform_output_ec2,
             ec2_up,
