@@ -22,7 +22,7 @@ project_env_path = os.path.join(project_path, "dev", "cli.env")
 
 @lru_cache()
 def boto_session():
-    return boto3.Session(profile_name="ucla")
+    return boto3.Session(profile_name="ucla", region_name="us-west-2")
 
 
 @lru_cache()
@@ -542,6 +542,16 @@ def ec2_up():
     )
 
 
+def ec2_down():
+    bucket_name = s3_bucket_name()
+
+    run(
+        ["terragrunt", "destroy", "-auto-approve",],
+        cwd=os.path.join(project_path, "dev", "aws-ec2"),
+        env={"s3_bucket_name": bucket_name},
+    )
+
+
 def ec2_ssh(*cmd):
     connection = terraform_output("aws-ec2", env={"s3_bucket_name": s3_bucket_name()})[
         "ec2"
@@ -648,6 +658,7 @@ if __name__ == "__main__":
             ec2_ssh,
             ec2_tunnel,
             ec2_start,
+            ec2_down,
             shell,
         ]
     )
