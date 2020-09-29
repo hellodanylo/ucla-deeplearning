@@ -7,14 +7,9 @@ sudo mv cuda-$distribution.pin /etc/apt/preferences.d/cuda-repository-pin-600
 sudo apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/$distribution/x86_64/7fa2af80.pub
 echo "deb http://developer.download.nvidia.com/compute/cuda/repos/$distribution/x86_64 /" | sudo tee /etc/apt/sources.list.d/cuda.list
 sudo apt-get update >/dev/null
-sudo apt-get -y install cuda-drivers
+sudo apt-get -y install cuda-drivers gdm3-
 
-sudo apt-get install -y cmake libncurses5-dev libncursesw5-dev git
-git clone https://github.com/Syllo/nvtop.git
-mkdir -p nvtop/build && cd nvtop/build
-cmake ..
-make
-sudo make install
+sudo apt-get -y install nvtop
 
 distribution=$(. /etc/os-release;echo $ID$VERSION_ID)
 curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add -

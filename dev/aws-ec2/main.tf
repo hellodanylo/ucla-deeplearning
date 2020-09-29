@@ -10,7 +10,7 @@ provider "aws" {
 
 resource "aws_key_pair" "key" {
   key_name   = "ucla-deeplearning"
-  public_key = file("${path.module}/key.public")
+  public_key = file("${path.module}/key.pub")
 }
 
 resource "aws_default_vpc" "default" {}
@@ -39,19 +39,28 @@ resource "aws_security_group" "ec2_instance" {
   }
 }
 
-resource "aws_iam_user" "user" {
-  name          = "ucla-deep-learning-danylo--ec2"
-  force_destroy = true
+resource "aws_iam_role" "role" {
+  name          = "ucla-deep-learning--ec2"
+  assume_role_policy = <<EOF
+{
+      "Version": "2012-10-17",
+      "Statement": [
+          {
+              "Action": "sts:AssumeRole",
+              "Principal": {
+                 "Service": "ec2.amazonaws.com"
+              },
+              "Effect": "Allow",
+              "Sid": ""
+          }
+      ]
+  }
+  EOF
 }
 
-resource "aws_iam_access_key" "key" {
-  user = aws_iam_user.user.name
-}
-
-resource "aws_iam_user_policy" "policy" {
-  name   = "ucla-deep-learning--ec2"
-  user   = aws_iam_user.user.name
-  policy = file("${path.module}/policy.json")
+resource "aws_iam_instance_profile" "profile" {
+  name = "ucla-deep-learning--ec2"
+  role = aws_iam_role.role.name
 }
 
 resource aws_instance "instance" {
@@ -62,8 +71,7 @@ resource aws_instance "instance" {
   # us-west-2 / Ubuntu 20.04 LTS amd64
   ami           = "ami-06e54d05255faf8f6"
   subnet_id     = aws_default_subnet.default_az1.id
-  instance_type = "t3.2xlarge"
-//  instance_type = "p2.xlarge"
+  instance_type = "t3.medium"
 
   # Security
   key_name = aws_key_pair.key.key_name
@@ -75,6 +83,8 @@ resource aws_instance "instance" {
 
   vpc_security_group_ids = [
     aws_security_group.ec2_instance.id]
+
+  iam_instance_profile = aws_iam_instance_profile.profile.name
 }
 
 output "ec2" {
@@ -83,7 +93,5 @@ output "ec2" {
     instance_id   = aws_instance.instance.id
     public_ip     = aws_instance.instance.public_ip
     username      = "ubuntu"
-    key_id        = aws_iam_access_key.key.id,
-    key_secret    = aws_iam_access_key.key.secret
   }
 }

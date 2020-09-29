@@ -5,7 +5,7 @@ import os
 import subprocess
 from functools import lru_cache
 from time import sleep
-from typing import Optional
+from typing import Optional, Sequence, Mapping
 
 import boto3
 import clize
@@ -76,9 +76,9 @@ def jupyter_create(gpu: bool = False, instructor: bool = False, remote: bool = F
         *(
             [
                 "-v",
-                f"{project_path}:/app/ucla_deeplearning"
+                f"{project_path}:/app/ucla-deeplearning"
                 if not remote
-                else "ucla_jupyter_git:/app/ucla_deeplearning",
+                else "/home/ubuntu/ucla-deeplearning:/app/ucla-deeplearning",
             ]
         ),
         *["-v", "ucla_jupyter_settings:/root/.local/share/jupyter/runtime"],
@@ -112,14 +112,18 @@ def jupyter_create(gpu: bool = False, instructor: bool = False, remote: bool = F
 def jupyter_up(
     *,
     gpu: bool = False,
-    instructor: bool = False,
+    conda_cache: bool = False,
+    conda_init: bool = False,
+    vim: bool = False,
     remote: bool = False,
-    init: bool = False,
+    instructor: bool = False,
 ):
     """
     Creates and starts the Jupyter container
     """
-    jupyter_build(instructor=instructor, remote=remote, init=init)
+    jupyter_build(
+        conda_cache=conda_cache, remote=remote, conda_init=conda_init, vim=vim
+    )
     jupyter_down(remote=remote, quiet=True)
     jupyter_create(gpu=gpu, instructor=instructor, remote=remote)
     jupyter_start(remote=remote)
@@ -135,7 +139,7 @@ def jupyter_start(*, remote: bool = False):
     docker_cli("start", container_jupyter, remote=remote)
     sleep(5)
     docker_cli("exec", container_jupyter, "jupyter", "notebook", "list", remote=remote)
-    print("Jupyter available at http://localhost:3000 - token can be found above.")
+    print(f"Jupyter available at http://localhost:{'5000' if remote else '3000'} - token can be found above.")
 
 
 def jupyter_stop(remote: bool = False):
@@ -189,17 +193,23 @@ def docker_cli(*cmd, remote: bool = False):
 
 
 def jupyter_build(
-    *, instructor: bool = False, remote: bool = False, init: bool = False
+    *,
+    remote: bool = False,
+    conda_init: bool = False,
+    conda_cache: bool = False,
+    vim: bool = False,
 ):
     docker_cli(
         "build",
         "-t",
         image_jupyter,
         "--build-arg",
-        f"CONDA_RC={'condarc_instructor.yml' if instructor else 'condarc_student.yml'}",
+        f"CONDA_RC={'condarc_cache.yml' if conda_cache else 'condarc_default.yml'}",
         "--build-arg",
-        f"CONDA_ENV={'conda_init.yml' if init else 'conda_lock.yml'}",
-        *(["--network", "shell_docker_primary"] if instructor else []),
+        f"CONDA_ENV={'conda_init.yml' if conda_init else 'conda_lock.yml'}",
+        "--build-arg",
+        f"VIM={'true' if vim else 'false'}",
+        *(["--network", "shell_docker_primary"] if conda_cache else []),
         os.path.join(project_path, "dev", "docker-jupyter"),
         remote=remote,
     )
@@ -317,7 +327,13 @@ def get_notebook_status():
     return status
 
 
-def run(args, cwd=None, capture_output=False, env=None):
+def run(
+    args: Sequence[str],
+    cwd: str = None,
+    capture_output: bool = False,
+    env: Mapping[str, str] = None,
+    input: str = None,
+):
     if cwd is None:
         cwd = os.getcwd()
 
@@ -330,8 +346,18 @@ def run(args, cwd=None, capture_output=False, env=None):
         sub_env.update(env)
 
     return subprocess.run(
-        args, cwd=cwd, capture_output=capture_output, env=sub_env, check=True
+        args,
+        cwd=cwd,
+        capture_output=capture_output,
+        env=sub_env,
+        check=True,
+        input=input,
     )
+
+
+def read_bytes(path: str) -> bytes:
+    with open(path, 'rb') as f:
+        return f.read()
 
 
 def sagemaker_up(instance_type="ml.t2.xlarge", storage_gb=20):
@@ -533,13 +559,26 @@ def dynamodb_set_notebook_state(name: str, state: str):
 
 
 def ec2_up():
+    s3_up()
+
+    key_path = f"{project_path}/dev/aws-ec2/key"
+    if not os.path.exists(key_path):
+        run(["ssh-keygen", "-f", key_path, "-N", "", "-q"])
+
     bucket_name = s3_bucket_name()
 
     run(
-        ["terragrunt", "apply", "-auto-approve",],
+        ["terragrunt", "apply", "-auto-approve"],
         cwd=os.path.join(project_path, "dev", "aws-ec2"),
         env={"s3_bucket_name": bucket_name},
     )
+
+    sleep(60)
+    print("Ready")
+
+    ec2_ssh(input=read_bytes(f'{project_path}/dev/aws-ec2/install_docker.sh'))
+    ec2_ssh(input=read_bytes(f'{project_path}/dev/aws-ec2/clone_repo.sh'))
+    print("Ready")
 
 
 def ec2_down():
@@ -552,7 +591,7 @@ def ec2_down():
     )
 
 
-def ec2_ssh(*cmd):
+def ec2_ssh(*cmd, input: bytes = None):
     connection = terraform_output("aws-ec2", env={"s3_bucket_name": s3_bucket_name()})[
         "ec2"
     ]
@@ -564,7 +603,7 @@ def ec2_ssh(*cmd):
     ip = instances["Reservations"][0]["Instances"][0]["NetworkInterfaces"][0][
         "Association"
     ]["PublicIp"]
-    key_path = f"{project_path}/dev/aws-ec2/key.private"
+    key_path = f"{project_path}/dev/aws-ec2/key"
     username = connection["username"]
 
     args = [
@@ -575,12 +614,12 @@ def ec2_ssh(*cmd):
         "StrictHostKeyChecking=no",
         "-o",
         "UserKnownHostsFile=/dev/null",
-        *cmd,
         f"{username}@{ip}",
+        *cmd,
     ]
 
     print(f"Running {args}")
-    subprocess.run(args)
+    run(args, input=input)
 
 
 def ec2_tunnel():
@@ -624,6 +663,19 @@ def ec2_stop():
     print("Stopped")
 
 
+def ec2_resize(instance_type: str):
+    instance_id = terraform_output_ec2()["ec2"]["instance_id"]
+
+    ec2_stop()
+    ec2 = boto_session().client("ec2")
+    ec2.modify_instance_attribute(InstanceId=instance_id, Attribute='instanceType', Value=instance_type)
+    ec2_start()
+
+
+def ec2_nvidia():
+    ec2_ssh(input=read_bytes(f'{project_path}/dev/aws-ec2/install_nvidia.sh'))
+
+
 def dynamodb_get_notebook_state(name: str):
     db = boto_session().client("dynamodb")
     response = db.get_item(
@@ -652,13 +704,16 @@ if __name__ == "__main__":
             docker_cli,
             s3_up,
             s3_down,
+            ec2_up,
+            ec2_start,
+            ec2_tunnel,
+            ec2_resize,
+            ec2_nvidia,
+            ec2_stop,
+            ec2_down,
+            ec2_ssh,
+            shell,
             terraform_output_sagemaker,
             terraform_output_ec2,
-            ec2_up,
-            ec2_ssh,
-            ec2_tunnel,
-            ec2_start,
-            ec2_down,
-            shell,
         ]
     )

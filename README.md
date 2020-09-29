@@ -93,34 +93,76 @@ conda activate ucla-dev
 ./dev/cli.py --help
 ```
 
-# Local Jupyter
-* `./dev/cli.py jupyter-up`
-* `./dev/cli.py jupyter-start`
-* `./dev/cli.py jupyter-stop`
-* `./dev/cli.py jupyter-down`
+# Jupyter on Local Computer
 
-# AWS SageMaker Notebook
+To create and start the Jupyter container:
 
-1. Setup an AWS Account:
-    ```
-    ./dev/cli.py aws-init
-    ```
-2. Create a SageMaker Notebook:
-    ```
-    ./dev/cli.py s3-up
-    ./dev/cli.py sagemaker-up
-    ```
-3. Start a SageMaker Notebook
-    ```
-    ./dev/cli.py sagemaker-start
-    ```
-4. You will see a URL in the output. Enter it in the browser.
-5. To stop using the SageMaker compute resources (data can be recovered):
-    ```
-    ./dev/cli.py sagemaker-stop
-    ```
-6. To stop using the SageMaker storage resources (data can't be recovered):
-    ```
-    ./dev/cli.py sagemaker-down
-    ./dev/cli.py s3-down
-    ```
+```
+./dev/cli.py jupyter-up
+```
+You will see a URL and a token in the output. Enter it in the browser.
+    
+To start the previously stopped Jupyter container:
+
+```
+./dev/cli.py jupyter-start
+```
+
+To stop the previously started Jupyter container:
+
+```
+./dev/cli.py jupyter-stop
+```
+
+To stop and remove the Jupyter container:
+
+```
+./dev/cli.py jupyter-down
+```
+
+# Jupyter on AWS EC2 Instance
+
+Run the following commands in the terminal to create the EC2 instance:
+```
+./dev/cli.py aws-init
+./dev/cli.py ec2-up
+```
+
+To create a tunnel with the running EC2 instance (do not exit until you are done):
+```
+./dev/cli.py ec2-tunnel htop
+```
+
+Run this the first time or if you removed the Jupyter container:
+
+```
+./dev/cli.py jupyter-up --remote
+```
+You will see a URL and a token in the output. Enter it in the browser.
+
+To change the instance size (for example to p2.xlarge):
+
+```
+./dev/cli.py ec2-resize p2.xlarge
+```
+See the AWS slides for information on available instance sizes.
+
+To install Nvidia drivers, if using GPU instance type (p2 or p3):
+```
+./dev/cli.py ec2-nvidia
+```
+
+To create the remote Jupyter container with GPU support:
+```
+./dev/cli.py jupyter-up --remote --gpu
+```
+
+To stop the EC2 instance (data preserved and billed for):
+```
+./dev/cli.py ec2-stop
+```
+
+To remove the EC2 instance (data can't be recovered):
+```
+./dev/cli.py ec2-down
+```

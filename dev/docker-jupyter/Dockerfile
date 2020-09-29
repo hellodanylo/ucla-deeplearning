@@ -15,7 +15,7 @@ RUN apt-get update -qy && apt-get install -qy \
     build-essential \
     >/dev/null 2>&1
 
-ARG CONDA_RC=condarc_student
+ARG CONDA_RC=condarc_default
 COPY $CONDA_RC /root/.condarc
 
 ARG CONDA_ENV=conda_lock.yml
@@ -23,7 +23,8 @@ COPY $CONDA_ENV /root/conda.yml
 RUN conda env update -n base -f conda.yml
 
 # https://github.com/axelfahy/jupyterlab-vim
-RUN ($INSTRUCTOR && jupyter labextension install --no-build @axlair/jupyterlab_vim) || true
+ARG VIM=false
+RUN ($VIM && jupyter labextension install --no-build @axlair/jupyterlab_vim) || true
 RUN jupyter labextension install --no-build @jupyterlab/git
 RUN jupyter serverextension enable --py jupyterlab_git --sys-prefix >/dev/null
 RUN jupyter lab build
