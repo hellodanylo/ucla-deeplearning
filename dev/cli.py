@@ -111,11 +111,11 @@ def jupyter_create(gpu: bool = False, instructor: bool = False, remote: bool = F
 
 def jupyter_up(
     *,
+    remote: bool = False,
     gpu: bool = False,
     conda_cache: bool = False,
     conda_init: bool = False,
     vim: bool = False,
-    remote: bool = False,
     instructor: bool = False,
 ):
     """
@@ -218,6 +218,11 @@ def jupyter_build(
 
 
 def shell():
+    """
+    Starts an IPython shell in the ucla-dev environment.
+
+    :return:
+    """
     embed(colors="neutral")
 
 
@@ -543,7 +548,9 @@ def aws_down():
         cwd=os.path.join(project_path, "dev", "aws-s3"),
     )
 
-    boto_session().resource('dynamodb').Table('ucla-deeplearning-terraform-lock').delete()
+    boto_session().resource("dynamodb").Table(
+        "ucla-deeplearning-terraform-lock"
+    ).delete()
 
 
 def terraform_output_sagemaker():
@@ -601,7 +608,7 @@ def ec2_down():
     bucket_name = s3_bucket_name()
 
     run(
-        ["terragrunt", "destroy", "-auto-approve",],
+        ["terragrunt", "destroy", "-auto-approve", "-var", "instance_type=t3.xlarge"],
         cwd=os.path.join(project_path, "dev", "aws-ec2"),
         env={"s3_bucket_name": bucket_name},
     )
