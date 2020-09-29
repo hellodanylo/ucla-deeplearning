@@ -127,13 +127,16 @@ To stop and remove the Jupyter container:
 
 # Jupyter on AWS EC2 Instance
 
+First, create a new AWS account and apply credits from AWS Educate.
 Run the following commands in the terminal with `ucla-dev` environment activated.
  
-To set up access to your AWS account:
+To enable access to your AWS account:
 ```
 ./dev/cli.py aws-up
 ```
-You can find your AWS credentials at: https://console.aws.amazon.com/iam/home?region=us-west-2#/security_credentials
+You can find your AWS credentials at 
+[My Credentials](https://console.aws.amazon.com/iam/home?region=us-west-2#/security_credentials)
+page.
 
 To create the EC2 instance:
 ```
