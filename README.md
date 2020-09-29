@@ -63,6 +63,7 @@ The following is the summary of these detailed instructions: https://docs.micros
     cd ucla-deeplearning
     bash ./dev/host_linux.sh
     ```
+1. Optionally, run `htop` to monitor your CPU cores and RAM utilization.
 
 ## Mac OS
 Run the following commands in the terminal:
