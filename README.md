@@ -1,7 +1,5 @@
 # Advanced Workshop on Machine Learning
 
-https://ccle.ucla.edu/course/view/19F-MGMTMSA434-1?show_all=1
-
 This is the official repository with course material for UCLA Advanced Workshop on Machine Learning (MGMTMSA-434).
 The repository will be updated as the course progresses.
 
@@ -13,6 +11,14 @@ The course consists of 5 module:
 5. Ensemble Methods
 
 Copyright: Danylo Vashchilenko, 2019.
+
+### Table of Contents
+1. [Setup](#setup)
+    * [Windows](#windows)
+    * [Mac OS](#macos)
+    * [Dev Tools](#devtools)
+2. [Jupyter on Local Computer](#jupyteronlocalcomputer)
+3. [Jupyter on AWS EC2 Instance](#jupyteronawsec2instance)
 
 # Setup
 
@@ -78,8 +84,7 @@ In the Docker settings ensure that you have:
 * at least 8 GB of memory, preferably around 2/3 of available memory
 * all CPUs available on your system
 
-[](#setup-development-cli)
-# Setup: Development CLI
+## Dev Tools
 Run the following commands in the terminal:
 ```
 # Create ucla-dev environment
