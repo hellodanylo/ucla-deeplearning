@@ -48,15 +48,15 @@ The following is the summary of these detailed instructions: https://docs.micros
 5. Install Docker for Windows: https://hub.docker.com/editions/community/docker-ce-desktop-windows/
 6. Install Ubuntu 20.04 LTS: https://www.microsoft.com/en-us/p/ubuntu-2004-lts/9n6svws3rx71?rtc=1&activetab=pivot:overviewtab
 7. Start Ubuntu shell, and enter a new username and password.
-8. Run the following command in Ubuntu shell to download this git repo to `$HOME/git/ucla-deeplearning`
+8. Run the following command in Ubuntu shell to download this git repo to `ucla-deeplearning` folder:
     ```
     mkdir git 
-    git clone https://github.com/hellodanylo/ucla-deeplearning.git ~/git/ucla-deeplearning
+    git clone --depth 1 https://github.com/hellodanylo/ucla-deeplearning.git
     ```
 9. Next, restart the Ubuntu shell.
 10. Finally, the following script installs Miniconda package manager:
     ```
-     cd ~/git/ucla-deeplearning
+     cd ucla-deeplearning
     ./dev/host_linux.sh
     ```
 
