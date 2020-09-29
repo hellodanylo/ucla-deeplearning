@@ -37,27 +37,28 @@ It's strongly advised to use the setup instructions above, but if you would like
 
 ## Windows
 The following is the summary of these detailed instructions: https://docs.microsoft.com/en-us/windows/wsl/install-win10
-1. Upgrade to Windows 10 v2004 
+1. Check Windows version by running `winver` from you Windows menu
+1. If needed, upgrade to Windows 10 v2004 
    * open "Settings" from your Windows menu
    * navigate to "Update & Security"
    * select "Check for Updates"
-2. Run the following in PowerShell as Administrator:
+1. Run the following in PowerShell as Administrator:
     ```
     dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart
     dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart
     ```
-3. Restart computer
-4. Install WSL update https://wslstorestorage.blob.core.windows.net/wslblob/wsl_update_x64.msi
-5. Install Docker for Windows: https://hub.docker.com/editions/community/docker-ce-desktop-windows/
-6. Launch Docker
-7. Install Ubuntu 20.04 LTS: https://www.microsoft.com/en-us/p/ubuntu-2004-lts/9n6svws3rx71?rtc=1&activetab=pivot:overviewtab
-8. Start Ubuntu shell, and enter a new username and password.
-9. Run the following command in Ubuntu shell to download this git repo to `ucla-deeplearning` folder:
+1. Restart computer
+1. Install WSL update https://wslstorestorage.blob.core.windows.net/wslblob/wsl_update_x64.msi
+1. Install Docker for Windows: https://hub.docker.com/editions/community/docker-ce-desktop-windows/
+1. Launch Docker
+1. Install Ubuntu 20.04 LTS: https://www.microsoft.com/en-us/p/ubuntu-2004-lts/9n6svws3rx71?rtc=1&activetab=pivot:overviewtab
+1. Start Ubuntu shell, and enter a new username and password.
+1. Run the following command in Ubuntu shell to download this git repo to `ucla-deeplearning` folder:
     ```
     git clone --depth 1 https://github.com/hellodanylo/ucla-deeplearning.git
     ```
-10. Next, restart the Ubuntu shell.
-11. Finally, the following script installs Miniconda package manager:
+1. Next, restart the Ubuntu shell.
+1. Finally, the following script installs Miniconda package manager:
     ```
     cd ucla-deeplearning
     bash ./dev/host_linux.sh
