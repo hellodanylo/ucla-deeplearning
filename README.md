@@ -47,8 +47,9 @@ The following is the summary of these detailed instructions: https://docs.micros
 1. Restart computer
 1. Install WSL update https://wslstorestorage.blob.core.windows.net/wslblob/wsl_update_x64.msi
 1. Install Docker for Windows: https://hub.docker.com/editions/community/docker-ce-desktop-windows/
-1. Launch Docker
 1. Install Ubuntu 20.04 LTS: https://www.microsoft.com/en-us/p/ubuntu-2004-lts/9n6svws3rx71?rtc=1&activetab=pivot:overviewtab
+1. Start Docker from your Windows menu
+   * go to settings and make sure Resources -> WSL Integration has Ubuntu 20.04 enabled
 1. Start Ubuntu shell, and enter a new username and password.
 1. Run the following command in Ubuntu shell to download this git repo to `ucla-deeplearning` folder:
     ```
