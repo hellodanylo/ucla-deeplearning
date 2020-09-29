@@ -122,9 +122,16 @@ To stop and remove the Jupyter container:
 
 # Jupyter on AWS EC2 Instance
 
-Run the following commands in the terminal to create the EC2 instance:
+Run the following commands in the terminal with `ucla-dev` environment activated.
+ 
+To set up access to your AWS account:
 ```
 ./dev/cli.py aws-init
+```
+You can find your AWS credentials at: https://console.aws.amazon.com/iam/home?region=us-west-2#/security_credentials
+
+To create the EC2 instance:
+```
 ./dev/cli.py ec2-up
 ```
 
@@ -133,8 +140,7 @@ To create a tunnel with the running EC2 instance (do not exit until you are done
 ./dev/cli.py ec2-tunnel htop
 ```
 
-Run this the first time or if you removed the Jupyter container:
-
+To create and start the Jupyter container on the EC2 instance:
 ```
 ./dev/cli.py jupyter-up --remote
 ```
@@ -147,7 +153,7 @@ To change the instance size (for example to p2.xlarge):
 ```
 See the AWS slides for information on available instance sizes.
 
-To install Nvidia drivers, if using GPU instance type (p2 or p3):
+To install Nvidia drivers, when using GPU instance type (p2 or p3):
 ```
 ./dev/cli.py ec2-nvidia
 ```
