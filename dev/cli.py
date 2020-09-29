@@ -590,6 +590,9 @@ def ec2_down():
         env={"s3_bucket_name": bucket_name},
     )
 
+    s3_down()
+    sleep(60)
+
 
 def ec2_ssh(*cmd, input: bytes = None):
     connection = terraform_output("aws-ec2", env={"s3_bucket_name": s3_bucket_name()})[
@@ -702,8 +705,6 @@ if __name__ == "__main__":
             sagemaker_down,
             jupyter_build,
             docker_cli,
-            s3_up,
-            s3_down,
             ec2_up,
             ec2_start,
             ec2_tunnel,
@@ -713,6 +714,8 @@ if __name__ == "__main__":
             ec2_down,
             ec2_ssh,
             shell,
+            s3_up,
+            s3_down,
             terraform_output_sagemaker,
             terraform_output_ec2,
         ]
