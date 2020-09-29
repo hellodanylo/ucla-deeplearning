@@ -502,7 +502,6 @@ def aws_up():
     print(f"Found account in AWS config: {user}")
 
     s3_up()
-    print(f"S3 Bucket Name = {s3_bucket_name()}")
 
 
 def s3_up():
@@ -745,7 +744,6 @@ if __name__ == "__main__":
             jupyter_stop,
             jupyter_down,
             aws_up,
-            docker_cli,
             ec2_up,
             ec2_start,
             ec2_tunnel,
@@ -757,6 +755,7 @@ if __name__ == "__main__":
             aws_down,
             shell,
             s3_up,
+            docker_cli,
             jupyter_build,
             terraform_output_sagemaker,
             terraform_output_ec2,
