@@ -543,6 +543,8 @@ def aws_down():
         cwd=os.path.join(project_path, "dev", "aws-s3"),
     )
 
+    boto_session().resource('dynamodb').Table('ucla-deeplearning-terraform-lock').delete()
+
 
 def terraform_output_sagemaker():
     return terraform_output("aws-sagemaker", env={"s3_bucket_name": s3_bucket_name()})
