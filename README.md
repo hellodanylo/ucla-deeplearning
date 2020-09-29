@@ -126,7 +126,7 @@ Run the following commands in the terminal with `ucla-dev` environment activated
  
 To set up access to your AWS account:
 ```
-./dev/cli.py aws-init
+./dev/cli.py aws-up
 ```
 You can find your AWS credentials at: https://console.aws.amazon.com/iam/home?region=us-west-2#/security_credentials
 
@@ -171,4 +171,9 @@ To stop the EC2 instance (data preserved and billed for):
 To remove the EC2 instance (data can't be recovered):
 ```
 ./dev/cli.py ec2-down
+```
+
+To remove all AWS resources associated with this project:
+```
+./dev/cli.py aws-down
 ```

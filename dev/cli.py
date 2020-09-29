@@ -139,7 +139,9 @@ def jupyter_start(*, remote: bool = False):
     docker_cli("start", container_jupyter, remote=remote)
     sleep(5)
     docker_cli("exec", container_jupyter, "jupyter", "notebook", "list", remote=remote)
-    print(f"Jupyter available at http://localhost:{'5000' if remote else '3000'} - token can be found above.")
+    print(
+        f"Jupyter available at http://localhost:{'5000' if remote else '3000'} - token can be found above."
+    )
 
 
 def jupyter_stop(remote: bool = False):
@@ -356,7 +358,7 @@ def run(
 
 
 def read_bytes(path: str) -> bytes:
-    with open(path, 'rb') as f:
+    with open(path, "rb") as f:
         return f.read()
 
 
@@ -456,7 +458,7 @@ def sagemaker_down():
         env={"s3_bucket_name": s3_bucket_name()},
     )
 
-    s3_down()
+    aws_down()
 
 
 def sagemaker_wait_deleted():
@@ -480,7 +482,7 @@ def terraform_output(module, env=None):
     return output_dict
 
 
-def aws_init():
+def aws_up():
     """
     Configures the AWS account access
 
@@ -498,13 +500,14 @@ def aws_init():
         raise Exception("Unable to find `ucla` profile in AWS config") from e
 
     print(f"Found account in AWS config: {user}")
+
+    s3_up()
     print(f"S3 Bucket Name = {s3_bucket_name()}")
-    print(f"SageMaker Notebook Name = {sagemaker_notebook_name()}")
 
 
 def s3_up():
     """
-    Creates an S3 bucket needed to run SageMaker notebook
+    Creates an S3 bucket for infrastructure information
 
     :return:
     """
@@ -520,9 +523,9 @@ def s3_up():
     )
 
 
-def s3_down():
+def aws_down():
     """
-    Removes the S3 bucket needed to run SageMaker notebook
+    Removes the S3 bucket with infrastructure description
 
     :return:
     """
@@ -558,9 +561,11 @@ def dynamodb_set_notebook_state(name: str, state: str):
     )
 
 
-def ec2_up():
-    s3_up()
+def ec2_up(instance_type: str = "t3.xlarge"):
+    """
+    Creates and starts the EC2 instance
 
+    """
     key_path = f"{project_path}/dev/aws-ec2/key"
     if not os.path.exists(key_path):
         run(["ssh-keygen", "-f", key_path, "-N", "", "-q"])
@@ -568,7 +573,13 @@ def ec2_up():
     bucket_name = s3_bucket_name()
 
     run(
-        ["terragrunt", "apply", "-auto-approve"],
+        [
+            "terragrunt",
+            "apply",
+            "-auto-approve",
+            "-var",
+            f"instance_type={instance_type}",
+        ],
         cwd=os.path.join(project_path, "dev", "aws-ec2"),
         env={"s3_bucket_name": bucket_name},
     )
@@ -576,12 +587,16 @@ def ec2_up():
     sleep(60)
     print("Ready")
 
-    ec2_ssh(input=read_bytes(f'{project_path}/dev/aws-ec2/install_docker.sh'))
-    ec2_ssh(input=read_bytes(f'{project_path}/dev/aws-ec2/clone_repo.sh'))
+    ec2_ssh(input=read_bytes(f"{project_path}/dev/aws-ec2/install_docker.sh"))
+    ec2_ssh(input=read_bytes(f"{project_path}/dev/aws-ec2/clone_repo.sh"))
     print("Ready")
 
 
 def ec2_down():
+    """
+    Stops and removes the EC2 instance
+
+    """
     bucket_name = s3_bucket_name()
 
     run(
@@ -590,11 +605,15 @@ def ec2_down():
         env={"s3_bucket_name": bucket_name},
     )
 
-    s3_down()
-    sleep(60)
-
 
 def ec2_ssh(*cmd, input: bytes = None):
+    """
+    Connects to the running EC2 instance via SSH
+
+    :param cmd:
+    :param input:
+    :return:
+    """
     connection = terraform_output("aws-ec2", env={"s3_bucket_name": s3_bucket_name()})[
         "ec2"
     ]
@@ -625,22 +644,34 @@ def ec2_ssh(*cmd, input: bytes = None):
     run(args, input=input)
 
 
-def ec2_tunnel():
+def ec2_tunnel(*cmd):
+    """
+    Starts a tunnel to the running EC2 instance (to access Docker and Jupyter)
+
+    :param cmd:
+    :return:
+    """
     local_docker_path = f"{project_path}/dev/aws-ec2/docker.sock"
 
-    cmd = [
+    ssh_cmd = [
         "-L",
         f"{local_docker_path}:/var/run/docker.sock",
         "-L",
         "5000:localhost:3000",
+        *cmd,
     ]
 
     subprocess.run(["rm", "-f", local_docker_path])
-    ec2_ssh(*cmd)
+    ec2_ssh(*ssh_cmd)
     subprocess.run(["rm", "-f", local_docker_path])
 
 
 def ec2_start():
+    """
+    Starts the previously created EC2 instance
+
+    :return:
+    """
     instance_id = terraform_output_ec2()["ec2"]["instance_id"]
 
     boto_session().client("ec2").start_instances(InstanceIds=[instance_id])
@@ -655,6 +686,9 @@ def ec2_wait_started(instance_id: str):
 
 
 def ec2_stop():
+    """
+    Stops the running EC2 instance
+    """
     instance_id = terraform_output_ec2()["ec2"]["instance_id"]
 
     ec2 = boto_session().client("ec2")
@@ -666,17 +700,30 @@ def ec2_stop():
     print("Stopped")
 
 
-def ec2_resize(instance_type: str):
+def ec2_resize(instance_size: str):
+    """
+    Resizes the instance and restarts it
+
+    :param instance_size:
+    :return:
+    """
     instance_id = terraform_output_ec2()["ec2"]["instance_id"]
 
     ec2_stop()
     ec2 = boto_session().client("ec2")
-    ec2.modify_instance_attribute(InstanceId=instance_id, Attribute='instanceType', Value=instance_type)
+    ec2.modify_instance_attribute(
+        InstanceId=instance_id, Attribute="instanceType", Value=instance_size
+    )
     ec2_start()
 
 
 def ec2_nvidia():
-    ec2_ssh(input=read_bytes(f'{project_path}/dev/aws-ec2/install_nvidia.sh'))
+    """
+    Installs the NVidia drivers on the running EC2 instance
+
+    :return:
+    """
+    ec2_ssh(input=read_bytes(f"{project_path}/dev/aws-ec2/install_nvidia.sh"))
 
 
 def dynamodb_get_notebook_state(name: str):
@@ -697,13 +744,7 @@ if __name__ == "__main__":
             jupyter_start,
             jupyter_stop,
             jupyter_down,
-            aws_init,
-            sagemaker_up,
-            sagemaker_start,
-            sagemaker_stop,
-            sagemaker_resize,
-            sagemaker_down,
-            jupyter_build,
+            aws_up,
             docker_cli,
             ec2_up,
             ec2_start,
@@ -713,9 +754,10 @@ if __name__ == "__main__":
             ec2_stop,
             ec2_down,
             ec2_ssh,
+            aws_down,
             shell,
             s3_up,
-            s3_down,
+            jupyter_build,
             terraform_output_sagemaker,
             terraform_output_ec2,
         ]
