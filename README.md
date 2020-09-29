@@ -137,8 +137,9 @@ To create the EC2 instance:
 
 To create a tunnel with the running EC2 instance (do not exit until you are done):
 ```
-./dev/cli.py ec2-tunnel htop
+./dev/cli.py ec2-tunnel
 ```
+While in the EC2 instance's terminal, you can run `htop` to see CPU cores and CPU RAM utilization.
 
 To create and start the Jupyter container on the EC2 instance:
 ```
@@ -157,6 +158,7 @@ To install Nvidia drivers, when using GPU instance type (p2 or p3):
 ```
 ./dev/cli.py ec2-nvidia
 ```
+While in the EC2 instance's terminal, you can run `nvtop` to see GPU cores and GPU RAM utilization.
 
 To create the remote Jupyter container with GPU support:
 ```
