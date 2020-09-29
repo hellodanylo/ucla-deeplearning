@@ -151,7 +151,7 @@ def load_tiny_batch() -> Dict[Text, Image.Image]:
         "cat": "https://farm7.staticflickr.com/6152/6150418513_01f9c2927c_z.jpg",
         "dog": "https://farm1.staticflickr.com/52/139518224_136aa37a7d_z.jpg",
         "truck + dog": "https://farm1.staticflickr.com/36/121456748_96661cebb9_z.jpg",
-        "rover": "https://upload.wikimedia.org/wikipedia/commons/d/d8/NASA_Mars_Rover.jpg",
+        "rover": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/NASA_Mars_Rover.jpg/600px-NASA_Mars_Rover.jpg",
     }
     return {name: load_from_internet(url) for name, url in image_urls.items()}
 
