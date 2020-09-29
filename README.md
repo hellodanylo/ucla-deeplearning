@@ -38,6 +38,9 @@ It's strongly advised to use the setup instructions above, but if you would like
 ## Windows
 The following is the summary of these detailed instructions: https://docs.microsoft.com/en-us/windows/wsl/install-win10
 1. Upgrade to Windows 10 v2004 
+   * open "Settings" from your Windows menu
+   * navigate to "Update & Security"
+   * select "Check for Updates"
 2. Run the following in PowerShell as Administrator:
     ```
     dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart
