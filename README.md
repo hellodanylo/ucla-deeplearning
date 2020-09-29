@@ -50,7 +50,6 @@ The following is the summary of these detailed instructions: https://docs.micros
 7. Start Ubuntu shell, and enter a new username and password.
 8. Run the following command in Ubuntu shell to download this git repo to `ucla-deeplearning` folder:
     ```
-    mkdir git 
     git clone --depth 1 https://github.com/hellodanylo/ucla-deeplearning.git
     ```
 9. Next, restart the Ubuntu shell.
