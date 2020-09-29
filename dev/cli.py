@@ -489,6 +489,10 @@ def s3_down():
 
     :return:
     """
+
+    bucket = boto_session().resource('s3').Bucket(s3_bucket_name())
+    bucket.objects.all().delete()
+
     run(
         [
             "terragrunt",
