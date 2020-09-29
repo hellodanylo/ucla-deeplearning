@@ -85,6 +85,7 @@ In the Docker settings ensure that you have:
 * all CPUs available on your system
 
 ## Dev Tools
+Follow this section after you have finished either Windows or Mac OS setup.
 Run the following commands in the terminal:
 ```
 # Create ucla-dev environment
@@ -176,6 +177,11 @@ To create the remote Jupyter container with GPU support:
 To stop the EC2 instance (data preserved and billed for):
 ```
 ./dev/cli.py ec2-stop
+```
+
+To start the instance after it's been stopped:
+```
+./dev/cli.py ec2-start
 ```
 
 To remove the EC2 instance (data can't be recovered):
