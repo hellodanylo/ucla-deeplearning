@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+import re
+
 import docker
 import json
 import os
@@ -501,6 +503,11 @@ def aws_up():
         "AWS_SECRET_ACCESS_KEY": input("Enter AWS secret access key: "),
         "AWS_SESSION_TOKEN": input("Enter AWS session token: "),
     }
+
+    if re.match(r"^[a-zA-Z0-9\-]+$", opts["PROJECT_USER"]) is None:
+        raise ValueError(
+            "The project user name may only contain letters, numbers and dashes."
+        )
 
     with open(os.path.join(project_path, "dev", "cli.env"), "w") as f:
         f.write("\n".join("=".join(p) for p in opts.items()))
