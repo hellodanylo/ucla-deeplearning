@@ -497,12 +497,17 @@ def aws_up():
     :return:
     """
 
+    project_user = os.environ.get('PROJECT_USER', '')
+
     opts = {
-        "PROJECT_USER": input("Enter project user name: "),
+        "PROJECT_USER": input(f"Enter project user name [{project_user}]: "),
         "AWS_ACCESS_KEY_ID": input("Enter AWS access key ID: "),
         "AWS_SECRET_ACCESS_KEY": input("Enter AWS secret access key: "),
         "AWS_SESSION_TOKEN": input("Enter AWS session token: "),
     }
+
+    if opts['PROJECT_USER'] == '':
+        opts['PROJECT_USER'] = project_user
 
     if re.match(r"^[a-zA-Z0-9\-]+$", opts["PROJECT_USER"]) is None:
         raise ValueError(
