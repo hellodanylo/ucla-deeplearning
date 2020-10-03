@@ -142,9 +142,7 @@ To enable access to your AWS account:
 ```
 ./dev/cli.py aws-up
 ```
-You can find your AWS credentials at 
-[My Credentials](https://console.aws.amazon.com/iam/home?region=us-west-2#/security_credentials)
-page.
+You can find your AWS credentials at AWS Educate -> Vocareum Dashboard -> Account Details -> AWS CLI.
 
 To create the EC2 instance:
 ```
@@ -163,23 +161,12 @@ To create and start the Jupyter container on the EC2 instance:
 ```
 You will see a URL and a token in the output. Enter it in the browser.
 
-To change the instance size (for example to p2.xlarge):
+To change the instance size (for example to t2.2xlarge):
 
 ```
-./dev/cli.py ec2-resize p2.xlarge
+./dev/cli.py ec2-resize t2.2xlarge
 ```
-See the AWS slides for information on available instance sizes.
-
-To install Nvidia drivers, when using GPU instance type (p2 or p3):
-```
-./dev/cli.py ec2-nvidia
-```
-While in the EC2 instance's terminal, you can run `nvtop` to see GPU cores and GPU RAM utilization.
-
-To create the remote Jupyter container with GPU support:
-```
-./dev/cli.py jupyter-up --remote --gpu
-```
+See the AWS slides for information on available instance sizes. Note that resizing also restarts the instance.
 
 To stop the EC2 instance (data preserved and billed for):
 ```
