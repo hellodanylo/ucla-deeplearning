@@ -17,12 +17,17 @@ project_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 container_jupyter = "ucla-jupyter"
 image_jupyter = "ucla_jupyter"
 github_repo = "https://github.com/hellodanylo/ucla-deeplearning.git"
-project_env_path = os.path.join(project_path, "dev", "cli.env")
+
+
+def load_env():
+    project_env_path = os.path.join(project_path, "dev", "cli.env")
+    if os.path.exists(project_env_path):
+        dotenv.load_dotenv(project_env_path)
 
 
 @lru_cache()
 def boto_session():
-    return boto3.Session(profile_name="ucla", region_name="us-west-2")
+    return boto3.Session(region_name="us-east-1")
 
 
 @lru_cache()
@@ -32,17 +37,13 @@ def boto_sagemaker():
 
 @lru_cache()
 def sagemaker_notebook_name():
-    project_user = dotenv.dotenv_values(dotenv_path=project_env_path).get(
-        "PROJECT_USER"
-    )
+    project_user = os.environ["PROJECT_USER"]
     return f"ucla-deep-learning-{project_user}"
 
 
 @lru_cache()
 def s3_bucket_name():
-    project_user = dotenv.dotenv_values(dotenv_path=project_env_path).get(
-        "PROJECT_USER"
-    )
+    project_user = os.environ["PROJECT_USER"]
     return f"ucla-deep-learning-{project_user}-private"
 
 
@@ -493,19 +494,18 @@ def aws_up():
 
     :return:
     """
-    new_project_user = input("Enter project user name: ")
+
+    opts = {
+        "PROJECT_USER": input("Enter project user name: "),
+        "AWS_ACCESS_KEY_ID": input("Enter AWS access key ID: "),
+        "AWS_SECRET_ACCESS_KEY": input("Enter AWS secret access key: "),
+        "AWS_SESSION_TOKEN": input("Enter AWS session token: "),
+    }
+
     with open(os.path.join(project_path, "dev", "cli.env"), "w") as f:
-        f.write(f"PROJECT_USER={new_project_user}")
+        f.write("\n".join("=".join(p) for p in opts.items()))
 
-    subprocess.run(["aws", "--profile", "ucla", "configure"])
-
-    try:
-        user = boto_session().client("iam").list_account_aliases()["AccountAliases"][0]
-    except Exception as e:
-        raise Exception("Unable to find `ucla` profile in AWS config") from e
-
-    print(f"Found account in AWS config: {user}")
-
+    load_env()
     s3_up()
 
 
@@ -569,7 +569,7 @@ def dynamodb_set_notebook_state(name: str, state: str):
     )
 
 
-def ec2_up(instance_type: str = "t3.xlarge"):
+def ec2_up(instance_type: str = "t2.xlarge"):
     """
     Creates and starts the EC2 instance
 
@@ -746,6 +746,7 @@ def dynamodb_get_notebook_state(name: str):
 
 
 if __name__ == "__main__":
+    load_env()
     clize.run(
         [
             jupyter_up,

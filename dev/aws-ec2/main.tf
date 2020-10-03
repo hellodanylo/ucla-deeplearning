@@ -2,10 +2,16 @@ terraform {
   backend "s3" {}
 }
 
+terraform {
+  required_providers {
+    aws = {
+      version = "3.7.0"
+    }
+  }
+}
+
 provider "aws" {
-  version = "3.7"
-  region  = "us-west-2"
-  profile = "ucla"
+  region  = "us-east-1"
 }
 
 variable "instance_type" {
@@ -20,7 +26,7 @@ resource "aws_key_pair" "key" {
 resource "aws_default_vpc" "default" {}
 
 resource "aws_default_subnet" "default_az1" {
-  availability_zone = "us-west-2a"
+  availability_zone = "us-east-1a"
 }
 
 resource "aws_security_group" "ec2_instance" {
@@ -73,9 +79,13 @@ resource aws_instance "instance" {
   }
 
   # us-west-2 / Ubuntu 20.04 LTS amd64
-  ami           = "ami-06e54d05255faf8f6"
+  # ami           = "ami-06e54d05255faf8f6"
+
+  # us-east-1 / Ubuntu 20.04 LTS amd64
+  ami = "ami-0dba2cb6798deb6d8"
+
   subnet_id     = aws_default_subnet.default_az1.id
-  instance_type = "t3.xlarge"
+  instance_type = var.instance_type
 
   # Security
   key_name = aws_key_pair.key.key_name

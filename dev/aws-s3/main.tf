@@ -11,8 +11,7 @@ terraform {
 }
 
 provider "aws" {
-  region  = "us-west-2"
-  profile = "ucla"
+  region  = "us-east-1"
 }
 
 resource "aws_s3_bucket" "private" {
