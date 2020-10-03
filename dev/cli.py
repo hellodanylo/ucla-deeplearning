@@ -24,7 +24,7 @@ github_repo = "https://github.com/hellodanylo/ucla-deeplearning.git"
 def load_env():
     project_env_path = os.path.join(project_path, "dev", "cli.env")
     if os.path.exists(project_env_path):
-        dotenv.load_dotenv(project_env_path)
+        dotenv.load_dotenv(project_env_path, override=True)
 
 
 @lru_cache()
