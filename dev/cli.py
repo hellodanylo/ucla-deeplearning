@@ -140,10 +140,12 @@ def jupyter_start(*, remote: bool = False):
     :return:
     """
     docker_cli("start", container_jupyter, remote=remote)
-    sleep(5)
-    docker_cli("exec", container_jupyter, "jupyter", "notebook", "list", remote=remote)
+    sleep(10)
+    proc = docker_cli("exec", container_jupyter, "jupyter", "notebook", "list", remote=remote, capture_output=True)
+    token = re.findall('token=([a-zA-Z0-9]+)', proc.stdout.decode())[0]
+
     print(
-        f"Jupyter available at http://localhost:{'5000' if remote else '3000'} - token can be found above."
+        f"Jupyter available at http://localhost:{'5000' if remote else '3000'}/?token={token}"
     )
 
 
@@ -183,8 +185,11 @@ def jupyter_down(*, remote: bool = False, quiet: bool = False):
         print(f"Removed {container.name}")
 
 
-def docker_cli(*cmd, remote: bool = False):
-    run(
+def docker_cli(
+    *cmd, remote: bool = False, capture_output: bool = False,
+) -> subprocess.CompletedProcess:
+
+    return run(
         [
             "docker",
             *(
@@ -193,7 +198,8 @@ def docker_cli(*cmd, remote: bool = False):
                 else []
             ),
             *cmd,
-        ]
+        ],
+        capture_output=capture_output
     )
 
 
@@ -343,7 +349,7 @@ def run(
     capture_output: bool = False,
     env: Mapping[str, str] = None,
     input: str = None,
-):
+) -> subprocess.CompletedProcess:
     if cwd is None:
         cwd = os.getcwd()
 
@@ -497,7 +503,7 @@ def aws_up():
     :return:
     """
 
-    project_user = os.environ.get('PROJECT_USER', '')
+    project_user = os.environ.get("PROJECT_USER", "")
 
     opts = {
         "PROJECT_USER": input(f"Enter project user name [{project_user}]: "),
@@ -506,8 +512,8 @@ def aws_up():
         "AWS_SESSION_TOKEN": input("Enter AWS session token: "),
     }
 
-    if opts['PROJECT_USER'] == '':
-        opts['PROJECT_USER'] = project_user
+    if opts["PROJECT_USER"] == "":
+        opts["PROJECT_USER"] = project_user
 
     if re.match(r"^[a-zA-Z0-9\-]+$", opts["PROJECT_USER"]) is None:
         raise ValueError(
