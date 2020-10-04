@@ -91,7 +91,7 @@ def jupyter_create(gpu: bool = False, instructor: bool = False, remote: bool = F
         *(
             [
                 "-v",
-                f"{os.environ['HOME']}/git/lab/ucla-deeplearning-instructor:/app/ucla_deeplearning/instructor",
+                f"{os.environ['HOME']}/git/lab/ucla-deeplearning-instructor:/app/ucla-deeplearning/instructor",
             ]
             if instructor
             else []
