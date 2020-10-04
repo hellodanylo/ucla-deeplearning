@@ -144,7 +144,7 @@ To enable access to your AWS account:
 ```
 You can find your AWS credentials at AWS Educate -> Vocareum Dashboard -> Account Details -> AWS CLI.
 
-To create the EC2 instance:
+To create the EC2 instance (takes about 10 minutes):
 ```
 ./dev/cli.py ec2-up
 ```
@@ -153,9 +153,10 @@ To create a tunnel with the running EC2 instance (do not exit until you are done
 ```
 ./dev/cli.py ec2-tunnel
 ```
-While in the EC2 instance's terminal, you can run `htop` to see CPU cores and CPU RAM utilization.
+While in the EC2 instance's terminal, you can run `htop` to see CPU cores and CPU RAM utilization. 
+All other commands (e.g. `jupyter-up`) must run in another terminal, while the tunnel is up.
 
-To create and start the Jupyter container on the EC2 instance:
+To create and start the Jupyter container on the EC2 instance (requires the EC2 tunnel to be running):
 ```
 ./dev/cli.py jupyter-up --remote
 ```
