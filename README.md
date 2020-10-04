@@ -169,7 +169,7 @@ To change the instance size (for example to t2.2xlarge):
 ```
 See the AWS slides for information on available instance sizes. Note that resizing also restarts the instance.
 
-To stop the EC2 instance (data preserved and billed for):
+To stop the EC2 instance (compute time not billed, data preserved and billed):
 ```
 ./dev/cli.py ec2-stop
 ```
@@ -179,12 +179,12 @@ To start the instance after it's been stopped:
 ./dev/cli.py ec2-start
 ```
 
-To remove the EC2 instance (data can't be recovered):
+To remove the EC2 instance (data removed and not billed), when you have finished this course:
 ```
 ./dev/cli.py ec2-down
 ```
 
-To remove all AWS resources associated with this project:
+To remove all AWS resources associated with this project, when you have finished this course:
 ```
 ./dev/cli.py aws-down
 ```
