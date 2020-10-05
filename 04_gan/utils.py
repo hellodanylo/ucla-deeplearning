@@ -3,6 +3,10 @@ import matplotlib.pyplot as plt
 from PIL import Image
 import os
 
+try:
+    get_ipython().run_line_magic('config', 'InlineBackend.figure_format = "retina"')
+except:
+    pass
 
 def plot_strided_grid(images, ncols=5, nrows=5):
     """

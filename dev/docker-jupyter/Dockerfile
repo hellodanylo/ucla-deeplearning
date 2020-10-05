@@ -24,8 +24,8 @@ RUN conda env update -n base -f conda.yml
 
 # https://github.com/axelfahy/jupyterlab-vim
 ARG VIM=false
-RUN ($VIM && jupyter labextension install --no-build @axlair/jupyterlab_vim) || true
-RUN jupyter labextension install --no-build @jupyterlab/git
+RUN ($VIM && jupyter labextension install --no-build @axlair/jupyterlab_vim@0.12.4) || true
+RUN jupyter labextension install --no-build @jupyterlab/git@0.21.1
 RUN jupyter serverextension enable --py jupyterlab_git --sys-prefix >/dev/null
 RUN jupyter lab build
 
