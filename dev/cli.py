@@ -29,7 +29,8 @@ def load_env():
 
 @lru_cache()
 def boto_session():
-    return boto3.Session(region_name="us-east-1")
+    # us-east-1 is the default for compatibility with the existing AWS Educate installations
+    return boto3.Session(region_name=os.environ.get('AWS_REGION', 'us-east-1'))
 
 
 @lru_cache()
@@ -376,7 +377,7 @@ def read_bytes(path: str) -> bytes:
         return f.read()
 
 
-def sagemaker_up(instance_type="ml.t2.xlarge", storage_gb=20):
+def sagemaker_up(instance_type="ml.t3.large", storage_gb=20):
     """
     Creates and starts the SageMaker notebook
 
@@ -496,7 +497,7 @@ def terraform_output(module, env=None):
     return output_dict
 
 
-def aws_up():
+def aws_up(*, region: str = 'us-east-1'):
     """
     Configures the AWS account access
 
@@ -510,10 +511,14 @@ def aws_up():
         "AWS_ACCESS_KEY_ID": input("Enter AWS access key ID: "),
         "AWS_SECRET_ACCESS_KEY": input("Enter AWS secret access key: "),
         "AWS_SESSION_TOKEN": input("Enter AWS session token: "),
+        "AWS_REGION": region
     }
 
     if opts["PROJECT_USER"] == "":
         opts["PROJECT_USER"] = project_user
+
+    if opts['AWS_SESSION_TOKEN'] == "":
+        del opts['AWS_SESSION_TOKEN']
 
     if re.match(r"^[a-zA-Z0-9\-]+$", opts["PROJECT_USER"]) is None:
         raise ValueError(
@@ -589,7 +594,7 @@ def dynamodb_set_notebook_state(name: str, state: str):
 
 def ec2_up(instance_type: str = "t2.xlarge"):
     """
-    Creates and starts the EC2 instance
+    Creates and starts the EC2 instance, then install the system packages (e.g. Docker).
 
     """
     key_path = f"{project_path}/dev/aws-ec2/key"
@@ -610,12 +615,19 @@ def ec2_up(instance_type: str = "t2.xlarge"):
         env={"s3_bucket_name": bucket_name},
     )
 
+    print("Waiting for the EC2 instance to boot...")
     sleep(60)
+
+    ec2_install()
     print("Ready")
 
+
+def ec2_install():
+    """
+    Installs the Docker and Github repo on the EC2 instance.
+    """
     ec2_ssh(input=read_bytes(f"{project_path}/dev/aws-ec2/install_docker.sh"))
     ec2_ssh(input=read_bytes(f"{project_path}/dev/aws-ec2/clone_repo.sh"))
-    print("Ready")
 
 
 def ec2_down():
@@ -780,6 +792,7 @@ if __name__ == "__main__":
             ec2_stop,
             ec2_down,
             ec2_ssh,
+            ec2_install,
             aws_down,
             shell,
             s3_up,
@@ -787,5 +800,8 @@ if __name__ == "__main__":
             jupyter_build,
             terraform_output_sagemaker,
             terraform_output_ec2,
+            sagemaker_up,
+            sagemaker_resize,
+            sagemaker_down,
         ]
     )

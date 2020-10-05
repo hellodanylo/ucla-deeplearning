@@ -3,7 +3,11 @@ remote_state {
   config  = {
     bucket         = get_env("s3_bucket_name")
     key            = "terraform/aws-ec2.tfstate"
-    region         = "us-east-1"
+    region         = get_env("AWS_REGION")
     dynamodb_table = "ucla-deeplearning-terraform-lock"
   }
+}
+
+inputs = {
+  region = get_env("AWS_REGION")
 }

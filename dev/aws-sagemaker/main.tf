@@ -1,7 +1,7 @@
 terraform {
   required_providers {
     aws = {
-      version = "3.4.0"
+      version = "3.7.0"
     }
   }
 
@@ -9,8 +9,7 @@ terraform {
 }
 
 provider "aws" {
-  region  = "us-west-2"
-  profile = "ucla"
+  region  = "us-east-1"
 }
 
 variable "sagemaker_notebook_name" {
@@ -20,7 +19,7 @@ variable "sagemaker_notebook_name" {
 resource "aws_default_vpc" "default" {}
 
 resource "aws_default_subnet" "default_az1" {
-  availability_zone = "us-west-2a"
+  availability_zone = "us-east-1c"
 }
 
 resource "aws_iam_role" "sagemaker" {

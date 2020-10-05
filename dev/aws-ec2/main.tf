@@ -10,11 +10,11 @@ terraform {
   }
 }
 
-provider "aws" {
-  region  = "us-east-1"
+variable "instance_type" {
+  type = string
 }
 
-variable "instance_type" {
+variable "region" {
   type = string
 }
 
@@ -26,7 +26,7 @@ resource "aws_key_pair" "key" {
 resource "aws_default_vpc" "default" {}
 
 resource "aws_default_subnet" "default_az1" {
-  availability_zone = "us-east-1a"
+  availability_zone = "${var.region}a"
 }
 
 resource "aws_security_group" "ec2_instance" {
@@ -78,11 +78,9 @@ resource aws_instance "instance" {
     Name = "ucla-deeplearning"
   }
 
-  # us-west-2 / Ubuntu 20.04 LTS amd64
-  # ami           = "ami-06e54d05255faf8f6"
-
   # us-east-1 / Ubuntu 20.04 LTS amd64
-  ami = "ami-0dba2cb6798deb6d8"
+  # us-west-2 / Ubuntu 20.04 LTS amd64
+  ami = var.region == "us-east-1" ? "ami-0dba2cb6798deb6d8" : "ami-06e54d05255faf8f6"
 
   subnet_id     = aws_default_subnet.default_az1.id
   instance_type = var.instance_type
