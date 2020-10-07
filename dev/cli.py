@@ -504,25 +504,30 @@ def aws_up(*, region: str = 'us-east-1'):
     :return:
     """
 
-    opts = {
+    opts = {}
+
+    if 'PROJECT_USER' in os.environ:
+        project_user = os.environ['PROJECT_USER']
+        print(f"Detected project user name = {project_user}")
+    else:
+        project_user = input(f"Enter project user name: ")
+        if re.match(r"^[a-zA-Z0-9\-]+$", project_user) is None:
+            raise ValueError(
+                "The project user name may only contain letters, numbers and dashes."
+            )
+
+    opts['PROJECT_USER'] = project_user
+
+    opts.update({
         "AWS_ACCESS_KEY_ID": input("Enter AWS access key ID: "),
         "AWS_SECRET_ACCESS_KEY": input("Enter AWS secret access key: "),
         "AWS_SESSION_TOKEN": input("Enter AWS session token: "),
         "AWS_REGION": region
-    }
-
-    if 'PROJECT_USER' in os.environ:
-        opts['PROJECT_USER'] = os.environ['PROJECT_USER']
-    else:
-        opts['PROJECT_USER'] = input(f"Enter project user name: "),
+    })
 
     if opts['AWS_SESSION_TOKEN'] == "":
         del opts['AWS_SESSION_TOKEN']
 
-    if re.match(r"^[a-zA-Z0-9\-]+$", opts["PROJECT_USER"]) is None:
-        raise ValueError(
-            "The project user name may only contain letters, numbers and dashes."
-        )
 
     with open(os.path.join(project_path, "dev", "cli.env"), "w") as f:
         f.write("\n".join("=".join(p) for p in opts.items()))
