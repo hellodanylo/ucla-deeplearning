@@ -504,18 +504,17 @@ def aws_up(*, region: str = 'us-east-1'):
     :return:
     """
 
-    project_user = os.environ.get("PROJECT_USER", "")
-
     opts = {
-        "PROJECT_USER": input(f"Enter project user name [{project_user}]: "),
         "AWS_ACCESS_KEY_ID": input("Enter AWS access key ID: "),
         "AWS_SECRET_ACCESS_KEY": input("Enter AWS secret access key: "),
         "AWS_SESSION_TOKEN": input("Enter AWS session token: "),
         "AWS_REGION": region
     }
 
-    if opts["PROJECT_USER"] == "":
-        opts["PROJECT_USER"] = project_user
+    if 'PROJECT_USER' in os.environ:
+        opts['PROJECT_USER'] = os.environ['PROJECT_USER']
+    else:
+        opts['PROJECT_USER'] = input(f"Enter project user name: "),
 
     if opts['AWS_SESSION_TOKEN'] == "":
         del opts['AWS_SESSION_TOKEN']
