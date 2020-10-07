@@ -775,6 +775,11 @@ def dynamodb_get_notebook_state(name: str):
     return response["Item"]["state"]["S"]
 
 
+def aws_cli(*cmd):
+    load_env()
+    run(['aws', *cmd])
+
+
 if __name__ == "__main__":
     load_env()
     clize.run(
@@ -803,5 +808,6 @@ if __name__ == "__main__":
             sagemaker_up,
             sagemaker_resize,
             sagemaker_down,
+            aws_cli,
         ]
     )
