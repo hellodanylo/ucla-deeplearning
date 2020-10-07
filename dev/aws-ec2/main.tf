@@ -89,7 +89,7 @@ resource aws_instance "instance" {
   key_name = aws_key_pair.key.key_name
 
   root_block_device {
-    volume_size = "100"
+    volume_size = "70"
     volume_type = "gp2"
   }
 

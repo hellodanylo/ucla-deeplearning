@@ -638,7 +638,7 @@ def ec2_down():
     bucket_name = s3_bucket_name()
 
     run(
-        ["terragrunt", "destroy", "-auto-approve", "-var", "instance_type=t3.xlarge"],
+        ["terragrunt", "destroy", "-auto-approve", "-var", "instance_type=t2.xlarge"],
         cwd=os.path.join(project_path, "dev", "aws-ec2"),
         env={"s3_bucket_name": bucket_name},
     )
@@ -776,7 +776,6 @@ def dynamodb_get_notebook_state(name: str):
 
 
 def aws_cli(*cmd):
-    load_env()
     run(['aws', *cmd])
 
 
