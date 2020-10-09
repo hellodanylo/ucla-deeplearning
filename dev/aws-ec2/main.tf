@@ -18,6 +18,10 @@ variable "region" {
   type = string
 }
 
+variable "storage_gb" {
+  type = number
+}
+
 resource "aws_key_pair" "key" {
   key_name   = "ucla-deeplearning"
   public_key = file("${path.module}/key.pub")
@@ -89,7 +93,7 @@ resource aws_instance "instance" {
   key_name = aws_key_pair.key.key_name
 
   root_block_device {
-    volume_size = "50"
+    volume_size = var.storage_gb
     volume_type = "gp2"
   }
 

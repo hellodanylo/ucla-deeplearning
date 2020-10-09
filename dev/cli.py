@@ -511,9 +511,9 @@ def aws_up(*, region: str = 'us-east-1'):
         print(f"Detected project user name = {project_user}")
     else:
         project_user = input(f"Enter project user name: ")
-        if re.match(r"^[a-zA-Z0-9\-]+$", project_user) is None:
+        if re.match(r"^[a-z0-9\-]+$", project_user) is None:
             raise ValueError(
-                "The project user name may only contain letters, numbers and dashes."
+                "The project user name may only contain lowercase letters, numbers and dashes."
             )
 
     opts['PROJECT_USER'] = project_user
@@ -596,7 +596,7 @@ def dynamodb_set_notebook_state(name: str, state: str):
     )
 
 
-def ec2_up(instance_type: str = "t2.xlarge"):
+def ec2_up(*, instance_type: str = "t2.xlarge", storage_gb: int = 50):
     """
     Creates and starts the EC2 instance, then install the system packages (e.g. Docker).
 
@@ -614,6 +614,8 @@ def ec2_up(instance_type: str = "t2.xlarge"):
             "-auto-approve",
             "-var",
             f"instance_type={instance_type}",
+            "-var",
+            f"storage_gb={storage_gb}"
         ],
         cwd=os.path.join(project_path, "dev", "aws-ec2"),
         env={"s3_bucket_name": bucket_name},
@@ -642,7 +644,7 @@ def ec2_down():
     bucket_name = s3_bucket_name()
 
     run(
-        ["terragrunt", "destroy", "-auto-approve", "-var", "instance_type=t2.xlarge"],
+        ["terragrunt", "destroy", "-auto-approve", "-var", "instance_type=t2.xlarge", "-var", "storage_gb=50"],
         cwd=os.path.join(project_path, "dev", "aws-ec2"),
         env={"s3_bucket_name": bucket_name},
     )
@@ -699,7 +701,7 @@ def ec2_tunnel(*cmd):
         "-L",
         f"{local_docker_path}:/var/run/docker.sock",
         "-L",
-        "5000:localhost:3000",
+        "0.0.0.0:5000:localhost:3000",
         *cmd,
     ]
 
