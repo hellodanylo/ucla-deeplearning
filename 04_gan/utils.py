@@ -57,3 +57,4 @@ def save_images(images, prefix):
         Image.fromarray(image.astype('uint8')).save(f'{folder}/{idx}.png')
 
     print(f'Images are saved to {folder}')
+    return folder
