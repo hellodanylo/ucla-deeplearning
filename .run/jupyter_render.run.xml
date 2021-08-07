@@ -6,7 +6,7 @@
     <envs>
       <env name="PYTHONUNBUFFERED" value="1" />
     </envs>
-    <option name="SDK_HOME" value="docker://ucla_jupyter:latest/python" />
+    <option name="SDK_HOME" value="docker://ucla_jupyter:latest//opt/conda/bin/python" />
     <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/foundation" />
     <option name="IS_MODULE_SDK" value="true" />
     <option name="ADD_CONTENT_ROOTS" value="true" />

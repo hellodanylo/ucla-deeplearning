@@ -221,7 +221,7 @@ def jupyter_build(
         f"CONDA_ENV={'conda_init.yml' if conda_init else 'conda_lock.yml'}",
         "--build-arg",
         f"VIM={'true' if vim else 'false'}",
-        *(["--network", "shell_docker_primary"] if conda_cache else []),
+        *(["--network", "inception"] if conda_cache else []),
         os.path.join(project_path, "dev", "docker-jupyter"),
         remote=remote,
     )
@@ -690,12 +690,15 @@ def ec2_ssh(*cmd, input: bytes = None):
 
 def ec2_tunnel(*cmd):
     """
-    Starts a tunnel to the running EC2 instance (to access Docker and Jupyter)
+    Starts a tunnel to the running EC2 instance (to access Docker and Jupyter).
 
+    If required, also starts the EC2 instance.
     :param cmd:
     :return:
     """
     local_docker_path = f"{project_path}/dev/aws-ec2/docker.sock"
+
+    ec2_start()
 
     ssh_cmd = [
         "-L",

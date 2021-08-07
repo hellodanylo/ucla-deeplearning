@@ -4,6 +4,6 @@
 **/__pycache__
 **/.terraform
 **/*tfstate*
-dev/cli.env
-key.private
-key.public
+dev/*.env
+dev/aws-ec2/key
+dev/aws-ec2/key.pub
