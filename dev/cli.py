@@ -50,6 +50,10 @@ def s3_bucket_name():
     return f"ucla-deep-learning-{project_user}-private"
 
 
+def s3_bucket_region():
+    return "us-west-2"
+
+
 def find_container_by_name(name, remote: bool = False) -> Optional[Container]:
     docker_host = (
         "unix:///var/run/docker.sock"
@@ -389,7 +393,7 @@ def sagemaker_up(instance_type="ml.t3.large", storage_gb=20):
     s3_up()
 
     notebook_name = sagemaker_notebook_name()
-    bucket_name = s3_bucket_name()
+    env = {"s3_bucket_name": s3_bucket_name(), "s3_bucket_region": s3_bucket_region()}
 
     run(
         [
@@ -400,11 +404,11 @@ def sagemaker_up(instance_type="ml.t3.large", storage_gb=20):
             f"sagemaker_notebook_name={notebook_name}",
         ],
         cwd=os.path.join(project_path, "dev", "aws-sagemaker"),
-        env={"s3_bucket_name": bucket_name},
+        env=env
     )
 
     sagemaker_output = terraform_output(
-        "aws-sagemaker", env={"s3_bucket_name": bucket_name}
+        "aws-sagemaker", env=env
     )
 
     params = dict(
@@ -460,6 +464,7 @@ def sagemaker_down():
         sagemaker_wait_deleted()
 
     name = sagemaker_notebook_name()
+    env = {"s3_bucket_name": s3_bucket_name(), "s3_bucket_region": s3_bucket_region()}
 
     run(
         [
@@ -470,7 +475,7 @@ def sagemaker_down():
             f"sagemaker_notebook_name={name}",
         ],
         cwd=os.path.join(project_path, "dev", "aws-sagemaker"),
-        env={"s3_bucket_name": s3_bucket_name()},
+        env=env
     )
 
     aws_down()
@@ -581,7 +586,10 @@ def aws_down():
 
 
 def terraform_output_sagemaker():
-    return terraform_output("aws-sagemaker", env={"s3_bucket_name": s3_bucket_name()})
+    return terraform_output(
+        "aws-sagemaker",
+        env={"s3_bucket_name": s3_bucket_name(), "s3_bucket_region": s3_bucket_region()}
+    )
 
 
 def terraform_output_ec2():

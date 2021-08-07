@@ -3,7 +3,8 @@ remote_state {
   config  = {
     bucket         = get_env("s3_bucket_name")
     key            = "terraform/aws-sagemaker.tfstate"
-    region         = "us-east-1"
+    region         = get_env("s3_bucket_region")
     dynamodb_table = "ucla-deeplearning-terraform-lock"
+    profile        = "ucla"
   }
 }

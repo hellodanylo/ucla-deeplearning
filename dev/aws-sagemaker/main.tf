@@ -8,10 +8,6 @@ terraform {
   backend "s3" {}
 }
 
-provider "aws" {
-  region  = "us-east-1"
-}
-
 variable "sagemaker_notebook_name" {
   type = string
 }
@@ -19,7 +15,7 @@ variable "sagemaker_notebook_name" {
 resource "aws_default_vpc" "default" {}
 
 resource "aws_default_subnet" "default_az1" {
-  availability_zone = "us-east-1c"
+  availability_zone = "us-west-2a"
 }
 
 resource "aws_iam_role" "sagemaker" {
