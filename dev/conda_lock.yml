@@ -1,68 +1,71 @@
 dependencies:
   - _libgcc_mutex=0.1
+  - _openmp_mutex=4.5
   - appdirs=1.4.4
   - backcall=0.2.0
   - black=19.10b0
-  - ca-certificates=2020.7.22
-  - certifi=2020.6.20
-  - click=7.1.2
-  - decorator=4.4.2
+  - ca-certificates=2021.7.5
+  - certifi=2021.5.30
+  - click=8.0.1
+  - decorator=5.0.9
+  - importlib-metadata=3.10.0
   - ipython=7.2.0
   - ipython_genutils=0.2.0
-  - jedi=0.17.2
-  - libedit=3.1.20191231
+  - jedi=0.17.0
+  - libedit=3.1.20210216
   - libffi=3.2.1
-  - libgcc-ng=9.1.0
-  - libstdcxx-ng=9.1.0
+  - libgcc-ng=9.3.0
+  - libgomp=9.3.0
+  - libstdcxx-ng=9.3.0
   - mypy_extensions=0.4.3
   - ncurses=6.2
-  - openssl=1.1.1g
-  - parso=0.7.0
+  - openssl=1.1.1k
+  - parso=0.8.2
   - pathspec=0.7.0
   - pexpect=4.8.0
   - pickleshare=0.7.5
   - pip=18.1
   - prompt_toolkit=2.0.10
-  - ptyprocess=0.6.0
-  - pygments=2.6.1
+  - ptyprocess=0.7.0
+  - pygments=2.9.0
   - python=3.7.1
   - readline=7.0
-  - regex=2020.7.14
-  - setuptools=49.6.0
-  - six=1.15.0
+  - regex=2021.7.6
+  - setuptools=52.0.0
+  - six=1.16.0
   - sqlite=3.33.0
-  - terraform=0.12.24
-  - terragrunt=0.23.28
+  - terraform=1.0.4
+  - terragrunt=0.31.3
   - tk=8.6.10
-  - toml=0.10.1
-  - traitlets=4.3.3
-  - typed-ast=1.4.1
-  - typing_extensions=3.7.4.3
+  - toml=0.10.2
+  - traitlets=5.0.5
+  - typed-ast=1.4.3
+  - typing_extensions=3.10.0.0
   - wcwidth=0.2.5
-  - wheel=0.35.1
+  - wheel=0.36.2
   - xz=5.2.5
+  - zipp=3.5.0
   - zlib=1.2.11
   - pip:
     - attrs==19.3.0
     - awscli==1.18.34
     - boto3==1.11.15
     - botocore==1.15.34
-    - chardet==3.0.4
+    - charset-normalizer==2.0.4
     - clize==4.1.1
     - colorama==0.4.3
     - docker==4.2.0
     - docutils==0.15.2
-    - idna==2.10
+    - idna==3.2
     - jmespath==0.10.0
     - od==1.0
     - pyasn1==0.4.8
-    - python-dateutil==2.8.1
+    - python-dateutil==2.8.2
     - python-dotenv==0.12.0
     - pyyaml==5.3.1
-    - requests==2.24.0
+    - requests==2.26.0
     - rsa==3.4.2
-    - s3transfer==0.3.3
+    - s3transfer==0.3.7
     - sigtools==2.0.2
-    - urllib3==1.25.10
-    - websocket-client==0.57.0
-
+    - urllib3==1.25.11
+    - websocket-client==1.1.1

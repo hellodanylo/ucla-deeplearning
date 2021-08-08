@@ -1,21 +1,20 @@
 terraform {
   required_providers {
     aws = {
-      version = "3.7.0"
+      source  = "hashicorp/aws"
+      version = "3.53.0"
     }
   }
 
   backend "s3" {}
 }
 
-variable "sagemaker_notebook_name" {
-  type = string
-}
+data "aws_region" "current" {}
 
 resource "aws_default_vpc" "default" {}
 
 resource "aws_default_subnet" "default_az1" {
-  availability_zone = "us-west-2a"
+  availability_zone = "${data.aws_region.current.name}a"
 }
 
 resource "aws_iam_role" "sagemaker" {
@@ -47,20 +46,13 @@ resource "aws_security_group" "sagemaker" {
   }
 }
 
-locals {
-  conda_lock_yml = file("${path.module}/../docker-jupyter/conda_lock.yml")
 
-  notebook_on_create = templatefile("${path.module}/notebook_on_create.sh", {
-    conda_lock_yml = local.conda_lock_yml
-    sagemaker_notebook_name = var.sagemaker_notebook_name
-  })
+resource "aws_sagemaker_code_repository" "repo" {
+  code_repository_name = "ucla-deeplearning"
 
-  notebook_on_start = file("${path.module}/notebook_on_start.sh")
-}
-resource "aws_sagemaker_notebook_instance_lifecycle_configuration" "ucla_deeplearning" {
-  name      = "ucla-deep-learning-conda-env"
-  on_create = base64encode(local.notebook_on_create)
-  on_start = base64encode(local.notebook_on_start)
+  git_config {
+    repository_url = "https://github.com/hellodanylo/ucla-deeplearning.git"
+  }
 }
 
 resource "aws_dynamodb_table" "table" {
@@ -71,10 +63,6 @@ resource "aws_dynamodb_table" "table" {
     type = "S"
   }
   hash_key = "name"
-}
-
-output "sagemaker_lifecycle_name" {
-  value = aws_sagemaker_notebook_instance_lifecycle_configuration.ucla_deeplearning.name
 }
 
 output "subnet_id" {
@@ -91,4 +79,8 @@ output "role_arn" {
 
 output "dynamodb_table_name" {
   value = aws_dynamodb_table.table.name
+}
+
+output "code_repository_name" {
+  value = aws_sagemaker_code_repository.repo.code_repository_name
 }

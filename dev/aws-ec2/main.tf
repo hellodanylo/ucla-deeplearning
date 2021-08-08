@@ -14,9 +14,7 @@ variable "instance_type" {
   type = string
 }
 
-variable "region" {
-  type = string
-}
+data "aws_region" "current" {}
 
 variable "storage_gb" {
   type = number
@@ -30,7 +28,7 @@ resource "aws_key_pair" "key" {
 resource "aws_default_vpc" "default" {}
 
 resource "aws_default_subnet" "default_az1" {
-  availability_zone = "${var.region}a"
+  availability_zone = "${data.aws_region.current.name}a"
 }
 
 resource "aws_security_group" "ec2_instance" {

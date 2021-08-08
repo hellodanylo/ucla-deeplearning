@@ -2,8 +2,8 @@ dependencies:
   - ipython=7.2.0
   - pip=18.1=py37_0
   - python=3.7.1
-  - terraform=0.12.24
-  - terragrunt=0.23.28
+  - terraform=1.0.4
+  - terragrunt=0.31.3
   - black=19.10b0
   - pip:
       - awscli==1.18.34

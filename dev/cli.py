@@ -285,7 +285,7 @@ def sagemaker_start():
 
 
 def sagemaker_print_url():
-    url = f"https://us-west-2.console.aws.amazon.com/sagemaker/home?region=us-west-2#/notebook-instances/openNotebook/{sagemaker_notebook_name()}?view=lab"
+    url = f"https://{os.environ['AWS_REGION']}.console.aws.amazon.com/sagemaker/home?region={os.environ['AWS_REGION']}#/notebook-instances/openNotebook/{sagemaker_notebook_name()}?view=lab"
     print(url)
 
 
@@ -393,7 +393,15 @@ def sagemaker_up(instance_type="ml.t3.large", storage_gb=20):
     s3_up()
 
     notebook_name = sagemaker_notebook_name()
-    env = {"s3_bucket_name": s3_bucket_name(), "s3_bucket_region": s3_bucket_region()}
+
+    run(
+        [
+            "terragrunt",
+            "apply",
+            "-auto-approve"
+        ],
+        cwd=os.path.join(project_path, "dev", "aws-sagemaker"),
+    )
 
     run(
         [
@@ -401,31 +409,17 @@ def sagemaker_up(instance_type="ml.t3.large", storage_gb=20):
             "apply",
             "-auto-approve",
             "-var",
-            f"sagemaker_notebook_name={notebook_name}",
+            f"notebook_name={notebook_name}",
+            "-var",
+            f"instance_type={instance_type}",
+            "-var",
+            f"volume_size_gb={storage_gb}",
         ],
-        cwd=os.path.join(project_path, "dev", "aws-sagemaker"),
-        env=env
-    )
-
-    sagemaker_output = terraform_output(
-        "aws-sagemaker", env=env
-    )
-
-    params = dict(
-        NotebookInstanceName=notebook_name,
-        InstanceType=instance_type,
-        SubnetId=sagemaker_output["subnet_id"],
-        SecurityGroupIds=[sagemaker_output["security_group_id"]],
-        RoleArn=sagemaker_output["role_arn"],
-        LifecycleConfigName=sagemaker_output["sagemaker_lifecycle_name"],
-        VolumeSizeInGB=storage_gb,
-        DefaultCodeRepository=github_repo,
+        cwd=os.path.join(project_path, "dev", "aws-sagemaker-notebook")
     )
 
     dynamodb_set_notebook_state(notebook_name, "created")
 
-    print(json.dumps(params, indent=True))
-    boto_sagemaker().create_notebook_instance(**params)
     sagemaker_wait_in_service()
 
     while dynamodb_get_notebook_state(notebook_name) == "created":
@@ -453,29 +447,26 @@ def sagemaker_down():
         if confirm != "y":
             return
 
-        if status == "InService":
-            sagemaker_stop(force=True)
+        output = terraform_output("aws-sagemaker-notebook")
 
-        if status != "Deleting":
-            boto_sagemaker().delete_notebook_instance(
-                NotebookInstanceName=sagemaker_notebook_name()
-            )
-
-        sagemaker_wait_deleted()
-
-    name = sagemaker_notebook_name()
-    env = {"s3_bucket_name": s3_bucket_name(), "s3_bucket_region": s3_bucket_region()}
+        run(
+            [
+                "terragrunt",
+                "destroy",
+                "-auto-approve",
+                "-var",
+                f"notebook_name={output['notebook_name']}",
+            ],
+            cwd=os.path.join(project_path, "dev", "aws-sagemaker-notebook")
+        )
 
     run(
         [
             "terragrunt",
             "destroy",
             "-auto-approve",
-            "-var",
-            f"sagemaker_notebook_name={name}",
         ],
-        cwd=os.path.join(project_path, "dev", "aws-sagemaker"),
-        env=env
+        cwd=os.path.join(project_path, "dev", "aws-sagemaker")
     )
 
     aws_down()
@@ -483,7 +474,7 @@ def sagemaker_down():
 
 def sagemaker_wait_deleted():
     name = sagemaker_notebook_name()
-    print(f"Waiting {name} for to be deleted (about 2 minutes)...")
+    print(f"Waiting for {name} to be deleted (about 2 minutes)...")
     boto_sagemaker().get_waiter("notebook_instance_deleted").wait(
         NotebookInstanceName=name
     )
@@ -556,6 +547,7 @@ def s3_up():
             f"s3_bucket_name={s3_bucket_name()}",
         ],
         cwd=os.path.join(project_path, "dev", "aws-s3"),
+        env={"AWS_REGION": s3_bucket_region()}
     )
 
 
@@ -578,9 +570,10 @@ def aws_down():
             f"s3_bucket_name={s3_bucket_name()}",
         ],
         cwd=os.path.join(project_path, "dev", "aws-s3"),
+        env={"AWS_REGION": s3_bucket_region()}
     )
 
-    boto_session().resource("dynamodb").Table(
+    boto_session().resource("dynamodb", region_name=s3_bucket_region()).Table(
         "ucla-deeplearning-terraform-lock"
     ).delete()
 
@@ -588,7 +581,6 @@ def aws_down():
 def terraform_output_sagemaker():
     return terraform_output(
         "aws-sagemaker",
-        env={"s3_bucket_name": s3_bucket_name(), "s3_bucket_region": s3_bucket_region()}
     )
 
 
@@ -824,6 +816,8 @@ if __name__ == "__main__":
             sagemaker_up,
             sagemaker_resize,
             sagemaker_down,
+            sagemaker_stop,
+            sagemaker_start,
             aws_cli,
         ]
     )
