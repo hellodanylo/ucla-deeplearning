@@ -2,7 +2,7 @@ remote_state {
   backend = "s3"
   config  = {
     bucket         = dependency.s3.outputs.s3_bucket_name
-    key            = "terraform/aws-sagemaker-notebook.tfstate"
+    key            = "terraform/aws-sagemaker-team.tfstate"
     region         = dependency.s3.outputs.s3_bucket_region
     dynamodb_table = "ucla-deeplearning-terraform-lock"
   }
@@ -18,6 +18,7 @@ dependency "sagemaker" {
 
 inputs = {
   instance_type="ml.t3.xlarge"
-  sagemaker_config=dependency.sagemaker.outputs
   volume_size_gb=20
+  sagemaker_config=dependency.sagemaker.outputs
+  members = csvdecode(file("${path_relative_to_include()}/../members.csv"))
 }

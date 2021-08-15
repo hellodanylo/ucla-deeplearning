@@ -17,16 +17,6 @@ resource "aws_default_subnet" "default_az1" {
   availability_zone = "${data.aws_region.current.name}a"
 }
 
-resource "aws_iam_role" "sagemaker" {
-  name               = "sagemaker_execution_role"
-  assume_role_policy = file("${path.module}/sagemaker_assume_role.json")
-}
-
-resource "aws_iam_role_policy_attachment" "sagemaker_admin" {
-  role       = aws_iam_role.sagemaker.name
-  policy_arn = "arn:aws:iam::aws:policy/AdministratorAccess"
-}
-
 resource "aws_security_group" "sagemaker" {
   name = "sagemaker-notebook"
 
@@ -46,6 +36,21 @@ resource "aws_security_group" "sagemaker" {
   }
 }
 
+locals {
+  conda_lock_yml = file("${path.module}/../docker-jupyter/conda_lock.yml")
+
+  notebook_on_create = templatefile("${path.module}/notebook_on_create.sh", {
+    conda_lock_yml = local.conda_lock_yml
+  })
+
+  notebook_on_start = file("${path.module}/notebook_on_start.sh")
+}
+
+resource "aws_sagemaker_notebook_instance_lifecycle_configuration" "ucla_deeplearning" {
+  name      = "ucla-deeplearning-notebook"
+  on_create = base64encode(local.notebook_on_create)
+  on_start = base64encode(local.notebook_on_start)
+}
 
 resource "aws_sagemaker_code_repository" "repo" {
   code_repository_name = "ucla-deeplearning"
@@ -73,14 +78,14 @@ output "security_group_id" {
   value = aws_security_group.sagemaker.id
 }
 
-output "role_arn" {
-  value = aws_iam_role.sagemaker.arn
-}
-
 output "dynamodb_table_name" {
   value = aws_dynamodb_table.table.name
 }
 
 output "code_repository_name" {
   value = aws_sagemaker_code_repository.repo.code_repository_name
+}
+
+output "lifecycle_config_name" {
+  value = aws_sagemaker_notebook_instance_lifecycle_configuration.ucla_deeplearning.name
 }

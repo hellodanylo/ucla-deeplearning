@@ -2,7 +2,7 @@ remote_state {
   backend = "s3"
   config  = {
     bucket         = dependency.s3.outputs.s3_bucket_name
-    key            = "terraform/aws-sagemaker.tfstate"
+    key            = "terraform/aws-iam.tfstate"
     region         = dependency.s3.outputs.s3_bucket_region
     dynamodb_table = "ucla-deeplearning-terraform-lock"
   }

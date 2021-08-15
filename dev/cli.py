@@ -41,7 +41,7 @@ def boto_sagemaker():
 @lru_cache()
 def sagemaker_notebook_name():
     project_user = os.environ["PROJECT_USER"]
-    return f"ucla-deep-learning-{project_user}"
+    return f"ucla-deeplearning-{project_user}"
 
 
 @lru_cache()
@@ -291,7 +291,7 @@ def sagemaker_print_url():
 
 def sagemaker_wait_in_service():
     name = sagemaker_notebook_name()
-    print(f"Waiting for notebook {name} to be in service...")
+    print(f"Waiting for notebook {name} to be running...")
     boto_sagemaker().get_waiter("notebook_instance_in_service").wait(
         NotebookInstanceName=name
     )
@@ -403,6 +403,8 @@ def sagemaker_up(instance_type="ml.t3.large", storage_gb=20):
         cwd=os.path.join(project_path, "dev", "aws-sagemaker"),
     )
 
+    dynamodb_set_notebook_state(notebook_name, "creating")
+
     run(
         [
             "terragrunt",
@@ -418,11 +420,7 @@ def sagemaker_up(instance_type="ml.t3.large", storage_gb=20):
         cwd=os.path.join(project_path, "dev", "aws-sagemaker-notebook")
     )
 
-    dynamodb_set_notebook_state(notebook_name, "created")
-
-    sagemaker_wait_in_service()
-
-    while dynamodb_get_notebook_state(notebook_name) == "created":
+    while dynamodb_get_notebook_state(notebook_name) != "installed":
         print(
             "Waiting for notebook environment to finish installation (about 20 minutes)..."
         )
@@ -460,16 +458,14 @@ def sagemaker_down():
             cwd=os.path.join(project_path, "dev", "aws-sagemaker-notebook")
         )
 
-    run(
-        [
-            "terragrunt",
-            "destroy",
-            "-auto-approve",
-        ],
-        cwd=os.path.join(project_path, "dev", "aws-sagemaker")
-    )
-
-    aws_down()
+    # run(
+    #     [
+    #         "terragrunt",
+    #         "destroy",
+    #         "-auto-approve",
+    #     ],
+    #     cwd=os.path.join(project_path, "dev", "aws-sagemaker")
+    # )
 
 
 def sagemaker_wait_deleted():

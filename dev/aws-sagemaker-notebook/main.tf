@@ -12,23 +12,7 @@ variable "notebook_name" {
   type = string
 }
 
-variable "subnet_id" {
-  type = string
-}
-
-variable "security_group_id" {
-  type = string
-}
-
-variable "role_arn" {
-  type = string
-}
-
 variable "instance_type" {
-  type = string
-}
-
-variable "code_repository_name" {
   type = string
 }
 
@@ -36,42 +20,55 @@ variable "volume_size_gb" {
   type = number
 }
 
-locals {
-  conda_lock_yml = file("${path.module}/../docker-jupyter/conda_lock.yml")
-
-  notebook_on_create = templatefile("${path.module}/notebook_on_create.sh", {
-    conda_lock_yml = local.conda_lock_yml
-    sagemaker_notebook_name = var.notebook_name
-  })
-
-  notebook_on_start = file("${path.module}/notebook_on_start.sh")
+variable "member_name" {
+  type = string
 }
 
-resource "aws_sagemaker_notebook_instance_lifecycle_configuration" "ucla_deeplearning" {
-  name      = var.notebook_name
-  on_create = base64encode(local.notebook_on_create)
-  on_start = base64encode(local.notebook_on_start)
+variable "sagemaker_config" {
+  type = object({
+    lifecycle_config_name = string
+    code_repository_name = string
+    security_group_id = string
+    subnet_id = string
+  })
+}
+
+data "aws_caller_identity" "current" {}
+
+resource "aws_iam_role" "sagemaker" {
+  # The lifecycle script expects the role name to match the notebook name
+  name               = var.notebook_name
+  assume_role_policy = templatefile("${path.module}/sagemaker_assume_role.json", {
+    aws_account_id = data.aws_caller_identity.current.account_id
+  })
+}
+
+resource "aws_iam_policy" "sagemaker" {
+  policy = file("${path.module}/policy.json")
+  name = var.notebook_name
+}
+
+resource "aws_iam_role_policy_attachment" "sagemaker" {
+  role       = aws_iam_role.sagemaker.name
+  policy_arn = aws_iam_policy.sagemaker.arn
 }
 
 resource "aws_sagemaker_notebook_instance" "notebook" {
   name          = var.notebook_name
-  role_arn      = var.role_arn
+  role_arn      = aws_iam_role.sagemaker.arn
   instance_type = var.instance_type
-  default_code_repository = var.code_repository_name
+  default_code_repository = var.sagemaker_config.code_repository_name
   volume_size = var.volume_size_gb
-  subnet_id = var.subnet_id
-  security_groups = [var.security_group_id]
-  lifecycle_config_name = aws_sagemaker_notebook_instance_lifecycle_configuration.ucla_deeplearning.name
+  subnet_id = var.sagemaker_config.subnet_id
+  security_groups = [var.sagemaker_config.security_group_id]
+  lifecycle_config_name = var.sagemaker_config.lifecycle_config_name
 
   tags = {
-    Name = "test"
+    Name = var.notebook_name
+    Member = var.member_name
   }
 }
 
 output "notebook_name" {
   value = var.notebook_name
-}
-
-output "volume_size_gb" {
-  value = var.volume_size_gb
 }

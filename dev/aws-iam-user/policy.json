@@ -1,0 +1,33 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "sagemaker:List*",
+        "ec2:Describe*"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "sagemaker:CreatePresignedNotebookInstanceUrl",
+        "sagemaker:StartNotebookInstance",
+        "sagemaker:StopNotebookInstance",
+        "sagemaker:DescribeNotebookInstance",
+        "sagemaker:UpdateNotebookInstance"
+      ],
+      "Resource": "arn:aws:sagemaker:*:*:notebook-instance/*${user_name}*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "aws-portal:ViewBilling",
+        "budgets:ViewBudget",
+        "budgets:Describe*"
+      ],
+      "Resource": "*"
+    }
+  ]
+}

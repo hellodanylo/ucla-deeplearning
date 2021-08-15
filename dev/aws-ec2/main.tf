@@ -5,7 +5,8 @@ terraform {
 terraform {
   required_providers {
     aws = {
-      version = "3.7.0"
+      source  = "hashicorp/aws"
+      version = "3.53.0"
     }
   }
 }
@@ -82,7 +83,7 @@ resource aws_instance "instance" {
 
   # us-east-1 / Ubuntu 20.04 LTS amd64
   # us-west-2 / Ubuntu 20.04 LTS amd64
-  ami = var.region == "us-east-1" ? "ami-0dba2cb6798deb6d8" : "ami-06e54d05255faf8f6"
+  ami = data.aws_region.current.name == "us-east-1" ? "ami-0dba2cb6798deb6d8" : "ami-06e54d05255faf8f6"
 
   subnet_id     = aws_default_subnet.default_az1.id
   instance_type = var.instance_type

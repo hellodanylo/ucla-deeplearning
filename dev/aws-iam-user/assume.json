@@ -4,7 +4,7 @@
     {
       "Effect": "Allow",
       "Principal": {
-        "Service": "sagemaker.amazonaws.com"
+        "AWS": "arn:aws:iam::${aws_account_id}:root"
       },
       "Action": "sts:AssumeRole"
     }

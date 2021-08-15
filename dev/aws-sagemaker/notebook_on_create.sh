@@ -12,7 +12,12 @@ EOF
 sudo -u ec2-user tee >"$PROJECT_PATH/setup.sh" <<'EOF'
 #!/usr/bin/env bash
 
-name="${sagemaker_notebook_name}"
+name=$(aws sts get-caller-identity | jq ".Arn" | cut -d '/' -f 2)
+
+aws dynamodb update-item \
+  --table-name ucla-deep-learning-notebooks \
+  --key {\"name\":{\"S\":\"$name\"}} \
+  --attribute-updates {\"state\":{\"Value\":{\"S\":\"created\"}}}
 
 conda activate JupyterSystemEnv
 # jupyter labextension install --no-build jupyterlab_vim
@@ -28,7 +33,7 @@ source $PROJECT_PATH/miniconda/bin/activate
 conda env create -n ucla_deeplearning -q -f "$PROJECT_PATH/conda_lock.yml"
 
 conda activate ucla_deeplearning
-pip install git+https://github.com/keras-team/keras-tuner@1.0.2rc1
+#pip install git+https://github.com/keras-team/keras-tuner@1.0.2rc1
 
 touch $PROJECT_PATH/done.txt
 aws dynamodb update-item \

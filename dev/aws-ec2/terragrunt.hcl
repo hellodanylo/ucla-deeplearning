@@ -1,13 +1,13 @@
 remote_state {
   backend = "s3"
   config  = {
-    bucket         = get_env("s3_bucket_name")
+    bucket         = dependency.s3.outputs.s3_bucket_name
     key            = "terraform/aws-ec2.tfstate"
-    region         = get_env("AWS_REGION")
+    region         = dependency.s3.outputs.s3_bucket_region
     dynamodb_table = "ucla-deeplearning-terraform-lock"
   }
 }
 
-inputs = {
-  region = get_env("AWS_REGION")
+dependency "s3" {
+  config_path = "../aws-s3"
 }
