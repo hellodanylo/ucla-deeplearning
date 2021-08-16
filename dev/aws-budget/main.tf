@@ -90,7 +90,7 @@ resource "aws_budgets_budget" "daily" {
   cost_filter {
     name = "TagKeyValue"
     values = [
-      "Member$${var.member.name}"
+      format("%s$%s", "Member", var.member.name)
     ]
   }
 

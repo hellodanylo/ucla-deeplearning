@@ -57,10 +57,27 @@ resource "aws_iam_role_policy_attachment" "role" {
   role = aws_iam_role.role.name
 }
 
+data "local_file" "pgp_key" {
+  filename = "${path.module}/../pgp_public.key"
+}
+
+resource "aws_iam_user_login_profile" "login" {
+  pgp_key = data.local_file.pgp_key.content_base64
+  user = aws_iam_user.user.name
+}
+
 output "aws_access_key_id" {
   value = aws_iam_access_key.key.id
 }
 
 output "aws_access_key_secret" {
   value = aws_iam_access_key.key.secret
+}
+
+output "aws_login_username" {
+  value = var.member.name
+}
+
+output "aws_login_password" {
+  value = aws_iam_user_login_profile.login.encrypted_password
 }

@@ -10,3 +10,4 @@ dev/aws-ec2/key.pub
 **/.terraform.lock.hcl
 dev/members.csv
 dev/team.json
+dev/*.key

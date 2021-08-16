@@ -381,7 +381,7 @@ def read_bytes(path: str) -> bytes:
         return f.read()
 
 
-def sagemaker_up(instance_type="ml.t3.large", storage_gb=20):
+def sagemaker_up(instance_type="ml.t3.large", storage_gb=50):
     """
     Creates and starts the SageMaker notebook
 
@@ -489,7 +489,7 @@ def terraform_output(module, env=None):
     return output_dict
 
 
-def aws_up(*, region: str = 'us-east-1'):
+def aws_up(*, region: str = 'us-west-2'):
     """
     Configures the AWS account access
 
@@ -520,12 +520,11 @@ def aws_up(*, region: str = 'us-east-1'):
     if opts['AWS_SESSION_TOKEN'] == "":
         del opts['AWS_SESSION_TOKEN']
 
-
     with open(os.path.join(project_path, "dev", "cli.env"), "w") as f:
         f.write("\n".join("=".join(p) for p in opts.items()))
 
     load_env()
-    s3_up()
+    #s3_up()
 
 
 def s3_up():
