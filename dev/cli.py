@@ -263,7 +263,7 @@ def sagemaker_resize(instance_type):
         print(f"The instance type is already {instance_type}")
         return
 
-    if sagemaker_notebook_status() != "stopped":
+    if sagemaker_notebook_status() != NotebookStatus.Stopped:
         should_start = True
         sagemaker_stop()
     else:
@@ -288,7 +288,7 @@ def sagemaker_start():
     """
     instance_name = sagemaker_notebook_name()
 
-    if sagemaker_notebook_status(instance_name) == "Stopped":
+    if sagemaker_notebook_status(instance_name) == NotebookStatus.Stopped:
         boto_sagemaker().start_notebook_instance(NotebookInstanceName=instance_name)
 
     sagemaker_wait_in_service()
@@ -357,7 +357,7 @@ def sagemaker_stop(force=False):
     status = sagemaker_notebook_status()
 
     name = sagemaker_notebook_name()
-    if status == "InService":
+    if status == NotebookStatus.InService:
         if not force:
             confirm = input(
                 "All unsaved changes are lost when the notebook is stopped. Confirm? [y/n]: "
@@ -365,9 +365,9 @@ def sagemaker_stop(force=False):
             if confirm != "y":
                 return
         boto_sagemaker().stop_notebook_instance(NotebookInstanceName=name)
-    elif status == "Stopped":
+    elif status == NotebookStatus.Stopped:
         return
-    elif status != "Stopping":
+    elif status != NotebookStatus.Stopping:
         raise Exception(f"Unexpected {name} notebook status: {status}")
 
     sagemaker_wait_stopped()
@@ -722,7 +722,7 @@ def ec2_ssh(*cmd, input: bytes = None):
     ]
 
     print(f"Running {args}")
-    run(args, input=input)
+    run(args, input=None if input is None else input.decode())
 
 
 def ec2_tunnel(*cmd):

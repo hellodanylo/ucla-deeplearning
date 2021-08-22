@@ -5,6 +5,7 @@ dependencies:
   - terraform=1.0.4
   - terragrunt=0.31.3
   - black=19.10b0
+  - mypy=0.910
   - pip:
       - awscli==1.18.34
       - clize==4.1.1

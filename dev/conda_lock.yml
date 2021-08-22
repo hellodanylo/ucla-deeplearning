@@ -17,6 +17,7 @@ dependencies:
   - libgcc-ng=9.3.0
   - libgomp=9.3.0
   - libstdcxx-ng=9.3.0
+  - mypy=0.910
   - mypy_extensions=0.4.3
   - ncurses=6.2
   - openssl=1.1.1k
@@ -26,11 +27,12 @@ dependencies:
   - pickleshare=0.7.5
   - pip=18.1
   - prompt_toolkit=2.0.10
+  - psutil=5.8.0
   - ptyprocess=0.7.0
-  - pygments=2.9.0
+  - pygments=2.10.0
   - python=3.7.1
   - readline=7.0
-  - regex=2021.7.6
+  - regex=2021.8.3
   - setuptools=52.0.0
   - six=1.16.0
   - sqlite=3.33.0
@@ -42,7 +44,7 @@ dependencies:
   - typed-ast=1.4.3
   - typing_extensions=3.10.0.0
   - wcwidth=0.2.5
-  - wheel=0.36.2
+  - wheel=0.37.0
   - xz=5.2.5
   - zipp=3.5.0
   - zlib=1.2.11
@@ -68,4 +70,4 @@ dependencies:
     - s3transfer==0.3.7
     - sigtools==2.0.2
     - urllib3==1.25.11
-    - websocket-client==1.1.1
+    - websocket-client==1.2.1
