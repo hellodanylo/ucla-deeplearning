@@ -8,6 +8,6 @@ dev/*.env
 dev/aws-ec2/key
 dev/aws-ec2/key.pub
 **/.terraform.lock.hcl
-dev/members.csv
+dev/members.*
 dev/team.json
 dev/*.key

@@ -22,6 +22,15 @@ variable "team" {
   })
 }
 
+variable "sns_topic_arn" {
+  type = string
+}
+
+locals {
+  full_thresholds = [0, 25, 50, 75, 90, 100]
+  daily_thresholds = [0, 25, 50, 75, 100]
+}
+
 resource "aws_budgets_budget" "full" {
   name = "${var.member.name}-full"
   budget_type = "COST"
@@ -32,54 +41,27 @@ resource "aws_budgets_budget" "full" {
   cost_filter {
     name = "TagKeyValue"
     values = [
-      "Member$${var.member.name}"
+      format("%s$%s", "user:Member", var.member.name)
     ]
   }
 
-  notification {
-    comparison_operator = "GREATER_THAN"
-    threshold = 0
-    threshold_type = "PERCENTAGE"
-    notification_type = "ACTUAL"
-    subscriber_email_addresses = [
-      var.team.admin_email,
-      var.member.email
-    ]
-  }
-
-  notification {
-    comparison_operator = "GREATER_THAN"
-    threshold = 50
-    threshold_type = "PERCENTAGE"
-    notification_type = "ACTUAL"
-    subscriber_email_addresses = [
-      var.team.admin_email,
-      var.member.email
-    ]
-  }
-
-  notification {
-    comparison_operator = "GREATER_THAN"
-    threshold = 75
-    threshold_type = "PERCENTAGE"
-    notification_type = "ACTUAL"
-    subscriber_email_addresses = [
-      var.team.admin_email,
-      var.member.email
-    ]
-  }
-
-  notification {
-    comparison_operator = "GREATER_THAN"
-    threshold = 100
-    threshold_type = "PERCENTAGE"
-    notification_type = "ACTUAL"
-    subscriber_email_addresses = [
-      var.team.admin_email,
-      var.member.email
-    ]
+  dynamic "notification" {
+    for_each = local.full_thresholds
+    content {
+      comparison_operator = "GREATER_THAN"
+      threshold = notification.value
+      threshold_type = "PERCENTAGE"
+      notification_type = "ACTUAL"
+      subscriber_email_addresses = [
+        var.team.admin_email,
+        var.member.email
+      ]
+      subscriber_sns_topic_arns = [
+        var.sns_topic_arn]
+    }
   }
 }
+
 resource "aws_budgets_budget" "daily" {
   name = "${var.member.name}-daily"
   budget_type = "COST"
@@ -90,29 +72,23 @@ resource "aws_budgets_budget" "daily" {
   cost_filter {
     name = "TagKeyValue"
     values = [
-      format("%s$%s", "Member", var.member.name)
+      format("%s$%s", "user:Member", var.member.name)
     ]
   }
 
-  notification {
-    comparison_operator = "GREATER_THAN"
-    threshold = 50
-    threshold_type = "PERCENTAGE"
-    notification_type = "ACTUAL"
-    subscriber_email_addresses = [
-      var.team.admin_email,
-      var.member.email
-    ]
-  }
-
-  notification {
-    comparison_operator = "GREATER_THAN"
-    threshold = 100
-    threshold_type = "PERCENTAGE"
-    notification_type = "ACTUAL"
-    subscriber_email_addresses = [
-      var.team.admin_email,
-      var.member.email
-    ]
+  dynamic "notification" {
+    for_each = local.daily_thresholds
+    content {
+      comparison_operator = "GREATER_THAN"
+      threshold = notification.value
+      threshold_type = "PERCENTAGE"
+      notification_type = "ACTUAL"
+      subscriber_email_addresses = [
+        var.team.admin_email,
+        var.member.email
+      ]
+      subscriber_sns_topic_arns = [
+        var.sns_topic_arn]
+    }
   }
 }

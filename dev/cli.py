@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import re
+from enum import Enum
 
 import docker
 import json
@@ -21,6 +22,16 @@ image_jupyter = "ucla_jupyter"
 github_repo = "https://github.com/hellodanylo/ucla-deeplearning.git"
 
 
+class NotebookStatus(Enum):
+    Pending = 'Pending'
+    InService = 'InService'
+    Stopping = 'Stopping'
+    Stopped = 'Stopped'
+    Failed = 'Failed'
+    Deleting = 'Deleting'
+    Updating = 'Updating'
+
+
 def load_env():
     project_env_path = os.path.join(project_path, "dev", "cli.env")
     if os.path.exists(project_env_path):
@@ -38,9 +49,9 @@ def boto_sagemaker():
     return boto_session().client("sagemaker")
 
 
-@lru_cache()
-def sagemaker_notebook_name():
-    project_user = os.environ["PROJECT_USER"]
+def sagemaker_notebook_name(project_user: str = None):
+    if project_user is None:
+        project_user = os.environ["PROJECT_USER"]
     return f"ucla-deeplearning-{project_user}"
 
 
@@ -252,7 +263,7 @@ def sagemaker_resize(instance_type):
         print(f"The instance type is already {instance_type}")
         return
 
-    if get_notebook_status() != "stopped":
+    if sagemaker_notebook_status() != "stopped":
         should_start = True
         sagemaker_stop()
     else:
@@ -277,11 +288,39 @@ def sagemaker_start():
     """
     instance_name = sagemaker_notebook_name()
 
-    if get_notebook_status() == "Stopped":
+    if sagemaker_notebook_status(instance_name) == "Stopped":
         boto_sagemaker().start_notebook_instance(NotebookInstanceName=instance_name)
 
     sagemaker_wait_in_service()
     sagemaker_print_url()
+
+
+def read_members():
+    from csv import DictReader
+    with open(f'{project_path}/dev/members.csv', 'r') as f:
+        return list(DictReader(f))
+
+
+def sagemaker_team_start():
+    for member in read_members():
+        instance_name = sagemaker_notebook_name(member['name'])
+        status = sagemaker_notebook_status(instance_name)
+        if status == NotebookStatus.Stopped:
+            print(f"Will start {instance_name}")
+            boto_sagemaker().start_notebook_instance(NotebookInstanceName=instance_name)
+        elif status != NotebookStatus.InService:
+            print(f"Skipped {instance_name} in {status}")
+
+
+def sagemaker_team_stop():
+    for member in read_members():
+        instance_name = sagemaker_notebook_name(member['name'])
+        status = sagemaker_notebook_status(instance_name)
+        if status == NotebookStatus.InService:
+            print(f"Will stop {instance_name}")
+            boto_sagemaker().stop_notebook_instance(NotebookInstanceName=instance_name)
+        elif status != NotebookStatus.Stopped:
+            print(f"Skipping {instance_name} in {status}")
 
 
 def sagemaker_print_url():
@@ -315,7 +354,7 @@ def sagemaker_stop(force=False):
     :param force:
     :return:
     """
-    status = get_notebook_status()
+    status = sagemaker_notebook_status()
 
     name = sagemaker_notebook_name()
     if status == "InService":
@@ -341,11 +380,14 @@ def get_notebook_instance_type():
     return instance_type
 
 
-def get_notebook_status():
+def sagemaker_notebook_status(instance_name: str = None) -> NotebookStatus:
+    if instance_name is None:
+        instance_name = sagemaker_notebook_name()
+
     status = boto_sagemaker().describe_notebook_instance(
-        NotebookInstanceName=sagemaker_notebook_name()
+        NotebookInstanceName=instance_name
     )["NotebookInstanceStatus"]
-    return status
+    return NotebookStatus(status)
 
 
 def run(
@@ -436,9 +478,9 @@ def sagemaker_down():
 
     :return:
     """
-    status = get_notebook_status()
+    status = sagemaker_notebook_status()
 
-    if status != "Deleted":
+    if status != NotebookStatus.Deleting:
         confirm = input(
             "Are files saved in the notebook will be lost when the notebook is deleted. Confirm [y/n]: "
         )
@@ -813,6 +855,8 @@ if __name__ == "__main__":
             sagemaker_down,
             sagemaker_stop,
             sagemaker_start,
+            sagemaker_team_start,
+            sagemaker_team_stop,
             aws_cli,
         ]
     )

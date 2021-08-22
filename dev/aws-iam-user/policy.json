@@ -15,10 +15,24 @@
         "sagemaker:CreatePresignedNotebookInstanceUrl",
         "sagemaker:StartNotebookInstance",
         "sagemaker:StopNotebookInstance",
-        "sagemaker:DescribeNotebookInstance",
-        "sagemaker:UpdateNotebookInstance"
+        "sagemaker:DescribeNotebookInstance"
       ],
       "Resource": "arn:aws:sagemaker:*:*:notebook-instance/*${user_name}*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "sagemaker:UpdateNotebookInstance"
+      ],
+      "Resource": "arn:aws:sagemaker:*:*:notebook-instance/*${user_name}*",
+      "Condition": {
+        "ForAnyValue:StringEquals": {
+          "sagemaker:InstanceTypes": [
+            "ml.p2.xlarge",
+            "ml.t3.xlarge"
+          ]
+        }
+      }
     },
     {
       "Effect": "Allow",

@@ -17,8 +17,8 @@ dependency "sagemaker" {
 }
 
 inputs = {
-  instance_type="ml.t3.xlarge"
-  volume_size_gb=20
+  instance_type="ml.p2.xlarge"
+  volume_size_gb=100
   sagemaker_config=dependency.sagemaker.outputs
   members = csvdecode(file("${path_relative_to_include()}/../members.csv"))
 }

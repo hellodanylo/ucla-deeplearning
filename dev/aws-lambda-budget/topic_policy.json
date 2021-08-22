@@ -1,0 +1,15 @@
+{
+  "Version": "2008-10-17",
+  "Id": "sns-policy",
+  "Statement": [
+    {
+      "Sid": "budget",
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "budgets.amazonaws.com"
+      },
+      "Action": "SNS:Publish",
+      "Resource": "*"
+    }
+  ]
+}
