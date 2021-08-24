@@ -1,0 +1,15 @@
+AWS Budget Notification August 23, 2021
+AWS Account 1
+
+Dear AWS Customer,
+
+You requested that we alert you when the ACTUAL Cost associated with your test-16-daily budget is greater than $0.00 per day. Yesterday, the ACTUAL Cost associated with this budget is $0.07. You can find additional details below and by accessing the AWS Budgets dashboard [1].
+
+Budget Name: test-a-daily
+Budget Type: Cost
+Budgeted Amount: $10.00
+Alert Type: ACTUAL
+Alert Threshold: > $0.00
+ACTUAL Amount: $0.07
+
+[1] https://console.aws.amazon.com/billing/home#/budgets

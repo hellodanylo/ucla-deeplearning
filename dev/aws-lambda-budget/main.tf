@@ -22,14 +22,14 @@ resource "aws_sns_topic_subscription" "member_budget_alert" {
 
 data "archive_file" "lambda" {
   type        = "zip"
-  source_file = "${path.module}/lambda.py"
+  source_file = "${path.module}/aws_lambda.py"
   output_path = "${path.module}/lambda.zip"
 }
 
 resource "aws_lambda_function" "member_budget_alert" {
   function_name = "ucla-deeplearning-member-budget-alert"
   filename = data.archive_file.lambda.output_path
-  handler = "lambda.handle"
+  handler = "aws_lambda.handle"
   role = aws_iam_role.member_budget_alert.arn
   source_code_hash = filebase64sha256(data.archive_file.lambda.output_path)
   runtime = "python3.8"
