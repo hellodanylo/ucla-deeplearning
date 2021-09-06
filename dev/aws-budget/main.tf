@@ -5,8 +5,6 @@ terraform {
       version = "3.53.0"
     }
   }
-
-  backend "s3" {}
 }
 
 variable "member" {
@@ -41,7 +39,7 @@ resource "aws_budgets_budget" "full" {
   cost_filter {
     name = "TagKeyValue"
     values = [
-      format("%s$%s", "user:Member", var.member.name)
+      format("%s$%s", "user:owner", var.member.name)
     ]
   }
 
@@ -56,8 +54,11 @@ resource "aws_budgets_budget" "full" {
         var.team.admin_email,
         var.member.email
       ]
-      subscriber_sns_topic_arns = [
-        var.sns_topic_arn]
+      subscriber_sns_topic_arns = (
+        notification.value == 100
+          ? [var.sns_topic_arn]
+          : []
+        )
     }
   }
 }
@@ -72,7 +73,7 @@ resource "aws_budgets_budget" "daily" {
   cost_filter {
     name = "TagKeyValue"
     values = [
-      format("%s$%s", "user:Member", var.member.name)
+      format("%s$%s", "user:owner", var.member.name)
     ]
   }
 
@@ -87,8 +88,11 @@ resource "aws_budgets_budget" "daily" {
         var.team.admin_email,
         var.member.email
       ]
-      subscriber_sns_topic_arns = [
-        var.sns_topic_arn]
+      subscriber_sns_topic_arns = (
+        notification.value == 100
+          ? [var.sns_topic_arn]
+          : []
+      )
     }
   }
 }

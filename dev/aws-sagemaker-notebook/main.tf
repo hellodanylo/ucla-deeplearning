@@ -66,6 +66,7 @@ resource "aws_sagemaker_notebook_instance" "notebook" {
   tags = {
     Name = var.notebook_name
     Member = var.member_name
+    owner = var.member_name
   }
 }
 
