@@ -10,7 +10,7 @@ The course consists of 5 module:
 4. Generative Adversarial Networks
 5. Ensemble Methods
 
-Copyright: Danylo Vashchilenko, 2019.
+Copyright: Danylo Vashchilenko, 2019-2022.
 
 ### Table of Contents
 1. [Setup](#setup)
@@ -25,15 +25,15 @@ Copyright: Danylo Vashchilenko, 2019.
 In order to run the notebooks on your computer and in AWS cloud, you need the following components:
 * Git tool to clone this repository
 * Miniconda package manager (to install `ucla-dev` environment defined in `./dev/conda_init.yml`)
-* Docker for Desktop (to run Jupyter container defined `./dev/image-python/Dockerfile`)
+* Docker for Desktop (to run Jupyter container defined in `./dev/image-python/Dockerfile`)
 
 How to proceed?
 * If you are using Windows, follow the instructions under [Windows](#windows)
 * If you are using Mac OS, follow the instructions under [Mac OS](#macos)
 
 It's strongly advised to use the setup instructions above, but if you would like to manage your own Conda environment:
-* the environment for notebooks defined in: `./dev/docker-jupyter/conda_init.yml`
-* Conda channels defined in: `./dev/docker-jupyter/condarc_student.yml`
+* the environment for notebooks is defined in: `./dev/docker-jupyter/conda_init.yml`
+* Conda channels are defined in: `./dev/docker-jupyter/condarc_student.yml`
 
 ## Windows
 The following is the summary of these detailed instructions: https://docs.microsoft.com/en-us/windows/wsl/install-win10
@@ -133,58 +133,65 @@ To stop and remove the Jupyter container:
 ./dev/cli.py jupyter-down
 ```
 
-# Jupyter on AWS EC2 Instance
+# Jupyter on AWS SageMaker
 
-First, create a new AWS account and apply credits from AWS Educate.
-Run the following commands in the terminal with `ucla-dev` environment activated.
- 
-To enable access to your AWS account:
-```
-./dev/cli.py aws-up
-```
-You can find your AWS credentials at AWS Educate -> Vocareum Dashboard -> Account Details -> AWS CLI.
+The course instructor has created an AWS user for each student. 
+The credentials have been or will be shared with each student directly.
 
-To create the EC2 instance (takes about 10 minutes):
-```
-./dev/cli.py ec2-up
-```
+AWS Console login page: https://danylo-ucla.signin.aws.amazon.com/console
 
-To create a tunnel with the running EC2 instance (do not exit until you are done):
-```
-./dev/cli.py ec2-tunnel
-```
-While in the EC2 instance's terminal, you can run `htop` to see CPU cores and CPU RAM utilization. 
-All other commands (e.g. `jupyter-up`) must run in another terminal, while the tunnel is up.
+In the AWS Console, you can use the following pages:
+* list of budgets: https://console.aws.amazon.com/billing/home?#/budgets/overview
+* list of SageMaker instances: https://us-west-2.console.aws.amazon.com/sagemaker/home?region=us-west-2#/notebook-instances
 
-To create and start the Jupyter container on the EC2 instance (requires the EC2 tunnel to be running):
-```
-./dev/cli.py jupyter-up --remote
-```
-You will see a URL and a token in the output. Enter it in the browser.
+## Important: AWS Budgets
+Each student is allocated a limited budget per day and per course. 
+The budgets page allows to see the current spending per day and per course.
 
-To change the instance size (for example to t2.2xlarge):
+Each day, an automated email will be sent if the spending per day exceeds one of the thresholds.
+Throughout the course, an automated email will be sent if the total spending exceeds one of the thresholds.
 
-```
-./dev/cli.py ec2-resize t2.2xlarge
-```
-See the AWS slides for information on available instance sizes. Note that resizing also restarts the instance.
+Each student is responsible for monitoring and planning their AWS budget spending. Exceeding the per-course budget
+is considered an error and may impact the assignment grades.
+See the budgets page for the current budget information: https://console.aws.amazon.com/billing/home?#/budgets/overview
+The per-day and the per-course budgets information is updated every 8-12 hours. 
+The per-day budget is computed using 24-hour period in the UTC timezone.
 
-To stop the EC2 instance (compute time not billed, data preserved and billed):
-```
-./dev/cli.py ec2-stop
-```
+To prevent accidental overspending, the SageMaker instance may automatically stop
+when the per-day or per-course spending exceeds the maximum level. 
+This mechanism is the final error-prevention measure and should not be relied upon.
 
-To start the instance after it's been stopped:
-```
-./dev/cli.py ec2-start
-```
+## How to open Jupyter in SageMaker?
 
-To remove the EC2 instance (data removed and not billed), when you have finished this course:
-```
-./dev/cli.py ec2-down
-```
+1. Navigate to the SageMaker notebooks page: https://us-west-2.console.aws.amazon.com/sagemaker/home?region=us-west-2#/notebook-instances
+2. Type your username into the search bar to find your instance
+3. Open the instance page
+4. If the instance is stopped, click `Start`
+5. Wait for the instance to start
+6. Click `Open JupyterLab`
 
-To remove all AWS resources associated with this project, when you have finished this course:
-```
-./dev/cli.py aws-down
-```
+After opening a particular notebook, select the `ucla-deeplearning` kernel.
+Other kernels contain potentially incompatible versions of Tensorflow and other Python packages.
+
+After you are done with Jupyter:
+1. Navigate to the SageMaker instances page: https://us-west-2.console.aws.amazon.com/sagemaker/home?region=us-west-2#/notebook-instances
+2. Type your username into the search bar to find your instance
+3. Open the instance page
+4. Click `Stop`
+
+## How to use GPU with Jupyter in SageMaker?
+
+1. Navigate to the SageMaker instances page: https://us-west-2.console.aws.amazon.com/sagemaker/home?region=us-west-2#/notebook-instances
+2. Type your username into the search bar to find your instance
+3. Open the instance page
+4. If the instance is not stopped, click `Stop`
+5. Wait for the instance to stop
+6. Click `Edit`
+7. Change notebook instance type from `ml.t3.xlarge` to `ml.p2.xlarge`
+8. Click `Update notebook instance`
+9. Wait for the instance to update
+10. Follow the instance start steps
+
+The GPU instance is 5x-10x more expensive than the non-GPU instance.
+Use the GPU instance only when actually needed to train one of the bigger networks.
+To revert to the non-GPU instance, follow the steps above but set the instance type to `ml.t3.xlarge`.

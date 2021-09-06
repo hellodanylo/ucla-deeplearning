@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import re
+from base64 import b64decode
 from enum import Enum
 
 import docker
@@ -49,7 +50,7 @@ def boto_sagemaker():
     return boto_session().client("sagemaker")
 
 
-def sagemaker_notebook_name(project_user: str = None):
+def sagemaker_notebook_name(project_user: Optional[str] = None):
     if project_user is None:
         project_user = os.environ["PROJECT_USER"]
     return f"ucla-deeplearning-{project_user}"
@@ -380,7 +381,7 @@ def get_notebook_instance_type():
     return instance_type
 
 
-def sagemaker_notebook_status(instance_name: str = None) -> NotebookStatus:
+def sagemaker_notebook_status(instance_name: Optional[str] = None) -> NotebookStatus:
     if instance_name is None:
         instance_name = sagemaker_notebook_name()
 
@@ -392,10 +393,10 @@ def sagemaker_notebook_status(instance_name: str = None) -> NotebookStatus:
 
 def run(
     args: Sequence[str],
-    cwd: str = None,
+    cwd: Optional[str] = None,
     capture_output: bool = False,
-    env: Mapping[str, str] = None,
-    input: str = None,
+    env: Optional[Mapping[str, str]] = None,
+    input: Optional[str] = None,
 ) -> subprocess.CompletedProcess:
     if cwd is None:
         cwd = os.getcwd()
@@ -518,7 +519,7 @@ def sagemaker_wait_deleted():
     )
 
 
-def terraform_output(module, env=None):
+def terraform_output(module: str, env: Optional[dict] = None):
     proc = run(
         ["terragrunt", "output", "-json"],
         cwd=os.path.join(project_path, "dev", module),
@@ -687,7 +688,7 @@ def ec2_down():
     )
 
 
-def ec2_ssh(*cmd, input: bytes = None):
+def ec2_ssh(*cmd, input: Optional[bytes] = None):
     """
     Connects to the running EC2 instance via SSH
 
@@ -821,6 +822,36 @@ def dynamodb_get_notebook_state(name: str):
     return response["Item"]["state"]["S"]
 
 
+def gpg_decrypt(data: bytes, passphrase: str) -> bytes:
+    fdr, fdw = os.pipe2(os.O_NONBLOCK)
+    os.write(fdw, passphrase.encode())
+
+    p = subprocess.Popen(
+        ['gpg', '--batch', '--pinentry-mode', 'loopback', '--passphrase-fd', str(fdr), '-d'],
+        close_fds=False,
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE
+    )
+
+    out, err = p.communicate(data)
+
+    if p.returncode != 0:
+        print(err)
+        raise Exception(f'GPG returned non-zero code')
+
+    return out
+
+
+def iam_team():
+    passphrase = input('Enter GPG key passphrase: ')
+    for name, user in terraform_output('aws-iam-team')['users'].items():
+        aws_login_password = user['aws_login_password']
+        aws_login_password = b64decode(aws_login_password)
+        aws_login_password = gpg_decrypt(aws_login_password, passphrase).decode()
+        print(f'Username: {name} / Password: {aws_login_password}')
+
+
 def aws_cli(*cmd):
     run(['aws', *cmd])
 
@@ -858,5 +889,6 @@ if __name__ == "__main__":
             sagemaker_team_start,
             sagemaker_team_stop,
             aws_cli,
+            iam_team
         ]
     )

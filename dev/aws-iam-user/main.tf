@@ -64,6 +64,7 @@ data "local_file" "pgp_key" {
 resource "aws_iam_user_login_profile" "login" {
   pgp_key = data.local_file.pgp_key.content_base64
   user = aws_iam_user.user.name
+  password_reset_required = false
 }
 
 output "aws_access_key_id" {
