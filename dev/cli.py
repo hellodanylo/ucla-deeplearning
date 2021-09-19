@@ -670,8 +670,8 @@ def ec2_install():
     """
     Installs the Docker and Github repo on the EC2 instance.
     """
-    ec2_ssh(input=read_bytes(f"{project_path}/dev/aws-ec2/install_docker.sh"))
-    ec2_ssh(input=read_bytes(f"{project_path}/dev/aws-ec2/clone_repo.sh"))
+    ec2_ssh(stdin=read_bytes(f"{project_path}/dev/aws-ec2/install_docker.sh"))
+    ec2_ssh(stdin=read_bytes(f"{project_path}/dev/aws-ec2/clone_repo.sh"))
 
 
 def ec2_down():
@@ -688,14 +688,15 @@ def ec2_down():
     )
 
 
-def ec2_ssh(*cmd, input: Optional[bytes] = None):
+def ec2_ssh(*cmd: str, stdin=None):
     """
     Connects to the running EC2 instance via SSH
 
     :param cmd:
-    :param input:
+    :param stdin:
     :return:
     """
+
     connection = terraform_output("aws-ec2", env={"s3_bucket_name": s3_bucket_name()})[
         "ec2"
     ]
@@ -723,7 +724,7 @@ def ec2_ssh(*cmd, input: Optional[bytes] = None):
     ]
 
     print(f"Running {args}")
-    run(args, input=None if input is None else input.decode())
+    run(args, input=None if stdin is None else stdin.decode())
 
 
 def ec2_tunnel(*cmd):
@@ -808,7 +809,7 @@ def ec2_nvidia():
 
     :return:
     """
-    ec2_ssh(input=read_bytes(f"{project_path}/dev/aws-ec2/install_nvidia.sh"))
+    ec2_ssh(stdin=read_bytes(f"{project_path}/dev/aws-ec2/install_nvidia.sh"))
 
 
 def dynamodb_get_notebook_state(name: str):
