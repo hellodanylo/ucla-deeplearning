@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import os
 import subprocess
 from typing import Sequence
@@ -11,10 +13,10 @@ from nbconvert.preprocessors import ExecutePreprocessor
 from nbformat import NotebookNode
 
 
-def find_notebooks() -> Sequence[str]:
+def find_notebooks(prefix: str = "/app/ucla_deeplearning") -> Sequence[str]:
     reports = (
         subprocess.run(
-            ["find", "/app/ucla_deeplearning", "-name", "*.ipynb"], capture_output=True
+            ["find", prefix, "-name", "*.ipynb"], capture_output=True
         )
         .stdout.decode()
         .split("\n")
@@ -67,7 +69,7 @@ def execute_notebook(path: str):
     ep.preprocess(notebook, {"metadata": {"path": os.path.dirname(path)}})
 
 
-notebooks = sorted(find_notebooks())
+notebooks = sorted(find_notebooks(prefix='/app/ucla-deeplearning/01_dnn'))
 # notebooks = ['/app/ucla_deeplearning/01_dnn/AssignmentTemplate.ipynb']
 
 failed_notebooks = []
