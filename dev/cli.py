@@ -136,7 +136,7 @@ def jupyter_up(
     conda_cache: bool = False,
     conda_init: bool = False,
     vim: bool = False,
-    instructor: bool = False,
+    instructor: bool = False
 ):
     """
     Creates and starts the Jupyter container
@@ -226,9 +226,11 @@ def jupyter_build(
     conda_init: bool = False,
     conda_cache: bool = False,
     vim: bool = False,
+    docker_cache_off: bool = False,
 ):
     docker_cli(
         "build",
+        *(['--no-cache'] if docker_cache_off else []),
         "-t",
         image_jupyter,
         "--build-arg",

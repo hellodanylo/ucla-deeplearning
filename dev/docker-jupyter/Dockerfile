@@ -1,4 +1,4 @@
-FROM continuumio/miniconda3:4.8.2
+FROM continuumio/miniconda3:4.10.3
 
 WORKDIR /root
 
