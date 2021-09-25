@@ -11,3 +11,4 @@ dev/aws-ec2/key.pub
 dev/members.*
 dev/team.json
 dev/*.key
+local
