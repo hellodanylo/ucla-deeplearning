@@ -20,12 +20,11 @@ aws dynamodb update-item \
   --attribute-updates {\"state\":{\"Value\":{\"S\":\"created\"}}}
 
 conda activate JupyterSystemEnv
-# jupyter labextension install --no-build jupyterlab_vim
 jupyter labextension install --no-build @jupyter-widgets/jupyterlab-manager
 jupyter lab build
 
 PROJECT_PATH=/home/ec2-user/SageMaker/setup
-wget https://repo.anaconda.com/miniconda/Miniconda3-py37_4.8.3-Linux-x86_64.sh -O "$PROJECT_PATH/miniconda.sh"
+wget https://repo.anaconda.com/miniconda/Miniconda3-py39_4.10.3-Linux-x86_64.sh -O "$PROJECT_PATH/miniconda.sh"
 bash "$PROJECT_PATH/miniconda.sh" -b -u -p "$PROJECT_PATH/miniconda"
 rm -rf "$PROJECT_PATH/miniconda.sh"
 
@@ -33,7 +32,7 @@ source $PROJECT_PATH/miniconda/bin/activate
 conda env create -n ucla_deeplearning -q -f "$PROJECT_PATH/conda_lock.yml"
 
 conda activate ucla_deeplearning
-#pip install git+https://github.com/keras-team/keras-tuner@1.0.2rc1
+python -m ipykernel install --user --name ucla_deeplearning
 
 touch $PROJECT_PATH/done.txt
 aws dynamodb update-item \
