@@ -18,7 +18,7 @@ Copyright: Danylo Vashchilenko, 2019-2022.
     * [Mac OS](#mac-os)
     * [Dev Tools](#dev-tools)
 2. [Jupyter on Local Computer](#jupyter-on-local-computer)
-3. [Jupyter on AWS EC2 Instance](#jupyter-on-aws-ec2-instance)
+3. [Jupyter on AWS SageMaker](#jupyter-on-aws-sagemaker)
 
 # Setup
 
@@ -170,7 +170,7 @@ This mechanism is the final error-prevention measure and should not be relied up
 5. Wait for the instance to start
 6. Click `Open JupyterLab`
 
-After opening a particular notebook, select the `ucla-deeplearning` kernel.
+After opening a particular notebook, select the `ucla_deeplearning` kernel.
 Other kernels contain potentially incompatible versions of Tensorflow and other Python packages.
 
 After you are done with Jupyter:
