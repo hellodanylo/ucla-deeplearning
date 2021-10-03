@@ -68,6 +68,10 @@ resource "aws_sagemaker_notebook_instance" "notebook" {
     Member = var.member_name
     owner = var.member_name
   }
+
+  lifecycle {
+    ignore_changes = [instance_type]
+  }
 }
 
 output "notebook_name" {

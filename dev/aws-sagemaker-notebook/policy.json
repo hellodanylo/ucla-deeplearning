@@ -17,6 +17,11 @@
       "Effect": "Allow",
       "Action": "dynamodb:*",
       "Resource": "*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": "rekognition:DetectLabels",
+      "Resource": "*"
     }
   ]
 }
