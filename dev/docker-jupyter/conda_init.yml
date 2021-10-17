@@ -24,6 +24,7 @@ dependencies:
   - seaborn>=0.9
   - statsmodels=0.11.1
   - tensorflow-gpu=2.2.0
+  - tensorflow-estimator=2.2.0
   - tensorflow-hub=0.8.0
   - x264
   - pip:
