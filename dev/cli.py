@@ -80,7 +80,13 @@ def find_container_by_name(name, remote: bool = False) -> Optional[Container]:
     return None
 
 
-def jupyter_create(gpu: bool = False, instructor: bool = False, remote: bool = False):
+def jupyter_create(
+        gpu: bool = False, 
+        instructor: bool = False, 
+        remote: bool = False, 
+        ip: Optional[str] = None, 
+        network: Optional[str] = None
+    ):
     """
     Starts the Jupyter container
 
@@ -113,6 +119,8 @@ def jupyter_create(gpu: bool = False, instructor: bool = False, remote: bool = F
             if instructor
             else []
         ),
+        *(("--ip", ip) if ip is not None else []),
+        *(("--network", network) if network is not None else []),
         "-p",
         "3000:80",
         *(["--gpus", "all"] if gpu else []),
@@ -136,7 +144,9 @@ def jupyter_up(
     conda_cache: bool = False,
     conda_init: bool = False,
     vim: bool = False,
-    instructor: bool = False
+    instructor: bool = False,
+    ip: str = None,
+    network: str = None
 ):
     """
     Creates and starts the Jupyter container
@@ -145,7 +155,7 @@ def jupyter_up(
         conda_cache=conda_cache, remote=remote, conda_init=conda_init, vim=vim
     )
     jupyter_down(remote=remote, quiet=True)
-    jupyter_create(gpu=gpu, instructor=instructor, remote=remote)
+    jupyter_create(gpu=gpu, instructor=instructor, remote=remote, ip=ip, network=network)
     jupyter_start(remote=remote)
 
 

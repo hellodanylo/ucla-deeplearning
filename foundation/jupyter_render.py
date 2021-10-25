@@ -69,7 +69,7 @@ def execute_notebook(path: str):
     ep.preprocess(notebook, {"metadata": {"path": os.path.dirname(path)}})
 
 
-notebooks = sorted(find_notebooks(prefix='/app/ucla-deeplearning/02_cnn'))
+notebooks = sorted(find_notebooks(prefix='/app/ucla-deeplearning/05_ensemble'))
 print(notebooks)
 # notebooks = ['/app/ucla_deeplearning/01_dnn/AssignmentTemplate.ipynb']
 
