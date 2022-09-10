@@ -240,6 +240,7 @@ def jupyter_build(
 ):
     docker_cli(
         "build",
+        "--platform", "linux/amd64",
         *(['--no-cache'] if docker_cache_off else []),
         "-t",
         image_jupyter,
@@ -869,15 +870,28 @@ def aws_cli(*cmd):
     run(['aws', *cmd])
 
 
+def terragrunt(module, *cmd):
+    run(
+        ['terragrunt', *cmd],
+        cwd=f'{project_path}/dev/{module}',
+    )
+
 if __name__ == "__main__":
     load_env()
     clize.run(
         [
+            # Local
             jupyter_up,
             jupyter_start,
             jupyter_stop,
             jupyter_down,
+            shell,
+
+            # AWS Common
             aws_up,
+            aws_down,
+
+            # AWS EC2
             ec2_up,
             ec2_start,
             ec2_tunnel,
@@ -887,21 +901,29 @@ if __name__ == "__main__":
             ec2_down,
             ec2_ssh,
             ec2_install,
-            aws_down,
-            shell,
-            s3_up,
-            docker_cli,
-            jupyter_build,
-            terraform_output_sagemaker,
-            terraform_output_ec2,
-            sagemaker_up,
-            sagemaker_resize,
-            sagemaker_down,
-            sagemaker_stop,
-            sagemaker_start,
+
+            # AWS SageMaker team admin
             sagemaker_team_start,
             sagemaker_team_stop,
+
+            # AWS SageMaker team member
+            sagemaker_start,
+            sagemaker_resize,
+            sagemaker_stop,
+
+            docker_cli,
+            jupyter_build,
             aws_cli,
-            iam_team
+
+            # Terraform
+            s3_up,
+            iam_team,
+            terragrunt,
+            terraform_output_sagemaker,
+            terraform_output_ec2,
+
+            # AWS SageMaker independent
+            sagemaker_up,
+            sagemaker_down,
         ]
     )
