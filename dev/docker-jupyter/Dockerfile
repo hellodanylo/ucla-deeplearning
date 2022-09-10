@@ -3,7 +3,7 @@ FROM ghcr.io/hellodanylo/humus:main
 WORKDIR /root
 
 ARG CONDA_VERSION=Miniconda3-py39_4.12.0-Linux-x86_64
-RUN wget -O conda_install.sh "https://repo.anaconda.com/miniconda/$CONDA_VERSION.sh"
+RUN wget -q -O conda_install.sh "https://repo.anaconda.com/miniconda/$CONDA_VERSION.sh"
 RUN bash conda_install.sh -b
 RUN rm conda_install.sh
 
@@ -28,7 +28,7 @@ COPY $CONDA_RC /root/.condarc
 
 ARG CONDA_ENV=conda_lock.yml
 COPY $CONDA_ENV /root/conda.yml
-RUN conda env update -n base -f conda.yml
+RUN conda env create -n ucla_deeplearning -f conda.yml
 
 # https://github.com/axelfahy/jupyterlab-vim
 ARG VIM=false
