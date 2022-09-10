@@ -29,6 +29,8 @@ COPY $CONDA_RC /root/.condarc
 ARG CONDA_ENV=conda_lock.yml
 COPY $CONDA_ENV /root/conda.yml
 RUN conda env create -n ucla_deeplearning -f conda.yml
+RUN conda init zsh
+RUN conda shell.zsh activate jupyter >>/root/.zshenv
 
 # https://github.com/axelfahy/jupyterlab-vim
 ARG VIM=false
