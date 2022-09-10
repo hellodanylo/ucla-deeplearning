@@ -1,0 +1,20 @@
+digraph D {
+    node [shape=box]
+    start -> jupyter_up
+    jupyter_up -> jupyter_stop
+    jupyter_up -> jupyter_down
+    jupyter_stop -> jupyter_start
+    jupyter_stop -> jupyter_down
+    jupyter_start -> jupyter_down
+    start -> aws_up
+    aws_up -> s3_up
+    s3_up -> "aws-iam"
+    s3_up -> "aws-iam-team"
+    s3_up -> "aws-lambda-budget"
+    "aws-lambda-budget" -> "aws-budget-team"
+    s3_up -> "aws-sagemaker"
+    "aws-sagemaker" -> "aws-sagemaker-team"
+    "aws-sagemaker-team" -> sagemaker_team_start
+    sagemaker_team_start -> sagemaker_team_stop
+    sagemaker_team_stop -> aws_down
+}

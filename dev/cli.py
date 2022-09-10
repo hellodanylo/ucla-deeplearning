@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import re
+import tempfile
 from base64 import b64decode
 from enum import Enum
 
@@ -837,22 +838,20 @@ def dynamodb_get_notebook_state(name: str):
 
 
 def gpg_decrypt(data: bytes, passphrase: str) -> bytes:
-    fdr, fdw = os.pipe2(os.O_NONBLOCK)
-    os.write(fdw, passphrase.encode())
+    with tempfile.NamedTemporaryFile() as enc:
+        enc.write(data)
+        enc.flush()
 
-    p = subprocess.Popen(
-        ['gpg', '--batch', '--pinentry-mode', 'loopback', '--passphrase-fd', str(fdr), '-d'],
-        close_fds=False,
-        stdin=subprocess.PIPE,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE
-    )
-
-    out, err = p.communicate(data)
-
-    if p.returncode != 0:
-        print(err)
-        raise Exception(f'GPG returned non-zero code')
+        with subprocess.Popen(
+            ['gpg', '--batch', '--pinentry-mode', 'loopback', '--passphrase-fd', '0', '--decrypt', enc.name],
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        ) as p:
+            out, err = p.communicate(passphrase.encode())
+            if p.returncode != 0:
+                print(err)
+                raise Exception(f'GPG returned non-zero code')
 
     return out
 
@@ -902,7 +901,8 @@ if __name__ == "__main__":
             ec2_ssh,
             ec2_install,
 
-            # AWS SageMaker team admin
+            # AWS team admin
+            iam_team,
             sagemaker_team_start,
             sagemaker_team_stop,
 
@@ -911,13 +911,13 @@ if __name__ == "__main__":
             sagemaker_resize,
             sagemaker_stop,
 
+            # Internal
             docker_cli,
             jupyter_build,
             aws_cli,
 
             # Terraform
             s3_up,
-            iam_team,
             terragrunt,
             terraform_output_sagemaker,
             terraform_output_ec2,
