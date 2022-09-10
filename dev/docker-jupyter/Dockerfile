@@ -1,8 +1,14 @@
-FROM continuumio/miniconda3:4.10.3
+FROM ghcr.io/hellodanylo/humus:main
 
 WORKDIR /root
 
-RUN apt-get update -qy && apt-get install -qy \
+ARG CONDA_VERSION=Miniconda3-py39_4.12.0-Linux-x86_64
+RUN wget -O conda_install.sh "https://repo.anaconda.com/miniconda/$CONDA_VERSION.sh"
+RUN bash conda_install.sh -b
+RUN rm conda_install.sh
+
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update -q && apt-get install -qy \
     procps \
     htop \
     zip \
@@ -14,6 +20,8 @@ RUN apt-get update -qy && apt-get install -qy \
     protobuf-compiler \
     build-essential \
     >/dev/null 2>&1
+
+ENV PATH="/root/miniconda3/bin:$PATH"
 
 ARG CONDA_RC=condarc_default
 COPY $CONDA_RC /root/.condarc
