@@ -37,7 +37,7 @@ resource "aws_security_group" "sagemaker" {
 }
 
 locals {
-  conda_lock_yml = file("${path.module}/../docker-jupyter/conda_lock.yml")
+  conda_lock_yml = file("${path.module}/../docker-jupyter/conda_deeplearning_lock.yml")
 
   notebook_on_create = templatefile("${path.module}/notebook_on_create.sh", {
     conda_lock_yml = local.conda_lock_yml

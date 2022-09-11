@@ -5,28 +5,22 @@ dependencies:
   - ipython
   - ipykernel
   - ipywidgets
-  - jupyterlab
-  - jupyterlab-git
   - line_profiler
   - matplotlib
-  - mlflow
-  - nbconvert
-  - nodejs
   - numpy
   - pandas
   - pip
   - protobuf
   - pyarrow
   - python
-  - requests
   - s3fs
   - scikit-learn
   - seaborn
   - statsmodels
-  - tensorflow-gpu=2.8.1
-  - tensorflow-estimator=2.8.1
+  - tensorflow-gpu
+  - tensorflow-estimator
   - tensorflow-hub
-  - x264
   - pip:
-      - awscli
-      - keras-tuner
+    - requests
+    - awscli
+    - keras-tuner

@@ -29,7 +29,7 @@ In order to run the notebooks on your computer and in AWS cloud, you need the fo
 
 How to proceed?
 * If you are using Windows, follow the instructions under [Windows](#windows)
-* If you are using Mac OS, follow the instructions under [Mac OS](#macos)
+* If you are using Mac OS, follow the instructions under [Mac OS](#mac-os)
 
 It's strongly advised to use the setup instructions above, but if you would like to manage your own Conda environment:
 * the environment for notebooks is defined in: `./dev/docker-jupyter/conda_init.yml`
@@ -96,8 +96,7 @@ Run the following commands in the terminal:
 cd ucla-deeplearning
 
 # Create ucla-dev environment
-conda config --add channels conda-forge
-conda env create -n ucla-dev -f dev/conda_init.yml
+conda env create -n ucla-dev -f dev/conda_lock.yml
 
 # Activate the environment:
 conda activate ucla-dev

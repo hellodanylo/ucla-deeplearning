@@ -1,0 +1,11 @@
+dependencies:
+  - ipython
+  - ipykernel
+  - ipywidgets
+  - jupyterlab
+  - nbconvert
+  - nodejs
+  - pip
+  - python
+  - pip:
+    - jupyterlab-git

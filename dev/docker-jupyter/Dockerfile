@@ -23,30 +23,26 @@ RUN apt-get update -q && apt-get install -qy \
 
 ENV PATH="/root/miniconda3/bin:$PATH"
 
-ARG CONDA_RC=condarc_default
-COPY $CONDA_RC /root/.condarc
-
-ARG CONDA_ENV=conda_lock.yml
-COPY $CONDA_ENV /root/conda.yml
-RUN conda env create -n ucla_deeplearning -f conda.yml
-RUN conda init zsh
-RUN conda shell.zsh activate jupyter >>/root/.zshenv
+ARG CONDA_JUPYTER_ENV=conda_jupyter_lock.yml
+COPY $CONDA_JUPYTER_ENV /root/conda_jupyter.yml
+RUN conda env create -n jupyter -f conda_jupyter.yml
+ENV PATH="/root/miniconda3/envs/jupyter/bin:$PATH"
 
 # https://github.com/axelfahy/jupyterlab-vim
 ARG VIM=false
-RUN ($VIM && jupyter labextension install --no-build @axlair/jupyterlab_vim@0.12.4) || true
-RUN jupyter labextension install --no-build @jupyterlab/git@0.21.1
-RUN jupyter serverextension enable --py jupyterlab_git --sys-prefix >/dev/null
-RUN jupyter lab build
+RUN ($VIM && pip install jupyterlab-vim)
+
+ARG CONDA_DEEPLEARNING_ENV=conda_deeplearning_lock.yml
+COPY $CONDA_DEEPLEARNING_ENV /root/conda_deeplearning.yml
+RUN conda env create -n ucla_deeplearning -f conda_deeplearning.yml
+RUN /root/miniconda3/envs/ucla_deeplearning/bin/ipython kernel install --user --name=ucla_deeplearning
 
 # Nvidia Runtime
 ENV NVIDIA_VISIBLE_DEVICES=all
 ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility
 ENV NVIDIA_REQUIRE_CUDA="cuda>=10.0 brand=tesla,driver>=384,driver<385 brand=tesla,driver>=410,driver<411"
 
-RUN ln -s /root/.ssh/gitconfig /root/.gitconfig
-
-CMD /opt/conda/bin/jupyter \
+CMD jupyter \
     lab \
     --notebook-dir=/app \
     --ip=0.0.0.0 \

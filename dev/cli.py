@@ -127,13 +127,6 @@ def jupyter_create(
         *(["--gpus", "all"] if gpu else []),
         "-it",
         image_jupyter,
-        "/opt/conda/bin/jupyter",
-        "lab",
-        "--notebook-dir=/app",
-        "--ip=0.0.0.0",
-        "--port=80",
-        "--no-browser",
-        "--allow-root",
         remote=remote,
     )
 
@@ -169,7 +162,7 @@ def jupyter_start(*, remote: bool = False):
     """
     docker_cli("start", container_jupyter, remote=remote)
     sleep(10)
-    proc = docker_cli("exec", container_jupyter, "jupyter", "notebook", "list", remote=remote, capture_output=True)
+    proc = docker_cli("exec", container_jupyter, "jupyter", "lab", "list", remote=remote, capture_output=True)
     token = re.findall('token=([a-zA-Z0-9]+)', proc.stdout.decode())[0]
 
     print(
@@ -246,9 +239,9 @@ def jupyter_build(
         "-t",
         image_jupyter,
         "--build-arg",
-        f"CONDA_RC={'condarc_cache.yml' if conda_cache else 'condarc_default.yml'}",
+        f"CONDA_JUPYTER_ENV={'conda_jupyter_init.yml' if conda_init else 'conda_jupyter_lock.yml'}",
         "--build-arg",
-        f"CONDA_ENV={'conda_init.yml' if conda_init else 'conda_lock.yml'}",
+        f"CONDA_DEEPLEARNING_ENV={'conda_deeplearning_init.yml' if conda_init else 'conda_deeplearning_lock.yml'}",
         "--build-arg",
         f"VIM={'true' if vim else 'false'}",
         *(["--network", "inception"] if conda_cache else []),
