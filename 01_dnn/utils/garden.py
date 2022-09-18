@@ -41,11 +41,11 @@ def plot_field(fig: plt.Figure, field: np.array, location: tuple, side: int):
 def plot_learning_path(fig: plt.Figure, paths):
     for history in paths:
         # First point will be blue
-        sns.scatterplot(history[0:1, 0], history[0:1, 1], color='blue', ax=fig.gca())
+        sns.scatterplot({'x': history[0:1, 0], 'y': history[0:1, 1]}, x='x', y='y', color='blue', ax=fig.gca())
         # Intermediate steps are red
-        sns.scatterplot(history[1:, 0], history[1:, 1], color='red', ax=fig.gca())
+        sns.scatterplot({'x': history[1:, 0], 'y': history[1:, 1]}, x='x', y='y', color='red', ax=fig.gca())
         # Last point will be black
-        sns.scatterplot(history[-1:, 0], history[-1:, 1], color='black', ax=fig.gca())
+        sns.scatterplot({'x': history[-1:, 0], 'y': history[-1:, 1]}, x='x', y='y', color='black', ax=fig.gca())
         
     return fig
 

@@ -1,11 +1,6 @@
 dependencies:
-  - boto3
   - cachetools
-  - cudnn
   - ffmpeg
-  - ipython
-  - ipykernel
-  - ipywidgets
   - line_profiler
   - matplotlib
   - numpy
@@ -14,18 +9,22 @@ dependencies:
   - protobuf
   - pyarrow
   - python
-  - s3fs
   - scikit-learn
   - seaborn
   - statsmodels
+  - tensorflow=2.8.1=cuda*
   - pip:
     - awscli
+    - boto3
     - ftfy
-    - regex
     - git+https://github.com/divamgupta/stable-diffusion-tensorflow.git
+    - ipykernel
+    - ipython
+    - ipywidgets
     - keras-tuner
+    - regex
     - requests
-    - tensorflow-gpu
+    - s3fs
     - tensorflow-hub
     - tensorflow_addons
     - tqdm

@@ -23,6 +23,11 @@ RUN apt-get update -q && apt-get install -qy \
 
 ENV PATH="/root/miniconda3/bin:$PATH"
 
+ARG CONDA_RC=condarc_default.yml
+COPY $CONDA_RC /root/.condarc
+
+RUN conda info
+
 ARG CONDA_JUPYTER_ENV=conda_jupyter_lock.yml
 COPY $CONDA_JUPYTER_ENV /root/conda_jupyter.yml
 RUN conda env create -n jupyter -f conda_jupyter.yml
@@ -34,13 +39,13 @@ RUN ($VIM && pip install jupyterlab-vim)
 
 ARG CONDA_DEEPLEARNING_ENV=conda_deeplearning_lock.yml
 COPY $CONDA_DEEPLEARNING_ENV /root/conda_deeplearning.yml
+ENV CONDA_OVERRIDE_CUDA="11.2"
 RUN conda env create -n ucla_deeplearning -f conda_deeplearning.yml
 RUN /root/miniconda3/envs/ucla_deeplearning/bin/ipython kernel install --user --name=ucla_deeplearning
 
 RUN conda init zsh
 ENV SHELL=/bin/zsh
 WORKDIR /app
-ENV LD_LIBRARY_PATH=/root/miniconda3/envs/ucla_deeplearning/lib
 
 # Nvidia Runtime
 ENV NVIDIA_VISIBLE_DEVICES=all
