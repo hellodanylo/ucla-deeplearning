@@ -234,6 +234,7 @@ def jupyter_build(
 ):
     docker_cli(
         "build",
+        "--pull",
         "--platform", "linux/amd64",
         *(['--no-cache'] if docker_cache_off else []),
         "-t",
