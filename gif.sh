@@ -1,11 +1,6 @@
 #!/usr/bin/env bash
 
-sagemaker_ffmpeg="/home/ec2-user/SageMaker/setup/miniconda/envs/ucla_deeplearning/bin/ffmpeg"
-if [ -f $sagemaker_ffmpeg ]; then
-    ffmpeg=$sagemaker_ffmpeg
-else
-    ffmpeg=$(which ffmpeg)
-fi
+ffmpeg=$(find / -wholename "*ucla_deeplearning/bin/ffmpeg" )
 
 
 $ffmpeg -framerate 10 -y -i "$1/%d.png" -r 30 \

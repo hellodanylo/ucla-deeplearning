@@ -2,9 +2,10 @@
 
 import os
 import subprocess
-from typing import Sequence
+from typing import Sequence, List
 
 import boto3
+import clize
 import nbformat
 from cachetools import cached, LRUCache
 from nbconvert import HTMLExporter
@@ -64,22 +65,30 @@ def execute_notebook(path: str):
     with open(path, "r") as f:
         notebook = nbformat.read(f, as_version=4)  # type: NotebookNode
 
-    ep = ExecutePreprocessor(timeout=600, kernel_name="python3")
+    ep = ExecutePreprocessor(timeout=600)
     ep.preprocess(notebook, {"metadata": {"path": os.path.dirname(path)}})
 
 
-notebooks = sorted(find_notebooks(prefix='/app/ucla-deeplearning/01_dnn'))
-print(notebooks)
-# notebooks = ['/app/ucla_deeplearning/01_dnn/AssignmentTemplate.ipynb']
+def process(*modules, execute: bool = False, render: bool = False):
+    failed_notebooks = []
 
-failed_notebooks = []
-for report_path in notebooks:
-    try:
-        execute_notebook(report_path)
-        # render_notebook(report_path)
-    except Exception as e:
-        failed_notebooks.append(report_path)
-        print(e)
+    for module in modules:
+        notebooks = sorted(find_notebooks(prefix=f'/app/ucla-deeplearning/{module}'))
 
-print("Failed notebooks:")
-print("\n".join(failed_notebooks))
+        for report_path in notebooks:
+            try:
+                print(report_path)
+                if execute:
+                    execute_notebook(report_path)
+                if render:
+                    render_notebook(report_path)
+            except Exception as e:
+                failed_notebooks.append(report_path)
+                print(e)
+
+    print("Failed notebooks:")
+    print("\n".join(failed_notebooks))
+
+
+if __name__ == '__main__':
+    clize.run([process])

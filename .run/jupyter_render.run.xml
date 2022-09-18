@@ -27,7 +27,7 @@
         <list />
       </option>
       <option name="publishAllPorts" value="false" />
-      <option name="runCliOptions" value="--entrypoint= --rm" />
+      <option name="runCliOptions" value="--entrypoint= --rm --gpus all" />
       <option name="version" value="2" />
       <option name="volumeBindings">
         <list>
@@ -72,7 +72,7 @@
       </option>
     </PathMappingSettings>
     <option name="SCRIPT_NAME" value="$PROJECT_DIR$/foundation/jupyter_render.py" />
-    <option name="PARAMETERS" value="" />
+    <option name="PARAMETERS" value="process 01_dnn --execute" />
     <option name="SHOW_COMMAND_LINE" value="false" />
     <option name="EMULATE_TERMINAL" value="false" />
     <option name="MODULE_MODE" value="false" />
