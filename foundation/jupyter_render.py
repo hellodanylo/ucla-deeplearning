@@ -6,7 +6,6 @@ from typing import Sequence
 
 import boto3
 import nbformat
-import s3fs
 from cachetools import cached, LRUCache
 from nbconvert import HTMLExporter
 from nbconvert.preprocessors import ExecutePreprocessor
@@ -69,14 +68,15 @@ def execute_notebook(path: str):
     ep.preprocess(notebook, {"metadata": {"path": os.path.dirname(path)}})
 
 
-notebooks = sorted(find_notebooks(prefix='/app/ucla-deeplearning/05_ensemble'))
+notebooks = sorted(find_notebooks(prefix='/app/ucla-deeplearning/01_dnn'))
 print(notebooks)
 # notebooks = ['/app/ucla_deeplearning/01_dnn/AssignmentTemplate.ipynb']
 
 failed_notebooks = []
 for report_path in notebooks:
     try:
-        render_notebook(report_path)
+        execute_notebook(report_path)
+        # render_notebook(report_path)
     except Exception as e:
         failed_notebooks.append(report_path)
         print(e)
