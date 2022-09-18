@@ -17,10 +17,9 @@ dependencies:
   - scikit-learn
   - seaborn
   - statsmodels
-  - tensorflow-gpu
-  - tensorflow-estimator
-  - tensorflow-hub
+  - tensorflow
   - pip:
-    - requests
     - awscli
     - keras-tuner
+    - requests
+    - tensorflow-hub

@@ -4,7 +4,7 @@ channels:
 dependencies:
   - _libgcc_mutex=0.1
   - _openmp_mutex=5.1
-  - _tflow_select=2.1.0
+  - _tflow_select=2.3.0
   - abseil-cpp=20211102.0
   - absl-py=0.15.0
   - aiobotocore=2.1.0
@@ -14,7 +14,6 @@ dependencies:
   - argon2-cffi=21.3.0
   - argon2-cffi-bindings=21.2.0
   - arrow-cpp=8.0.0
-  - astor=0.8.1
   - asttokens=2.0.5
   - astunparse=1.6.3
   - async-timeout=4.0.1
@@ -43,9 +42,6 @@ dependencies:
   - charset-normalizer=2.0.4
   - click=8.0.4
   - cryptography=37.0.1
-  - cudatoolkit=10.1.243
-  - cudnn=7.6.5
-  - cupti=10.1.168
   - cycler=0.11.0
   - dataclasses=0.8
   - dbus=1.13.18
@@ -56,12 +52,14 @@ dependencies:
   - executing=0.8.3
   - expat=2.4.4
   - ffmpeg=4.2.2
+  - fftw=3.3.9
+  - flatbuffers=2.0.0
   - fontconfig=2.13.1
   - fonttools=4.25.0
   - freetype=2.11.0
   - frozenlist=1.2.0
   - fsspec=2022.1.0
-  - gast=0.4.0
+  - gast=0.5.3
   - gflags=2.2.2
   - giflib=5.2.1
   - glib=2.69.1
@@ -75,7 +73,7 @@ dependencies:
   - grpcio=1.42.0
   - gst-plugins-base=1.14.0
   - gstreamer=1.14.0
-  - h5py=2.10.0
+  - h5py=3.7.0
   - hdf5=1.10.6
   - icu=58.2
   - idna=3.3
@@ -95,6 +93,7 @@ dependencies:
   - jupyter_core=4.10.0
   - jupyterlab_pygments=0.1.2
   - jupyterlab_widgets=1.0.0
+  - keras=2.8.0
   - keras-preprocessing=1.1.2
   - kiwisolver=1.4.2
   - krb5=1.19.2
@@ -114,8 +113,8 @@ dependencies:
   - libevent=2.1.12
   - libffi=3.3
   - libgcc-ng=11.2.0
-  - libgfortran-ng=7.5.0
-  - libgfortran4=7.5.0
+  - libgfortran-ng=11.2.0
+  - libgfortran5=11.2.0
   - libgomp=11.2.0
   - libidn2=2.3.2
   - libllvm10=10.0.1
@@ -163,8 +162,8 @@ dependencies:
   - nspr=4.33
   - nss=3.74
   - numexpr=2.8.3
-  - numpy=1.23.1
-  - numpy-base=1.23.1
+  - numpy=1.22.3
+  - numpy-base=1.22.3
   - oauthlib=3.2.0
   - openh264=2.1.1
   - openssl=1.1.1q
@@ -196,10 +195,9 @@ dependencies:
   - pyopenssl=22.0.0
   - pyparsing=3.0.9
   - pyqt=5.15.7
-  - pyqt5-sip=12.11.0
   - pyrsistent=0.18.0
   - pysocks=1.7.1
-  - python=3.9.13
+  - python=3.10.4
   - python-dateutil=2.8.2
   - python-fastjsonschema=2.16.2
   - python-flatbuffers=2.0
@@ -215,7 +213,7 @@ dependencies:
   - rsa=4.7.2
   - s3fs=2022.1.0
   - scikit-learn=1.1.1
-  - scipy=1.7.1
+  - scipy=1.7.3
   - seaborn=0.11.2
   - send2trash=1.8.0
   - setuptools=63.4.1
@@ -226,14 +224,12 @@ dependencies:
   - sqlite=3.39.2
   - stack_data=0.2.0
   - statsmodels=0.13.2
-  - tensorboard=2.9.0
+  - tensorboard=2.8.0
   - tensorboard-data-server=0.6.0
   - tensorboard-plugin-wit=1.8.1
-  - tensorflow=2.4.1
-  - tensorflow-base=2.4.1
-  - tensorflow-estimator=2.6.0
-  - tensorflow-gpu=2.4.1
-  - tensorflow-hub=0.8.0
+  - tensorflow=2.8.2
+  - tensorflow-base=2.8.2
+  - tensorflow-estimator=2.8.0
   - termcolor=1.1.0
   - terminado=0.13.1
   - testpath=0.6.0
@@ -244,7 +240,7 @@ dependencies:
   - traitlets=5.1.1
   - typing-extensions=4.3.0
   - typing_extensions=4.3.0
-  - tzdata=2022a
+  - tzdata=2022c
   - urllib3=1.26.11
   - utf8proc=2.6.1
   - wcwidth=0.2.5
@@ -255,17 +251,21 @@ dependencies:
   - wrapt=1.14.1
   - x264=1!157.20191217
   - xz=5.2.5
+  - yaml=0.2.5
   - yarl=1.8.1
   - zeromq=4.3.4
   - zipp=3.8.0
   - zlib=1.2.12
   - zstd=1.5.2
   - pip:
-    - awscli==1.25.71
-    - botocore==1.27.70
+    - awscli==1.25.76
+    - botocore==1.27.75
     - colorama==0.4.4
     - docutils==0.16
     - keras-tuner==1.1.3
     - kt-legacy==1.0.4
+    - pyqt5-sip==12.11.0
     - pyyaml==5.4.1
     - s3transfer==0.6.0
+    - tensorflow-hub==0.12.0
+prefix: /root/miniconda3/envs/ucla_deeplearning

@@ -37,6 +37,8 @@ COPY $CONDA_DEEPLEARNING_ENV /root/conda_deeplearning.yml
 RUN conda env create -n ucla_deeplearning -f conda_deeplearning.yml
 RUN /root/miniconda3/envs/ucla_deeplearning/bin/ipython kernel install --user --name=ucla_deeplearning
 
+RUN conda init zsh
+
 # Nvidia Runtime
 ENV NVIDIA_VISIBLE_DEVICES=all
 ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility
