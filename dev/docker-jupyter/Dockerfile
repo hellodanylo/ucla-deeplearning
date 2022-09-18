@@ -38,6 +38,9 @@ RUN conda env create -n ucla_deeplearning -f conda_deeplearning.yml
 RUN /root/miniconda3/envs/ucla_deeplearning/bin/ipython kernel install --user --name=ucla_deeplearning
 
 RUN conda init zsh
+ENV SHELL=/bin/zsh
+WORKDIR /app
+ENV LD_LIBRARY_PATH=/root/miniconda3/envs/ucla_deeplearning/lib
 
 # Nvidia Runtime
 ENV NVIDIA_VISIBLE_DEVICES=all

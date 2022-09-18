@@ -100,7 +100,7 @@ dependencies:
   - traitlets=5.1.1
   - typing-extensions=4.3.0
   - typing_extensions=4.3.0
-  - tzdata=2022a
+  - tzdata=2022c
   - urllib3=1.26.11
   - wcwidth=0.2.5
   - webencodings=0.5.1
@@ -111,11 +111,20 @@ dependencies:
   - zeromq=4.3.4
   - zlib=1.2.12
   - pip:
+    - boto3==1.24.75
+    - botocore==1.27.75
+    - cachetools==5.2.0
+    - clize==4.2.1
     - colorama==0.4.5
+    - docutils==0.17.1
     - gitdb==4.0.9
     - gitpython==3.1.27
+    - jmespath==1.0.1
     - jupyter-server-mathjax==0.2.6
     - jupyterlab-git==0.39.2
     - jupyterlab-vim==0.15.1
     - nbdime==3.1.1
+    - od==2.0.2
+    - s3transfer==0.6.0
+    - sigtools==4.0.0
     - smmap==5.0.0

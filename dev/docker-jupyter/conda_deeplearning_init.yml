@@ -1,6 +1,7 @@
 dependencies:
   - boto3
   - cachetools
+  - cudnn
   - ffmpeg
   - ipython
   - ipykernel
@@ -17,9 +18,14 @@ dependencies:
   - scikit-learn
   - seaborn
   - statsmodels
-  - tensorflow
   - pip:
     - awscli
+    - ftfy
+    - regex
+    - git+https://github.com/divamgupta/stable-diffusion-tensorflow.git
     - keras-tuner
     - requests
+    - tensorflow-gpu
     - tensorflow-hub
+    - tensorflow_addons
+    - tqdm
