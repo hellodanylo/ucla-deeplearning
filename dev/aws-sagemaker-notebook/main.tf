@@ -62,6 +62,7 @@ resource "aws_sagemaker_notebook_instance" "notebook" {
   subnet_id = var.sagemaker_config.subnet_id
   security_groups = [var.sagemaker_config.security_group_id]
   lifecycle_config_name = var.sagemaker_config.lifecycle_config_name
+  platform_identifier = "notebook-al2-v2"
 
   tags = {
     Name = var.notebook_name

@@ -187,9 +187,10 @@ After you are done with Jupyter:
 5. Wait for the instance to stop
 6. Click `Edit`
 7. Change notebook instance type from `ml.t3.xlarge` to `ml.p2.xlarge`
-8. Click `Update notebook instance`
-9. Wait for the instance to update
-10. Follow the instance start steps
+8. Make sure Lifecycle Configuration is set to `ucla-deeplearning-notebook`
+9. Click `Update notebook instance`
+10. Wait for the instance to update
+11. Follow the instance start steps
 
 The GPU instance is 5x-10x more expensive than the non-GPU instance.
 Use the GPU instance only when actually needed to train one of the bigger networks.

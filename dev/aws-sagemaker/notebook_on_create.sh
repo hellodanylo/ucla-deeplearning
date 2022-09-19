@@ -32,8 +32,9 @@ source $PROJECT_PATH/miniconda/bin/activate
 export CONDA_OVERRIDE_CUDA="11.2"
 $PROJECT_PATH/miniconda/bin/conda env create -n ucla_deeplearning -q -f "$PROJECT_PATH/conda_lock.yml"
 
+$PROJECT_PATH/miniconda/bin/conda init
 $PROJECT_PATH/miniconda/bin/conda activate ucla_deeplearning
-python -m ipykernel install --user --name ucla_deeplearning
+$PROJECT_PATH/miniconda/envs/ucla_deeplearning/bin/python -m ipykernel install --user --name ucla_deeplearning
 
 touch $PROJECT_PATH/done.txt
 aws dynamodb update-item \
@@ -44,4 +45,4 @@ aws dynamodb update-item \
 EOF
 chmod +x "$PROJECT_PATH/setup.sh"
 
-nohup sudo -u ec2-user -i bash -l "$PROJECT_PATH/setup.sh" >"$PROJECT_PATH/setup.log" &
+nohup sudo -u ec2-user -i bash -l "$PROJECT_PATH/setup.sh" >"$PROJECT_PATH/setup.log" 2>&1 &
