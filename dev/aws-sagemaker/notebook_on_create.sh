@@ -30,9 +30,9 @@ rm -rf "$PROJECT_PATH/miniconda.sh"
 
 source $PROJECT_PATH/miniconda/bin/activate
 export CONDA_OVERRIDE_CUDA="11.2"
-conda env create -n ucla_deeplearning -q -f "$PROJECT_PATH/conda_lock.yml"
+$PROJECT_PATH/miniconda/bin/conda env create -n ucla_deeplearning -q -f "$PROJECT_PATH/conda_lock.yml"
 
-conda activate ucla_deeplearning
+$PROJECT_PATH/miniconda/bin/conda activate ucla_deeplearning
 python -m ipykernel install --user --name ucla_deeplearning
 
 touch $PROJECT_PATH/done.txt
