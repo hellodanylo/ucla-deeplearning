@@ -29,6 +29,7 @@ bash "$PROJECT_PATH/miniconda.sh" -b -u -p "$PROJECT_PATH/miniconda"
 rm -rf "$PROJECT_PATH/miniconda.sh"
 
 source $PROJECT_PATH/miniconda/bin/activate
+export CONDA_OVERRIDE_CUDA="11.2"
 conda env create -n ucla_deeplearning -q -f "$PROJECT_PATH/conda_lock.yml"
 
 conda activate ucla_deeplearning
