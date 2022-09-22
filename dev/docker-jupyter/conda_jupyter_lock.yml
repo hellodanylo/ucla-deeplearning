@@ -138,7 +138,6 @@ dependencies:
     - jmespath==1.0.1
     - jupyter-server-mathjax==0.2.6
     - jupyterlab-git==0.39.2
-    - jupyterlab-vim==0.15.1
     - nbdime==3.1.1
     - od==2.0.2
     - s3transfer==0.6.0

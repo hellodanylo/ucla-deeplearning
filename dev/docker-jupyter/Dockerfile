@@ -34,8 +34,8 @@ RUN conda env create -n jupyter -f conda_jupyter.yml
 ENV PATH="/root/miniconda3/envs/jupyter/bin:$PATH"
 
 # https://github.com/axelfahy/jupyterlab-vim
-ARG VIM=false
-RUN ($VIM && pip install jupyterlab-vim)
+ARG VIM="false"
+RUN ([[ $VIM == "true" ]] && pip install jupyterlab-vim) || true
 
 ARG CONDA_DEEPLEARNING_ENV=conda_deeplearning_lock.yml
 COPY $CONDA_DEEPLEARNING_ENV /root/conda_deeplearning.yml
