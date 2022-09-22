@@ -4,7 +4,10 @@
     {
       "Effect": "Allow",
       "Action": [
+        "sagemaker:Describe*",
+        "sagemaker:Get*",
         "sagemaker:List*",
+        "servicecatalog:ListAcceptedPortfolioShares",
         "ec2:Describe*"
       ],
       "Resource": "*"
