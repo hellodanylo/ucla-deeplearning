@@ -1,4 +1,6 @@
 ![Robot teacher in class in front of a blackboard with math equations](./header.png)
+(Image by a Stable Diffusion model using prompt "robot teacher in class, math equations on blackboard, cartoon style, steampunk")
+
 # Advanced Workshop on Machine Learning
 
 This is the official repository with course material for UCLA Advanced Workshop on Machine Learning (MGMTMSA-434).
