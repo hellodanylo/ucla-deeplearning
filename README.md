@@ -1,3 +1,4 @@
+![Robot teacher in class in front of a blackboard with math equations](./header.png)
 # Advanced Workshop on Machine Learning
 
 This is the official repository with course material for UCLA Advanced Workshop on Machine Learning (MGMTMSA-434).
