@@ -68,12 +68,7 @@ def s3_bucket_region():
 
 
 def find_container_by_name(name, remote: bool = False) -> Optional[Container]:
-    docker_host = (
-        "unix:///var/run/docker.sock"
-        if not remote
-        else f"unix://{project_path}/dev/aws-ec2/docker.sock"
-    )
-    containers = docker.DockerClient(base_url=docker_host).containers.list(all=True)
+    containers = docker.DockerClient().containers.list(all=True)
     for container in containers:
         if container.name == name:
             return container
