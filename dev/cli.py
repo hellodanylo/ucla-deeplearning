@@ -20,7 +20,7 @@ from docker.models.containers import Container
 
 project_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 container_jupyter = "ucla-jupyter"
-image_jupyter = "ucla_jupyter"
+image_jupyter = "ghcr.io/hellodanylo/ucla-deeplearning:master"
 github_repo = "https://github.com/hellodanylo/ucla-deeplearning.git"
 
 
@@ -135,9 +135,6 @@ def jupyter_up(
     *,
     remote: bool = False,
     gpu: bool = False,
-    conda_cache: bool = False,
-    conda_init: bool = False,
-    vim: bool = False,
     instructor: bool = False,
     ip: str = None,
     network: str = None
@@ -145,9 +142,7 @@ def jupyter_up(
     """
     Creates and starts the Jupyter container
     """
-    jupyter_build(
-        conda_cache=conda_cache, remote=remote, conda_init=conda_init, vim=vim
-    )
+    jupyter_pull()
     jupyter_down(remote=remote, quiet=True)
     jupyter_create(gpu=gpu, instructor=instructor, remote=remote, ip=ip, network=network)
     jupyter_start(remote=remote)
@@ -221,6 +216,13 @@ def docker_cli(
             *cmd,
         ],
         capture_output=capture_output
+    )
+
+
+def jupyter_pull():
+    docker_cli(
+        "pull",
+        image_jupyter
     )
 
 
