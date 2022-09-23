@@ -13,3 +13,4 @@ dev/team.json
 dev/*.key
 local
 instructor
+.vscode

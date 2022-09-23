@@ -1,8 +1,8 @@
-#!/usr/bin/env bash
+#!/usr/bin/env zsh
 
 conda activate ucla-dev
 
-DEV_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+DEV_PATH=${0:a:h}
 
 # General
 alias d='docker'

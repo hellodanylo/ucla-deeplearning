@@ -128,19 +128,20 @@ def jupyter_create(
 
 def jupyter_up(
     *,
-    remote: bool = False,
     gpu: bool = False,
     instructor: bool = False,
     ip: str = None,
-    network: str = None
+    network: str = None,
+    no_pull: bool = False
 ):
     """
     Creates and starts the Jupyter container
     """
-    jupyter_pull()
-    jupyter_down(remote=remote, quiet=True)
-    jupyter_create(gpu=gpu, instructor=instructor, remote=remote, ip=ip, network=network)
-    jupyter_start(remote=remote)
+    if not no_pull:
+        jupyter_pull()
+    jupyter_down(quiet=True)
+    jupyter_create(gpu=gpu, instructor=instructor, ip=ip, network=network)
+    jupyter_start()
 
 
 def jupyter_start(*, remote: bool = False):
@@ -875,6 +876,7 @@ if __name__ == "__main__":
             jupyter_start,
             jupyter_stop,
             jupyter_down,
+            jupyter_pull,
             shell,
 
             # AWS Common
