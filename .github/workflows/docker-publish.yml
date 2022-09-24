@@ -9,7 +9,6 @@ on:
       - '.github/**'
 
 env:
-  AWS_ACESS
   # Github registry
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
