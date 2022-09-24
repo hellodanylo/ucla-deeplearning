@@ -20,8 +20,8 @@ from docker.models.containers import Container
 
 project_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 container_jupyter = "ucla-jupyter"
-image_jupyter_url = "ghcr.io/hellodanylo/ucla-deeplearning"
-image_jupyter_tag = "master"
+image_jupyter_url = "public.ecr.aws/v0d2c6m9/ucla-deeplearning"
+image_jupyter_tag = "dev"
 github_repo = "https://github.com/hellodanylo/ucla-deeplearning.git"
 
 
