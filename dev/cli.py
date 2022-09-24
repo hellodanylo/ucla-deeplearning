@@ -82,7 +82,7 @@ def jupyter_create(
         remote: bool = False, 
         ip: Optional[str] = None, 
         network: Optional[str] = None,
-        image_local: bool = False
+        image_tag: str = image_jupyter_tag
     ):
     """
     Starts the Jupyter container
@@ -122,7 +122,7 @@ def jupyter_create(
         "3000:80",
         *(["--gpus", "all"] if gpu else []),
         "-it",
-        f"{image_jupyter_url}:{'local' if image_local else image_jupyter_tag}",
+        f"{image_jupyter_url}:{image_tag}",
         remote=remote,
     )
 
@@ -134,15 +134,15 @@ def jupyter_up(
     ip: str = None,
     network: str = None,
     no_pull: bool = False,
-    image_local: bool = False
+    image_tag: str = image_jupyter_tag,
 ):
     """
     Creates and starts the Jupyter container
     """
-    if not no_pull and not image_local:
+    if not no_pull and image_tag != 'local':
         jupyter_pull()
     jupyter_down(quiet=True)
-    jupyter_create(gpu=gpu, instructor=instructor, ip=ip, network=network, image_local=image_local)
+    jupyter_create(gpu=gpu, instructor=instructor, ip=ip, network=network, image_tag=image_tag)
     jupyter_start()
 
 
@@ -200,7 +200,7 @@ def jupyter_down(*, remote: bool = False, quiet: bool = False):
 
 
 def docker_cli(
-    *cmd, capture_output: bool = False,
+    *cmd, capture_output: bool = False, remote: bool = False
 ) -> subprocess.CompletedProcess:
 
     return run(
