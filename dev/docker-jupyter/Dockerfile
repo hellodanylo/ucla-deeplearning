@@ -54,7 +54,7 @@ ENV NVIDIA_REQUIRE_CUDA="cuda>=10.0 brand=tesla,driver>=384,driver<385 brand=tes
 
 CMD jupyter \
     lab \
-    --notebook-dir=/app \
+    --notebook-dir=/app/ucla-deeplearning \
     --ip=0.0.0.0 \
     --port=80 \
     --no-browser \

@@ -42,8 +42,7 @@ def load_env():
 
 @lru_cache()
 def boto_session():
-    # us-east-1 is the default for compatibility with the existing AWS Educate installations
-    return boto3.Session(region_name=os.environ.get('AWS_REGION', 'us-east-1'))
+    return boto3.Session()
 
 
 @lru_cache()
