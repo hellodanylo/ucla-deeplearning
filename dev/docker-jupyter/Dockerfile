@@ -47,6 +47,9 @@ RUN conda init zsh
 ENV SHELL=/bin/zsh
 WORKDIR /app
 
+# Git complains about ownership by another user (this image runs as root)
+RUN git config --global --add safe.directory /app/ucla-deeplearning
+
 # Nvidia Runtime
 ENV NVIDIA_VISIBLE_DEVICES=all
 ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility

@@ -223,7 +223,6 @@ def jupyter_pull():
 
 def jupyter_build(
     *,
-    remote: bool = False,
     conda_init: bool = False,
     conda_cache: bool = False,
     vim: bool = False,
@@ -244,7 +243,6 @@ def jupyter_build(
         f"VIM={'true' if vim else 'false'}",
         *(["--network", "inception"] if conda_cache else []),
         os.path.join(project_path, "dev", "docker-jupyter"),
-        remote=remote,
     )
 
 
