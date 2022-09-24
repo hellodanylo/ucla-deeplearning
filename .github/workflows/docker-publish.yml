@@ -9,10 +9,6 @@ on:
       - '.github/**'
 
 env:
-  # Github registry
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
-
   # AWS registry
   REGISTRY_AWS: public.ecr.aws/v0d2c6m9
   IMAGE_NAME_AWS: ucla-deeplearning
