@@ -20,7 +20,8 @@ from docker.models.containers import Container
 
 project_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 container_jupyter = "ucla-jupyter"
-image_jupyter = "ghcr.io/hellodanylo/ucla-deeplearning:master"
+image_jupyter_url = "ghcr.io/hellodanylo/ucla-deeplearning"
+image_jupyter_tag = "master"
 github_repo = "https://github.com/hellodanylo/ucla-deeplearning.git"
 
 
@@ -80,7 +81,8 @@ def jupyter_create(
         instructor: bool = False, 
         remote: bool = False, 
         ip: Optional[str] = None, 
-        network: Optional[str] = None
+        network: Optional[str] = None,
+        image_local: bool = False
     ):
     """
     Starts the Jupyter container
@@ -120,7 +122,7 @@ def jupyter_create(
         "3000:80",
         *(["--gpus", "all"] if gpu else []),
         "-it",
-        image_jupyter,
+        f"{image_jupyter_url}:{'local' if image_local else image_jupyter_tag}",
         remote=remote,
     )
 
@@ -131,15 +133,16 @@ def jupyter_up(
     instructor: bool = False,
     ip: str = None,
     network: str = None,
-    no_pull: bool = False
+    no_pull: bool = False,
+    image_local: bool = False
 ):
     """
     Creates and starts the Jupyter container
     """
-    if not no_pull:
+    if not no_pull and not image_local:
         jupyter_pull()
     jupyter_down(quiet=True)
-    jupyter_create(gpu=gpu, instructor=instructor, ip=ip, network=network)
+    jupyter_create(gpu=gpu, instructor=instructor, ip=ip, network=network, image_local=image_local)
     jupyter_start()
 
 
@@ -197,17 +200,12 @@ def jupyter_down(*, remote: bool = False, quiet: bool = False):
 
 
 def docker_cli(
-    *cmd, remote: bool = False, capture_output: bool = False,
+    *cmd, capture_output: bool = False,
 ) -> subprocess.CompletedProcess:
 
     return run(
         [
             "docker",
-            *(
-                ["-H", f"unix://{project_path}/dev/aws-ec2/docker.sock"]
-                if remote
-                else []
-            ),
             *cmd,
         ],
         capture_output=capture_output
@@ -217,7 +215,7 @@ def docker_cli(
 def jupyter_pull():
     docker_cli(
         "pull",
-        image_jupyter
+        f"{image_jupyter_url}:{image_jupyter_tag}"
     )
 
 
@@ -234,7 +232,7 @@ def jupyter_build(
         "--platform", "linux/amd64",
         *(['--no-cache'] if docker_cache_off else []),
         "-t",
-        image_jupyter,
+        f"{image_jupyter_url}:local",
         "--build-arg",
         f"CONDA_JUPYTER_ENV={'conda_jupyter_init.yml' if conda_init else 'conda_jupyter_lock.yml'}",
         "--build-arg",
