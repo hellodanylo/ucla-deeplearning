@@ -6,11 +6,16 @@ on:
     tags: [ '*' ]
     paths:
       - 'dev/docker-jupyter/**'
+      - '.github/**'
 
 env:
+  # Github registry
   REGISTRY: ghcr.io
-  # github.repository as <account>/<repo>
   IMAGE_NAME: ${{ github.repository }}
+
+  # AWS registry
+  REGISTRY_AWS: public.ecr.aws/v0d2c6m9
+  IMAGE_NAME_AWS: ucla-deeplearning
 
 
 jobs:
@@ -42,13 +47,17 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      # Login to AWS
+      - name: Configure AWS Credentials
+        run: aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin $REGISTRY_AWS
+
       # Extract metadata (tags, labels) for Docker
       # https://github.com/docker/metadata-action
       - name: Extract Docker metadata
         id: meta
         uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          images: ${{ env.REGISTRY_AWS }}/${{ env.IMAGE_NAME_AWS }}
 
       # Build and push Docker image with Buildx (don't push on PR)
       # https://github.com/docker/build-push-action
