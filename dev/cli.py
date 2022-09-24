@@ -42,8 +42,7 @@ def load_env():
 
 @lru_cache()
 def boto_session():
-    # us-east-1 is the default for compatibility with the existing AWS Educate installations
-    return boto3.Session(region_name=os.environ.get('AWS_REGION', 'us-east-1'))
+    return boto3.Session()
 
 
 @lru_cache()
@@ -224,7 +223,6 @@ def jupyter_pull():
 
 def jupyter_build(
     *,
-    remote: bool = False,
     conda_init: bool = False,
     conda_cache: bool = False,
     vim: bool = False,
@@ -245,7 +243,6 @@ def jupyter_build(
         f"VIM={'true' if vim else 'false'}",
         *(["--network", "inception"] if conda_cache else []),
         os.path.join(project_path, "dev", "docker-jupyter"),
-        remote=remote,
     )
 
 
