@@ -140,7 +140,7 @@ def jupyter_up(
     Creates and starts the Jupyter container
     """
     if not no_pull and image_tag != 'local':
-        jupyter_pull()
+        jupyter_pull(image_tag=image_tag)
     jupyter_down(quiet=True)
     jupyter_create(gpu=gpu, instructor=instructor, ip=ip, network=network, image_tag=image_tag)
     jupyter_start()
@@ -212,10 +212,10 @@ def docker_cli(
     )
 
 
-def jupyter_pull():
+def jupyter_pull(image_tag: str = image_jupyter_tag):
     docker_cli(
         "pull",
-        f"{image_jupyter_url}:{image_jupyter_tag}"
+        f"{image_jupyter_url}:{image_tag}"
     )
 
 

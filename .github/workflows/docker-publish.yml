@@ -4,6 +4,8 @@ on:
   push:
     branches: [ master, dev ]
     tags: [ '*' ]
+    paths:
+      - 'dev/docker-jupyter/**'
 
 env:
   REGISTRY: ghcr.io
