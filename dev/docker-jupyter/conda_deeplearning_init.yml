@@ -17,7 +17,7 @@ dependencies:
     - awscli
     - boto3
     - ftfy
-    - git+https://github.com/divamgupta/stable-diffusion-tensorflow.git
+    - git+https://github.com/divamgupta/stable-diffusion-tensorflow.git@2873079b49eda63f41267c69b825e03cbcb2c308
     - ipykernel
     - ipython
     - ipywidgets

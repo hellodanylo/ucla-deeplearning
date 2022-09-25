@@ -296,7 +296,7 @@ dependencies:
     - rsa==4.7.2
     - s3fs==0.4.2
     - s3transfer==0.6.0
-    - git+https://github.com/divamgupta/stable-diffusion-tensorflow.git
+    - git+https://github.com/divamgupta/stable-diffusion-tensorflow.git@2873079b49eda63f41267c69b825e03cbcb2c308
     - tensorflow-addons==0.17.1
     - tensorflow-hub==0.12.0
     - tqdm==4.64.1
