@@ -53,13 +53,13 @@ resource "aws_budgets_budget" "account_daily" {
 resource "aws_budgets_budget" "account_annually" {
   name = "account-annually"
   budget_type = "COST"
-  limit_amount = "100"
+  limit_amount = "2400"
   limit_unit = "USD"
-  time_period_start = "2021-08-01_00:00"
+  time_period_start = "2022-08-01_00:00"
   time_unit = "ANNUALLY"
 
   dynamic "notification" {
-    for_each = [0, 25, 50, 75, 100]
+    for_each = [10, 20, 40, 50, 60, 70, 80, 90, 95, 100]
     content {
       comparison_operator = "GREATER_THAN"
       threshold = notification.value
