@@ -111,7 +111,7 @@ def jupyter_create(
         *(
             [
                 "-v",
-                f"{os.environ['HOME']}/git/lab/ucla-deeplearning-instructor:/app/ucla-deeplearning/instructor",
+                f"{os.environ['HOME']}/git/ucla-deeplearning-instructor:/app/ucla-deeplearning/instructor",
             ]
             if instructor
             else []
