@@ -32,7 +32,7 @@ locals {
 resource "aws_budgets_budget" "full" {
   name = "${var.member.name}-full"
   budget_type = "COST"
-  limit_amount = "100"
+  limit_amount = "70"
   limit_unit = "USD"
   time_period_start = "2021-08-01_00:00"
   time_unit = "ANNUALLY"
