@@ -8,7 +8,9 @@
         "sagemaker:Get*",
         "sagemaker:List*",
         "servicecatalog:ListAcceptedPortfolioShares",
-        "ec2:Describe*"
+        "ec2:Describe*",
+        "iam:ListRoles",
+        "kms:ListAliases"
       ],
       "Resource": "*"
     },
