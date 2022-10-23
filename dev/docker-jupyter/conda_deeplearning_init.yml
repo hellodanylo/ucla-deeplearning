@@ -17,14 +17,17 @@ dependencies:
     - awscli
     - boto3
     - ftfy
+    - fiftyone
     - git+https://github.com/divamgupta/stable-diffusion-tensorflow.git@2873079b49eda63f41267c69b825e03cbcb2c308
     - ipykernel
     - ipython
     - ipywidgets
+    - kaggle
     - keras-tuner
     - regex
     - requests
     - s3fs
     - tensorflow-hub
     - tensorflow_addons
+    - transformers
     - tqdm
