@@ -6,7 +6,6 @@ aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --
 
 docker build \
     --build-arg "BASE_IMAGE=${DOCTRINA_REPO}:base-latest" \
-    --target core \
     --tag "${ECR_REPO}:latest" \
     dev/docker-jupyter
 
