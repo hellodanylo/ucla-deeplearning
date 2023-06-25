@@ -4,6 +4,8 @@ import aws_cdk.aws_codecommit as cc
 import aws_cdk.aws_codepipeline as cp
 import aws_cdk.aws_codepipeline_actions as cpa
 import aws_cdk.aws_iam as iam
+import aws_cdk.aws_events as e
+import aws_cdk.aws_events_targets as et
 from aws_cdk import Stack, Duration
 
 
@@ -30,6 +32,8 @@ class BuildStack(Stack):
                 ),
             ]
         )
+
+        ecr_doctrina = ecr.Repository.from_repository_name(self, "ECRRepositoryHumus", repository_name="doctrina")
 
         role = iam.Role(
             self, "IamRoleBuild", 
@@ -61,12 +65,9 @@ class BuildStack(Stack):
             project_name=package_name,
             environment=cb.BuildEnvironment(
                 build_image=cb.LinuxBuildImage.STANDARD_6_0,
-                compute_type=cb.ComputeType.SMALL,
+                compute_type=cb.ComputeType.MEDIUM,
                 privileged=True
             ),
-            environment_variables={
-                "ECR_REPO": cb.BuildEnvironmentVariable(value=ecr_repo.repository_uri)
-            },
             role=role,  # type: ignore
             build_spec=cb.BuildSpec.from_source_filename("cdk/buildspec.yml")
         )
@@ -97,7 +98,8 @@ class BuildStack(Stack):
                         role=role,  # type: ignore
                         environment_variables={
                             "BUILD_STAGE": cb.BuildEnvironmentVariable(value="docker", type=cb.BuildEnvironmentVariableType.PLAINTEXT),
-                            "DOCTRINA_REPO": cb.BuildEnvironmentVariable(value=ecr.Repository.from_repository_name(self, "DoctrinaRepo", "doctrina").repository_uri, type=cb.BuildEnvironmentVariableType.PLAINTEXT)
+                            "DOCTRINA_REPO": cb.BuildEnvironmentVariable(value=ecr_doctrina.repository_uri, type=cb.BuildEnvironmentVariableType.PLAINTEXT),
+                            "ECR_REPO": cb.BuildEnvironmentVariable(value=ecr_repo.repository_uri),
                         }
                     ) 
                 ]),
@@ -113,4 +115,28 @@ class BuildStack(Stack):
                     ) 
                 ]),
             ]
+        )
+
+        event_role = iam.Role(
+            self, "RoleEvent", 
+            role_name=f"{package_name}-event",
+            assumed_by=iam.ServicePrincipal("events.amazonaws.com")
+        )
+
+        e.Rule(
+            self, "EventRuleDoctrina", 
+            rule_name=f"doctrina-ecr-trigger-{package_name}-build",
+            event_pattern=e.EventPattern(
+                source=["aws.ecr"],
+                detail_type=["ECR Image Action"],
+                detail={
+                    "action-type": ["PUSH"],
+                    "result": ["SUCCESS"],
+                    "repository-name": [ecr_doctrina.repository_name]
+                }
+            ),
+            targets=[et.CodePipeline(
+                pipeline=pipeline, 
+                event_role=event_role  # type: ignore
+            )]
         )

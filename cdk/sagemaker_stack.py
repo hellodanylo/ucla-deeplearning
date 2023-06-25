@@ -7,20 +7,20 @@ from constructs import Construct
 
 
 class ImageConstruct(Construct):
-    def __init__(self, scope: Construct, id: str, repo: ecr.Repository, role: iam.Role, flavor: str) -> None:
+    def __init__(self, scope: Construct, id: str, image_name: str, image_uri: str, role: iam.Role, kernel_name: str) -> None:
         super().__init__(scope, id)
 
         self.image = sm.CfnImage(
             self,
             f'Image',
-            image_name=f'doctrina-{flavor}',
+            image_name=image_name,
             image_role_arn=role.role_arn
         )
 
         self.image_version = sm.CfnImageVersion(
             self, f'ImageVersion', 
-            base_image=repo.repository_uri_for_tag(f'{flavor}-latest'),
-            image_name=f'doctrina-{flavor}'
+            base_image=image_uri,
+            image_name=image_name
         )
 
         self.image_version.add_dependency(self.image)
@@ -30,7 +30,7 @@ class ImageConstruct(Construct):
             app_image_config_name=self.image_version.image_name,
             kernel_gateway_image_config=sm.CfnAppImageConfig.KernelGatewayImageConfigProperty(
                 kernel_specs=[
-                    sm.CfnAppImageConfig.KernelSpecProperty(name='python3', display_name=f'doctrina-{flavor}')
+                    sm.CfnAppImageConfig.KernelSpecProperty(name=kernel_name, display_name=kernel_name)
                 ]
             ),
         )
@@ -51,9 +51,18 @@ class SageMakerStack(Stack):
 
         repo = ecr.Repository.from_repository_name(self, 'DoctrinaRepo', 'doctrina')
         images = [
-            ImageConstruct(self, f'Image{flavor.capitalize()}', repo=repo, role=role, flavor=flavor)
+            ImageConstruct(
+                self, f'Image{flavor.capitalize()}', 
+                image_name=f"doctrina-{flavor}", 
+                image_uri=repo.repository_uri_for_tag(f"{flavor}-latest"), 
+                role=role, 
+                kernel_name=flavor
+            )
             for flavor in ['torch', 'tf2']
         ]
+
+        ecr_collegium = ecr.Repository.from_repository_name(self, 'CollegiumRepo', 'collegium')
+        images.append(ImageConstruct(self, 'ImageCollegium', 'collegium', ecr_collegium.repository_uri_for_tag("latest"), role, "collegium"))
 
         vpc = ec2.Vpc(
             self, 'Collegium', 
