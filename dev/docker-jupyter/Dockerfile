@@ -1,47 +1,26 @@
-FROM ghcr.io/hellodanylo/humus:main
+ARG BASE_IMAGE
+FROM ${BASE_IMAGE}
 
-WORKDIR /root
+RUN sudo ln -snf /usr/share/zoneinfo/$TZ /etc/localtime
+RUN echo $TZ | sudo tee -a /etc/timezone
 
-ARG CONDA_VERSION=Miniconda3-py39_4.12.0-Linux-x86_64
-RUN wget -q -O conda_install.sh "https://repo.anaconda.com/miniconda/$CONDA_VERSION.sh"
-RUN bash conda_install.sh -b
-RUN rm conda_install.sh
-
-ENV DEBIAN_FRONTEND=noninteractive
-RUN apt-get update -q && apt-get install -qy \
+RUN sudo apt-get update -q && \
+    sudo apt-get install -qy \
     procps \
     htop \
-    zip \
-    unzip \
-    vim \
     gnupg \
     texlive-xetex \
     software-properties-common \
     protobuf-compiler \
-    build-essential \
-    >/dev/null 2>&1
-
-ENV PATH="/root/miniconda3/bin:$PATH"
-
-ARG CONDA_RC=condarc_default.yml
-COPY $CONDA_RC /root/.condarc
+    build-essential 
 
 RUN conda info
 
-ARG CONDA_JUPYTER_ENV=conda_jupyter_lock.yml
-COPY $CONDA_JUPYTER_ENV /root/conda_jupyter.yml
-RUN conda env create -n jupyter -f conda_jupyter.yml
-ENV PATH="/root/miniconda3/envs/jupyter/bin:$PATH"
-
-# https://github.com/axelfahy/jupyterlab-vim
-ARG VIM="false"
-RUN ([[ $VIM == "true" ]] && pip install jupyterlab-vim) || true
-
 ARG CONDA_DEEPLEARNING_ENV=conda_deeplearning_lock.yml
-COPY $CONDA_DEEPLEARNING_ENV /root/conda_deeplearning.yml
+COPY $CONDA_DEEPLEARNING_ENV ./conda_deeplearning.yml
 ENV CONDA_OVERRIDE_CUDA="11.2"
-RUN conda env create -n ucla_deeplearning -f conda_deeplearning.yml
-RUN /root/miniconda3/envs/ucla_deeplearning/bin/ipython kernel install --user --name=ucla_deeplearning
+RUN conda env create -n collegium -f ./conda_deeplearning.yml
+RUN /app/miniconda/envs/collegium/bin/ipython kernel install --user --name=collegium
 
 RUN conda init zsh
 ENV SHELL=/bin/zsh
