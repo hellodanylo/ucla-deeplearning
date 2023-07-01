@@ -250,7 +250,7 @@ dependencies:
     - sortedcontainers==2.4.0
     - sse-starlette==0.10.3
     - sseclient-py==1.7.2
-    - stable-diffusion-tf==0.1
+    - git+https://github.com/divamgupta/stable-diffusion-tensorflow.git@2873079b49eda63f41267c69b825e03cbcb2c308
     - stack-data==0.6.2
     - starlette==0.26.1
     - statsmodels==0.14.0

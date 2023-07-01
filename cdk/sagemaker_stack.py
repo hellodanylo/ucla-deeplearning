@@ -37,8 +37,8 @@ class ImageConstruct(Construct):
 
 
 class SageMakerStack(Stack):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, scope: Construct, id: str, image_version: str):
+        super().__init__(scope, id)
 
         role = iam.Role(
             self, 'SageMakerRole', 
@@ -49,20 +49,20 @@ class SageMakerStack(Stack):
             ]
         )
 
-        repo = ecr.Repository.from_repository_name(self, 'DoctrinaRepo', 'doctrina')
-        images = [
-            ImageConstruct(
-                self, f'Image{flavor.capitalize()}', 
-                image_name=f"doctrina-{flavor}", 
-                image_uri=repo.repository_uri_for_tag(f"{flavor}-latest"), 
-                role=role, 
-                kernel_name=flavor
-            )
-            for flavor in ['torch', 'tf2']
-        ]
+        # repo = ecr.Repository.from_repository_name(self, 'DoctrinaRepo', 'doctrina')
+        images = []
+        #     ImageConstruct(
+        #         self, f'Image{flavor.capitalize()}', 
+        #         image_name=f"doctrina-{flavor}", 
+        #         image_uri=repo.repository_uri_for_tag(f"{flavor}-latest"), 
+        #         role=role, 
+        #         kernel_name=flavor
+        #     )
+        #     for flavor in ['torch', 'tf2']
+        # ]
 
         ecr_collegium = ecr.Repository.from_repository_name(self, 'CollegiumRepo', 'collegium')
-        images.append(ImageConstruct(self, 'ImageCollegium', 'collegium', ecr_collegium.repository_uri_for_tag("latest"), role, "collegium"))
+        images.append(ImageConstruct(self, 'ImageCollegium', 'collegium', ecr_collegium.repository_uri_for_tag(image_version), role, "collegium"))
 
         vpc = ec2.Vpc(
             self, 'Collegium', 
