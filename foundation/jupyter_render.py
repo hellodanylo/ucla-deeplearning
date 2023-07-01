@@ -77,7 +77,7 @@ def process(*modules, execute: bool = False, render: bool = False):
 
         for report_path in notebooks:
             try:
-                print(report_path)
+                print("Started", report_path)
                 if execute:
                     execute_notebook(report_path)
                 if render:

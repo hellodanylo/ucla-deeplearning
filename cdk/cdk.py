@@ -24,7 +24,7 @@ def main():
 
     sagemaker: SageMakerStack = SageMakerStack(app, 'SageMaker', image_version=version)
 
-    ssm = boto3.client('ssm')
+    ssm = boto3.client('ssm', region_name='us-west-2')
     config_json = ssm.get_parameter(Name="/collegium/team-config")['Parameter']['Value']
     team_config = TeamConfig.from_json(config_json)
     assert isinstance(team_config, TeamConfig)

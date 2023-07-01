@@ -230,7 +230,7 @@ def draw_bounding_box_on_image(
     color: Tuple[int],
     font: FreeTypeFont,
     thickness: int = 4,
-    display_str_list: Iterable[Text] = (),
+    display_str_list: List[Text] = [],
 ):
     """
     Adds a bounding box to an image.
@@ -255,7 +255,7 @@ def draw_bounding_box_on_image(
     # If the total height of the display strings added to the top of the bounding
     # box exceeds the top of the image, stack the strings below the bounding box
     # instead of above.
-    display_str_heights = [font.getsize(ds)[1] for ds in display_str_list]
+    display_str_heights = [abs(font.getbbox(ds)[1] - font.getbbox(ds)[3]) for ds in display_str_list]
     # Each display_str has a top and bottom margin of 0.05x.
     total_display_str_height = (1 + 2 * 0.05) * sum(display_str_heights)
 
@@ -265,7 +265,7 @@ def draw_bounding_box_on_image(
         text_bottom = bottom + total_display_str_height
     # Reverse list and print from bottom to top.
     for display_str in display_str_list[::-1]:
-        text_width, text_height = font.getsize(display_str)
+        _, _, text_width, text_height = font.getbbox(display_str)
         margin = np.ceil(0.05 * text_height)
         draw.rectangle(
             [
