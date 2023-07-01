@@ -9,7 +9,7 @@ versioned_uri="${COLLEGIUM_ECR}:${CODEBUILD_RESOLVED_SOURCE_VERSION}"
 aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $COLLEGIUM_ECR
 
 docker version
-docker buildx build \
+docker build \
     --cache-from "$latest_uri" \
     --build-arg "BASE_IMAGE=${DOCTRINA_ECR}:base-latest" \
     --build-arg "CONDA_ENV=conda_lock.yml" \
