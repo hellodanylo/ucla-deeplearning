@@ -139,6 +139,7 @@ dependencies:
     - debugpy==1.6.7
     - decorator==5.1.1
     - deprecated==1.2.14
+    - dataclass-wizard==0.22.2
     - dill==0.3.6
     - dnspython==2.3.0
     - docker==6.1.3

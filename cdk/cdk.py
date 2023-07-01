@@ -4,8 +4,9 @@ from pathlib import Path
 import subprocess
 from aws_cdk import App
 from build_stack import BuildStack
-from team_stack import TeamStack, Member
+from team_stack import TeamConfig, TeamStack, Member
 from sagemaker_stack import SageMakerStack
+import boto3
 
 
 def get_current_version():
@@ -15,6 +16,7 @@ def get_current_version():
     version = subprocess.check_output(['git', 'rev-parse', 'HEAD']).decode().strip()
     return version
 
+
 def main():
     app = App()
     build = BuildStack(app, 'Build')
@@ -22,13 +24,12 @@ def main():
 
     sagemaker: SageMakerStack = SageMakerStack(app, 'SageMaker', image_version=version)
 
-    members = [
-        Member(**row)
-        for row in
-        csv.DictReader((Path(__file__).parent / 'members.csv').read_text().split('\n'))
-    ]
+    ssm = boto3.client('ssm')
+    config_json = ssm.get_parameter(Name="/collegium/team-config")['Parameter']['Value']
+    team_config = TeamConfig.from_json(config_json)
+    assert isinstance(team_config, TeamConfig)
 
-    iam_team = TeamStack(app, 'Team', members, sagemaker.domain.attr_domain_id)
+    iam_team = TeamStack(app, 'Team', sagemaker.domain.attr_domain_id, team_config)
 
     app.synth()
 

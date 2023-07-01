@@ -1,12 +1,12 @@
 from typing import List
-from attr import dataclass
+from dataclasses import dataclass
 import aws_cdk.aws_iam as iam
 import aws_cdk.aws_sagemaker as sm
 import aws_cdk.aws_secretsmanager as s
 import aws_cdk.aws_budgets as b
 from aws_cdk import Stack, Duration, CfnTag
 from constructs import Construct
-import hashlib
+from dataclass_wizard import JSONWizard
 
 
 @dataclass
@@ -15,8 +15,14 @@ class Member:
     email: str
 
 
+@dataclass
+class TeamConfig(JSONWizard):
+    admin: Member
+    users: List[Member]
+
+
 class MemberConstruct(Construct):
-    def __init__(self, scope: Construct, id: str, member: Member, domain_id: str):
+    def __init__(self, scope: Construct, id: str, member: Member, domain_id: str, admin_email: str):
         super().__init__(scope, id)
         self.member = member
         self.policy = iam.Policy(self, "Policy", policy_name="sagemaker", statements=[
@@ -66,7 +72,7 @@ class MemberConstruct(Construct):
         )
 
         b.CfnBudget(
-            self, 'Budget',
+            self, 'BudgetAnnual',
             budget=b.CfnBudget.BudgetDataProperty(
                 budget_type='COST',
                 time_unit='ANNUALLY',
@@ -77,9 +83,46 @@ class MemberConstruct(Construct):
                         f"user:owner${member.name}"
                     ],
                 }
-            )
+            ),
+            notifications_with_subscribers=[
+                self.build_subscription(threshold, member, admin_email)
+                for threshold in [0, 25, 50, 75, 90, 100]
+            ]
         )
 
+        b.CfnBudget(
+            self, 'BudgetDaily',
+            budget=b.CfnBudget.BudgetDataProperty(
+                budget_type='COST',
+                time_unit='DAILY',
+                budget_limit=b.CfnBudget.SpendProperty(amount=10, unit='USD'),
+                budget_name=f"{member.name}-daily",
+                cost_filters={
+                    "TagKeyValue": [
+                        f"user:owner${member.name}"
+                    ],
+                }
+            ),
+            notifications_with_subscribers=[
+                self.build_subscription(threshold, member, admin_email)
+                for threshold in [0, 25, 50, 75, 100]
+            ]
+        )
+
+
+    def build_subscription(self, threshold: int, member: Member, admin_email: str):
+        return b.CfnBudget.NotificationWithSubscribersProperty(
+            notification=b.CfnBudget.NotificationProperty(
+                comparison_operator='GREATER_THAN', 
+                threshold=threshold,
+                threshold_type='PERCENTAGE',
+                notification_type='ACTUAL'
+            ),
+            subscribers=[
+                b.CfnBudget.SubscriberProperty(address=member.email, subscription_type='EMAIL'),
+                b.CfnBudget.SubscriberProperty(address=admin_email, subscription_type='EMAIL'),
+            ]
+        )
 
     def add_permissions(self, identity: iam.IIdentity):
         for policy in ['AmazonSageMakerReadOnly', 'AWSCodeCommitReadOnly', 'IAMUserChangePassword', 'AmazonEC2ContainerRegistryReadOnly', 'AWSBudgetsReadOnlyAccess']:
@@ -92,14 +135,14 @@ class MemberConstruct(Construct):
 class TeamStack(Stack):
     def __init__(self, 
         scope: Construct, id: str,
-        team: List[Member],
         domain_id: str,
+        team_config: TeamConfig
     ):
         super().__init__(scope, id)
-        self.team_meta = team
+        self.team_config = team_config
 
         self.team_constructs = [
-            MemberConstruct(self, f"Member{member.name.capitalize()}", member, domain_id)
-            for member in team
+            MemberConstruct(self, f"Member{member.name.capitalize()}", member, domain_id, self.team_config.admin.email)
+            for member in self.team_config.users
         ]
             

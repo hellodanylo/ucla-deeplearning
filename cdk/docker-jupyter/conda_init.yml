@@ -12,6 +12,7 @@ dependencies:
     - boto3
     - cachetools
     - clize
+    - dataclass-wizard
     - docker
     - fiftyone
     - ftfy

@@ -7,6 +7,7 @@ import aws_cdk.aws_codepipeline_actions as cpa
 import aws_cdk.aws_iam as iam
 import aws_cdk.aws_events as e
 import aws_cdk.aws_events_targets as et
+import aws_cdk.aws_ssm as ssm
 from aws_cdk import Stack, Duration
 
 
@@ -134,3 +135,5 @@ class BuildStack(Stack):
                 event_role=event_role  # type: ignore
             )]
         )
+
+        ssm.StringParameter
