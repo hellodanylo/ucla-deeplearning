@@ -1,0 +1,8 @@
+local
+instructor
+**/.ipynb_checkpoints
+**/*.env
+dev
+cdk/cdk.out
+**/__pycache__
+**/.mypy_cache

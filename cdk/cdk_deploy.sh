@@ -2,7 +2,4 @@
 
 set -eux
 
-npm install -g aws-cdk
-pip install aws-cdk-lib
-
-cd cdk && npx cdk deploy --all
+docker run --rm -w /app/collegium/cdk -it "${COLLEGIUM_ECR}:latest" npx cdk deploy --all

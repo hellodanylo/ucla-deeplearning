@@ -1,33 +1,39 @@
 dependencies:
-  - cachetools
-  - ffmpeg
-  - line_profiler
-  - matplotlib
+  - nodejs
   - numpy
   - pandas
   - pip
-  - protobuf
-  - pyarrow
   - python
-  - scikit-learn
-  - seaborn
-  - statsmodels
   - tensorflow=2.8.1=cuda*
   - pip:
+    - aws-cdk-lib
     - awscli
+    - black
     - boto3
-    - ftfy
+    - cachetools
+    - clize
+    - docker
     - fiftyone
+    - ftfy
     - git+https://github.com/divamgupta/stable-diffusion-tensorflow.git@2873079b49eda63f41267c69b825e03cbcb2c308
     - ipykernel
     - ipython
     - ipywidgets
     - kaggle
     - keras-tuner
+    - line_profiler
+    - matplotlib
+    - mypy
+    - protobuf
+    - pyarrow
+    - python-dotenv
     - regex
     - requests
     - s3fs
+    - scikit-learn
+    - seaborn
+    - statsmodels
     - tensorflow-hub
     - tensorflow_addons
-    - transformers
     - tqdm
+    - transformers

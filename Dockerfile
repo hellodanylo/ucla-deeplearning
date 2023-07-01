@@ -12,22 +12,26 @@ RUN sudo apt-get update -q && \
     texlive-xetex \
     software-properties-common \
     protobuf-compiler \
-    build-essential 
+    build-essential \
+    >/dev/null 2>&1
 
 RUN conda info
 
-ARG CONDA_DEEPLEARNING_ENV=conda_deeplearning_lock.yml
-COPY $CONDA_DEEPLEARNING_ENV ./conda_deeplearning.yml
+ARG CONDA_ENV=conda_lock.yml
+COPY cdk/docker-jupyter/$CONDA_ENV ./conda_deeplearning.yml
 ENV CONDA_OVERRIDE_CUDA="11.2"
 RUN conda env create -n collegium -f ./conda_deeplearning.yml
 RUN /app/miniconda/envs/collegium/bin/ipython kernel install --user --name=collegium
+RUN conda run -n collegium npm -g install aws-cdk@2.86.0
+ENV PATH="/app/miniconda/envs/collegium/bin:$PATH"
 
 RUN conda init zsh
-ENV SHELL=/bin/zsh
 WORKDIR /app
 
 # Git complains about ownership by another user (this image runs as root)
-RUN git config --global --add safe.directory /app/ucla-deeplearning
+USER user:user
+COPY --chown=user:user . /app/collegium
+RUN git config --global --add safe.directory /app/collegium
 
 # Nvidia Runtime
 ENV NVIDIA_VISIBLE_DEVICES=all

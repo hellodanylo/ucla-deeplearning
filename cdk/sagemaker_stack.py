@@ -70,7 +70,7 @@ class SageMakerStack(Stack):
             subnet_configuration=[ec2.SubnetConfiguration(name='Private', subnet_type=ec2.SubnetType.PRIVATE_ISOLATED, cidr_mask=25)],
         )
 
-        domain = sm.CfnDomain(
+        self.domain: sm.CfnDomain = sm.CfnDomain(
             self, 'Domain', 
             domain_name='ucla-deeplearning',
             auth_mode='IAM',
@@ -94,6 +94,6 @@ class SageMakerStack(Stack):
 
         user = sm.CfnUserProfile(
             self, 'DomainUser', 
-            domain_id=domain.attr_domain_id, 
+            domain_id=self.domain.attr_domain_id, 
             user_profile_name='admin'
         )

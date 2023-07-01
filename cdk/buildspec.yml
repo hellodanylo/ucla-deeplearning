@@ -4,9 +4,6 @@ env:
   shell: bash
 
 phases:
-  install:
-    runtime-versions:
-      nodejs: 16
   build:
     commands:
       - apt-get update && apt-get install -yq zsh

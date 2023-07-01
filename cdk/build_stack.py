@@ -1,3 +1,4 @@
+from enum import Enum
 import aws_cdk.aws_ecr as ecr
 import aws_cdk.aws_codebuild as cb
 import aws_cdk.aws_codecommit as cc
@@ -7,6 +8,18 @@ import aws_cdk.aws_iam as iam
 import aws_cdk.aws_events as e
 import aws_cdk.aws_events_targets as et
 from aws_cdk import Stack, Duration
+
+
+class BuildStage(Enum):
+    DOCKER = "docker"
+    TEST = "test"
+    CDK = "cdk"
+
+
+class BuildVariable(Enum):
+    BUILD_STAGE = "BUILD_STAGE"
+    COLLEGIUM_ECR = "COLLEGIUM_ECR"
+    DOCTRINA_ECR = "DOCTRINA_ECR"
 
 
 class BuildStack(Stack):
@@ -26,9 +39,9 @@ class BuildStack(Stack):
             repository_name=package_name,
             lifecycle_rules=[
                 ecr.LifecycleRule(
-                    tag_status=ecr.TagStatus.UNTAGGED, 
-                    max_image_age=Duration.days(3),
-                    description="delete untagged images after 3 days"
+                    tag_status=ecr.TagStatus.ANY, 
+                    max_image_count=5,
+                    description="keep last 5 images"
                 ),
             ]
         )
@@ -90,27 +103,39 @@ class BuildStack(Stack):
                         role=role,  # type: ignore
                     )
                 ]),
-                cp.StageProps(stage_name="docker", actions=[
+                cp.StageProps(stage_name=BuildStage.DOCKER.value, actions=[
                     cpa.CodeBuildAction(
                         action_name=package_name, 
                         input=source, 
                         project=project,  # type: ignore
                         role=role,  # type: ignore
                         environment_variables={
-                            "BUILD_STAGE": cb.BuildEnvironmentVariable(value="docker", type=cb.BuildEnvironmentVariableType.PLAINTEXT),
-                            "DOCTRINA_REPO": cb.BuildEnvironmentVariable(value=ecr_doctrina.repository_uri, type=cb.BuildEnvironmentVariableType.PLAINTEXT),
-                            "ECR_REPO": cb.BuildEnvironmentVariable(value=ecr_repo.repository_uri),
+                            BuildVariable.BUILD_STAGE.value: cb.BuildEnvironmentVariable(value=BuildStage.DOCKER.value, type=cb.BuildEnvironmentVariableType.PLAINTEXT),
+                            BuildVariable.DOCTRINA_ECR.value: cb.BuildEnvironmentVariable(value=ecr_doctrina.repository_uri, type=cb.BuildEnvironmentVariableType.PLAINTEXT),
+                            BuildVariable.COLLEGIUM_ECR.value: cb.BuildEnvironmentVariable(value=ecr_repo.repository_uri),
                         }
                     ) 
                 ]),
-                cp.StageProps(stage_name="cdk", actions=[
+                cp.StageProps(stage_name=BuildStage.TEST.value, actions=[
                     cpa.CodeBuildAction(
                         action_name=package_name, 
                         input=source, 
                         project=project,  # type: ignore
                         role=role,  # type: ignore
                         environment_variables={
-                            "BUILD_STAGE": cb.BuildEnvironmentVariable(value="cdk", type=cb.BuildEnvironmentVariableType.PLAINTEXT),
+                            BuildVariable.BUILD_STAGE.value: cb.BuildEnvironmentVariable(value=BuildStage.TEST.value, type=cb.BuildEnvironmentVariableType.PLAINTEXT),
+                            BuildVariable.COLLEGIUM_ECR.value: cb.BuildEnvironmentVariable(value=ecr_repo.repository_uri),
+                        }
+                    ) 
+                ]),
+                cp.StageProps(stage_name=BuildStage.CDK.value, actions=[
+                    cpa.CodeBuildAction(
+                        action_name=package_name, 
+                        input=source, 
+                        project=project,  # type: ignore
+                        role=role,  # type: ignore
+                        environment_variables={
+                            BuildVariable.BUILD_STAGE.value: cb.BuildEnvironmentVariable(value=BuildStage.CDK.value, type=cb.BuildEnvironmentVariableType.PLAINTEXT),
                         }
                     ) 
                 ]),
