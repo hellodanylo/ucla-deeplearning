@@ -3,7 +3,8 @@ from attr import dataclass
 import aws_cdk.aws_iam as iam
 import aws_cdk.aws_sagemaker as sm
 import aws_cdk.aws_secretsmanager as s
-from aws_cdk import Stack, Duration
+import aws_cdk.aws_budgets as b
+from aws_cdk import Stack, Duration, CfnTag
 from constructs import Construct
 import hashlib
 
@@ -58,12 +59,30 @@ class MemberConstruct(Construct):
             user_profile_name=member.name,
             user_settings=sm.CfnUserProfile.UserSettingsProperty(
                 execution_role=self.role.role_arn
+            ),
+            tags=[
+                CfnTag(key="owner", value=member.name),
+            ]
+        )
+
+        b.CfnBudget(
+            self, 'Budget',
+            budget=b.CfnBudget.BudgetDataProperty(
+                budget_type='COST',
+                time_unit='ANNUALLY',
+                budget_limit=b.CfnBudget.SpendProperty(amount=70, unit='USD'),
+                budget_name=f"{member.name}-full",
+                cost_filters={
+                    "TagKeyValue": [
+                        f"user:owner${member.name}"
+                    ],
+                }
             )
         )
 
 
     def add_permissions(self, identity: iam.IIdentity):
-        for policy in ['AmazonSageMakerReadOnly', 'AWSCodeCommitReadOnly', 'IAMUserChangePassword', 'AmazonEC2ContainerRegistryReadOnly']:
+        for policy in ['AmazonSageMakerReadOnly', 'AWSCodeCommitReadOnly', 'IAMUserChangePassword', 'AmazonEC2ContainerRegistryReadOnly', 'AWSBudgetsReadOnlyAccess']:
             identity.add_managed_policy(
                 policy=iam.ManagedPolicy.from_aws_managed_policy_name(policy)
             )
