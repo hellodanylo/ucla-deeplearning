@@ -10,14 +10,7 @@ import aws_cdk.aws_events_targets as et
 from aws_cdk import Stack, Duration
 
 
-class BuildStage(Enum):
-    DOCKER = "docker"
-    TEST = "test"
-    CDK = "cdk"
-
-
 class BuildVariable(Enum):
-    BUILD_STAGE = "BUILD_STAGE"
     COLLEGIUM_ECR = "COLLEGIUM_ECR"
     DOCTRINA_ECR = "DOCTRINA_ECR"
 
@@ -103,39 +96,14 @@ class BuildStack(Stack):
                         role=role,  # type: ignore
                     )
                 ]),
-                cp.StageProps(stage_name=BuildStage.DOCKER.value, actions=[
+                cp.StageProps(stage_name="deploy", actions=[
                     cpa.CodeBuildAction(
                         action_name=package_name, 
                         input=source, 
                         project=project,  # type: ignore
                         role=role,  # type: ignore
                         environment_variables={
-                            BuildVariable.BUILD_STAGE.value: cb.BuildEnvironmentVariable(value=BuildStage.DOCKER.value, type=cb.BuildEnvironmentVariableType.PLAINTEXT),
                             BuildVariable.DOCTRINA_ECR.value: cb.BuildEnvironmentVariable(value=ecr_doctrina.repository_uri, type=cb.BuildEnvironmentVariableType.PLAINTEXT),
-                            BuildVariable.COLLEGIUM_ECR.value: cb.BuildEnvironmentVariable(value=ecr_repo.repository_uri),
-                        }
-                    ) 
-                ]),
-                # cp.StageProps(stage_name=BuildStage.TEST.value, actions=[
-                #     cpa.CodeBuildAction(
-                #         action_name=package_name, 
-                #         input=source, 
-                #         project=project,  # type: ignore
-                #         role=role,  # type: ignore
-                #         environment_variables={
-                #             BuildVariable.BUILD_STAGE.value: cb.BuildEnvironmentVariable(value=BuildStage.TEST.value, type=cb.BuildEnvironmentVariableType.PLAINTEXT),
-                #             BuildVariable.COLLEGIUM_ECR.value: cb.BuildEnvironmentVariable(value=ecr_repo.repository_uri),
-                #         }
-                #     ) 
-                # ]),
-                cp.StageProps(stage_name=BuildStage.CDK.value, actions=[
-                    cpa.CodeBuildAction(
-                        action_name=package_name, 
-                        input=source, 
-                        project=project,  # type: ignore
-                        role=role,  # type: ignore
-                        environment_variables={
-                            BuildVariable.BUILD_STAGE.value: cb.BuildEnvironmentVariable(value=BuildStage.CDK.value, type=cb.BuildEnvironmentVariableType.PLAINTEXT),
                             BuildVariable.COLLEGIUM_ECR.value: cb.BuildEnvironmentVariable(value=ecr_repo.repository_uri),
                         }
                     ) 

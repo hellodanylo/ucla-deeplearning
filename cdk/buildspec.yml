@@ -7,4 +7,7 @@ phases:
   build:
     commands:
       - apt-get update && apt-get install -yq zsh
+      - mkdir -p /usr/local/lib/docker/cli-plugins 
+      - curl -L https://github.com/docker/buildx/releases/download/v0.11.0/buildx-v0.11.0.linux-amd64 -o /usr/local/lib/docker/cli-plugins/docker-buildx 
+      - chmod +x /usr/local/lib/docker/cli-plugins/docker-buildx 
       - cdk/build_main.sh
