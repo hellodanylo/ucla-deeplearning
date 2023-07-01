@@ -234,6 +234,8 @@ def jupyter_build(
         "-t",
         f"{image_jupyter_url}:local",
         "--build-arg",
+        "BASE_IMAGE=265635588049.dkr.ecr.us-west-2.amazonaws.com/doctrina:base-latest",
+        "--build-arg",
         f"CONDA_JUPYTER_ENV={'conda_jupyter_init.yml' if conda_init else 'conda_jupyter_lock.yml'}",
         "--build-arg",
         f"CONDA_DEEPLEARNING_ENV={'conda_deeplearning_init.yml' if conda_init else 'conda_deeplearning_lock.yml'}",

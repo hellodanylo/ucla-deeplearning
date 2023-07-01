@@ -53,18 +53,7 @@ class SageMakerStack(Stack):
             ]
         )
 
-        # repo = ecr.Repository.from_repository_name(self, 'DoctrinaRepo', 'doctrina')
         images = []
-        #     ImageConstruct(
-        #         self, f'Image{flavor.capitalize()}', 
-        #         image_name=f"doctrina-{flavor}", 
-        #         image_uri=repo.repository_uri_for_tag(f"{flavor}-latest"), 
-        #         role=role, 
-        #         kernel_name=flavor
-        #     )
-        #     for flavor in ['torch', 'tf2']
-        # ]
-
         ecr_collegium = ecr.Repository.from_repository_name(self, 'CollegiumRepo', 'collegium')
         images.append(ImageConstruct(self, 'ImageCollegium', 'collegium', ecr_collegium.repository_uri_for_tag(image_version), role, "collegium"))
 
@@ -100,10 +89,4 @@ class SageMakerStack(Stack):
             subnet_ids=vpc.select_subnets().subnet_ids,
             vpc_id=vpc.vpc_id,
             
-        )
-
-        user = sm.CfnUserProfile(
-            self, 'DomainUser', 
-            domain_id=self.domain.attr_domain_id, 
-            user_profile_name='admin'
         )

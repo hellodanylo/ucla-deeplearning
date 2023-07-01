@@ -40,7 +40,7 @@ class BuildStack(Stack):
             ]
         )
 
-        ecr_doctrina = ecr.Repository.from_repository_name(self, "ECRRepositoryHumus", repository_name="doctrina")
+        ecr_doctrina = ecr.Repository.from_repository_name(self, "ECRRepositoryDoctrina", repository_name="doctrina")
 
         role = iam.Role(
             self, "IamRoleBuild", 
@@ -135,5 +135,3 @@ class BuildStack(Stack):
                 event_role=event_role  # type: ignore
             )]
         )
-
-        ssm.StringParameter

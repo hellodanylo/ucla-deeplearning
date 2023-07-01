@@ -73,7 +73,7 @@ def process(*modules, execute: bool = False, render: bool = False):
     failed_notebooks = []
 
     for module in modules:
-        notebooks = sorted(find_notebooks(prefix=f'/app/ucla-deeplearning/{module}'))
+        notebooks = sorted(find_notebooks(prefix=f'/app/collegium/{module}'))
 
         for report_path in notebooks:
             try:

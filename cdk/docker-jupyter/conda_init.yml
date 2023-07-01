@@ -25,7 +25,9 @@ dependencies:
     - line_profiler
     - matplotlib
     - mypy
-    - protobuf
+    - nbconvert
+    - nbformat
+    - protobuf==3.20
     - pyarrow
     - python-dotenv
     - regex

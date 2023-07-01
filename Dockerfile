@@ -38,9 +38,9 @@ ENV NVIDIA_VISIBLE_DEVICES=all
 ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility
 ENV NVIDIA_REQUIRE_CUDA="cuda>=10.0 brand=tesla,driver>=384,driver<385 brand=tesla,driver>=410,driver<411"
 
-CMD jupyter \
+CMD /app/miniconda/envs/jupyter/bin/jupyter \
     lab \
-    --notebook-dir=/app/ucla-deeplearning \
+    --notebook-dir=/app/collegium \
     --ip=0.0.0.0 \
     --port=80 \
     --no-browser \
