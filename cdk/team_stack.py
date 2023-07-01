@@ -63,7 +63,7 @@ class MemberConstruct(Construct):
 
 
     def add_permissions(self, identity: iam.IIdentity):
-        for policy in ['AmazonSageMakerReadOnly', 'AWSCodeCommitReadOnly', 'IAMUserChangePassword']:
+        for policy in ['AmazonSageMakerReadOnly', 'AWSCodeCommitReadOnly', 'IAMUserChangePassword', 'AmazonEC2ContainerRegistryReadOnly']:
             identity.add_managed_policy(
                 policy=iam.ManagedPolicy.from_aws_managed_policy_name(policy)
             )
