@@ -1,9 +1,13 @@
+import base64
+from pathlib import Path
 from aws_cdk import Stack
 from aws_cdk import aws_sagemaker as sm
 from aws_cdk import aws_ecr as ecr
 from aws_cdk import aws_iam as iam
 from aws_cdk import aws_ec2 as ec2
 from constructs import Construct
+
+from studio_lifecycle_construct import StudioLifeCycleConstruct
 
 
 class ImageConstruct(Construct):
@@ -69,6 +73,9 @@ class SageMakerStack(Stack):
             ip_addresses=ec2.IpAddresses.cidr('10.42.5.0/24'), max_azs=1,
             subnet_configuration=[ec2.SubnetConfiguration(name='Private', subnet_type=ec2.SubnetType.PRIVATE_ISOLATED, cidr_mask=25)],
         )
+    
+        script = base64.standard_b64encode((Path(__file__).parent / 'studio_lifecycle.sh').read_bytes()).decode()
+        lifecycle = StudioLifeCycleConstruct(self, 'StudioLifecycle', script, 'JupyterServer', 'collegium-jupyter')
 
         self.domain: sm.CfnDomain = sm.CfnDomain(
             self, 'Domain', 
@@ -76,6 +83,9 @@ class SageMakerStack(Stack):
             auth_mode='IAM',
             default_user_settings=sm.CfnDomain.UserSettingsProperty(
                 execution_role=role.role_arn,
+                jupyter_server_app_settings=sm.CfnDomain.JupyterServerAppSettingsProperty(default_resource_spec=sm.CfnDomain.ResourceSpecProperty(
+                    lifecycle_config_arn=lifecycle.studio_lifecycle_config_arn,
+                )),
                 kernel_gateway_app_settings=sm.CfnDomain.KernelGatewayAppSettingsProperty(
                     custom_images=[
                         sm.CfnDomain.CustomImageProperty(
