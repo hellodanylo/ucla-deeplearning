@@ -32,6 +32,8 @@ WORKDIR /app
 USER user:user
 COPY --chown=user:user . /app/collegium
 RUN git config --global --add safe.directory /app/collegium
+RUN echo '/app/collegium' >/app/miniconda/envs/collegium/lib/python3.10/site-packages/collegium.pth
+ENV PATH="/app/collegium/cdk/docker-jupyter/bin:$PATH"
 
 # Nvidia Runtime
 ENV NVIDIA_VISIBLE_DEVICES=all
