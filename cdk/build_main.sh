@@ -5,6 +5,7 @@ set -eux
 if [[ $BUILD_STAGE == "docker" ]];
 then
     cdk/docker_build.sh
+    cdk/test.sh
     cdk/docker_push.sh
 fi
 

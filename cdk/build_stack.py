@@ -77,7 +77,7 @@ class BuildStack(Stack):
             f'CodeBuildProject', 
             project_name=package_name,
             environment=cb.BuildEnvironment(
-                build_image=cb.LinuxBuildImage.STANDARD_6_0,
+                build_image=cb.LinuxBuildImage.STANDARD_7_0,
                 compute_type=cb.ComputeType.MEDIUM,
                 privileged=True
             ),
@@ -116,18 +116,18 @@ class BuildStack(Stack):
                         }
                     ) 
                 ]),
-                cp.StageProps(stage_name=BuildStage.TEST.value, actions=[
-                    cpa.CodeBuildAction(
-                        action_name=package_name, 
-                        input=source, 
-                        project=project,  # type: ignore
-                        role=role,  # type: ignore
-                        environment_variables={
-                            BuildVariable.BUILD_STAGE.value: cb.BuildEnvironmentVariable(value=BuildStage.TEST.value, type=cb.BuildEnvironmentVariableType.PLAINTEXT),
-                            BuildVariable.COLLEGIUM_ECR.value: cb.BuildEnvironmentVariable(value=ecr_repo.repository_uri),
-                        }
-                    ) 
-                ]),
+                # cp.StageProps(stage_name=BuildStage.TEST.value, actions=[
+                #     cpa.CodeBuildAction(
+                #         action_name=package_name, 
+                #         input=source, 
+                #         project=project,  # type: ignore
+                #         role=role,  # type: ignore
+                #         environment_variables={
+                #             BuildVariable.BUILD_STAGE.value: cb.BuildEnvironmentVariable(value=BuildStage.TEST.value, type=cb.BuildEnvironmentVariableType.PLAINTEXT),
+                #             BuildVariable.COLLEGIUM_ECR.value: cb.BuildEnvironmentVariable(value=ecr_repo.repository_uri),
+                #         }
+                #     ) 
+                # ]),
                 cp.StageProps(stage_name=BuildStage.CDK.value, actions=[
                     cpa.CodeBuildAction(
                         action_name=package_name, 
@@ -136,6 +136,7 @@ class BuildStack(Stack):
                         role=role,  # type: ignore
                         environment_variables={
                             BuildVariable.BUILD_STAGE.value: cb.BuildEnvironmentVariable(value=BuildStage.CDK.value, type=cb.BuildEnvironmentVariableType.PLAINTEXT),
+                            BuildVariable.COLLEGIUM_ECR.value: cb.BuildEnvironmentVariable(value=ecr_repo.repository_uri),
                         }
                     ) 
                 ]),
