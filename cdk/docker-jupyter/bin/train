@@ -1,3 +1,0 @@
-#!/usr/bin/env zsh
-
-python -m foundation.cli hello

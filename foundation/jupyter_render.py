@@ -9,11 +9,11 @@ import clize
 import nbformat
 from cachetools import cached, LRUCache
 from nbconvert import HTMLExporter
-from nbconvert.preprocessors import ExecutePreprocessor
+from nbconvert.preprocessors.execute import ExecutePreprocessor
 from nbformat import NotebookNode
 
 
-def find_notebooks(prefix: str = "/app/ucla_deeplearning") -> Sequence[str]:
+def find_notebooks(prefix: str = "/app/collegium") -> Sequence[str]:
     reports = (
         subprocess.run(
             ["find", prefix, "-name", "*.ipynb"], capture_output=True
@@ -29,7 +29,7 @@ def find_notebooks(prefix: str = "/app/ucla_deeplearning") -> Sequence[str]:
 
 @cached(cache=LRUCache(maxsize=1))
 def get_s3():
-    return boto3.Session(profile_name="ucla").client("s3")
+    return boto3.client("s3")
 
 
 def render_notebook(absolute_path: str):
@@ -69,7 +69,7 @@ def execute_notebook(path: str):
     ep.preprocess(notebook, {"metadata": {"path": os.path.dirname(path)}})
 
 
-def process(*modules, execute: bool = False, render: bool = False):
+def jupyter_process(*modules, execute: bool = False, render: bool = False):
     failed_notebooks = []
 
     for module in modules:
@@ -88,7 +88,3 @@ def process(*modules, execute: bool = False, render: bool = False):
 
     print("Failed notebooks:")
     print("\n".join(failed_notebooks))
-
-
-if __name__ == '__main__':
-    clize.run([process])
