@@ -8,6 +8,7 @@ dependencies:
   - pip:
     - aws-cdk-lib
     - awscli
+    - beautifulsoup4
     - black
     - boto3
     - cachetools
@@ -23,6 +24,7 @@ dependencies:
     - kaggle
     - keras-tuner
     - line_profiler
+    - lxml
     - matplotlib
     - mypy
     - nbconvert

@@ -13,6 +13,7 @@ RUN sudo apt-get update -q && \
     software-properties-common \
     protobuf-compiler \
     build-essential \
+    ffmpeg \
     >/dev/null 2>&1
 
 RUN conda info

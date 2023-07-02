@@ -183,7 +183,7 @@ def crop_and_resize_for_imagenet(image: Image.Image) -> np.ndarray:
         resize = (0, offset, width, height - offset)
 
     # ImageNet images are 224x244x3 array of type uint8 [0, 255]
-    image = image.crop(resize).resize((ideal_width, ideal_height), Image.ANTIALIAS)
+    image = image.crop(resize).resize((ideal_width, ideal_height), Image.Resampling.LANCZOS)
     return np.array(image, dtype="uint8")
 
 
