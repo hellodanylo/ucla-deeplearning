@@ -9,6 +9,7 @@ import aws_cdk.aws_events as e
 import aws_cdk.aws_events_targets as et
 import aws_cdk.aws_ssm as ssm
 from aws_cdk import Stack, Duration
+from constructs import Construct
 
 
 class BuildVariable(Enum):
@@ -17,10 +18,8 @@ class BuildVariable(Enum):
 
 
 class BuildStack(Stack):
-    def __init__(self, 
-        *args, **kwargs
-    ):
-        super().__init__(*args, **kwargs)
+    def __init__(self, scope: Construct, id: str):
+        super().__init__(scope, id)
         package_name = "collegium"
 
         git_repo = cc.Repository(
@@ -42,12 +41,14 @@ class BuildStack(Stack):
 
         ecr_doctrina = ecr.Repository.from_repository_name(self, "ECRRepositoryDoctrina", repository_name="doctrina")
 
-        role = iam.Role(
+        role: iam.Role = iam.Role(
             self, "IamRoleBuild", 
             role_name=f"{package_name}-codebuild",
             assumed_by=iam.CompositePrincipal(
                 iam.ServicePrincipal(service="codepipeline.amazonaws.com"),
                 iam.ServicePrincipal(service="codebuild.amazonaws.com"),
+                iam.ArnPrincipal(f"arn:aws:iam::{self.account}:role/collegium-codebuild"),
+                iam.AccountPrincipal(self.account),
             ),
             managed_policies=[
                 iam.ManagedPolicy.from_managed_policy_arn(self, arn, managed_policy_arn=arn)
