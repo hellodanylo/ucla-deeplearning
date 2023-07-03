@@ -145,4 +145,52 @@ class TeamStack(Stack):
             MemberConstruct(self, f"Member{member.name.capitalize()}", member, domain_id, self.team_config.admin.email)
             for member in self.team_config.users
         ]
+
+        b.CfnBudget(
+            self, 'BudgetAnnual',
+            budget=b.CfnBudget.BudgetDataProperty(
+                budget_type='COST',
+                time_unit='ANNUALLY',
+                budget_limit=b.CfnBudget.SpendProperty(amount=70*len(self.team_config.users), unit='USD'),
+                budget_name=f"team-full",
+            ),
+            notifications_with_subscribers=[
+                b.CfnBudget.NotificationWithSubscribersProperty(
+                    notification=b.CfnBudget.NotificationProperty(
+                        comparison_operator='GREATER_THAN', 
+                        threshold=threshold,
+                        threshold_type='PERCENTAGE',
+                        notification_type='ACTUAL'
+                    ),
+                    subscribers=[
+                        b.CfnBudget.SubscriberProperty(address=self.team_config.admin.email, subscription_type='EMAIL'),
+                    ]
+                )
+                for threshold in [0, 25, 50, 75, 90, 100]
+            ]
+        )
+
+        b.CfnBudget(
+            self, 'BudgetDaily',
+            budget=b.CfnBudget.BudgetDataProperty(
+                budget_type='COST',
+                time_unit='DAILY',
+                budget_limit=b.CfnBudget.SpendProperty(amount=100, unit='USD'),
+                budget_name=f"team-daily",
+            ),
+            notifications_with_subscribers=[
+                b.CfnBudget.NotificationWithSubscribersProperty(
+                    notification=b.CfnBudget.NotificationProperty(
+                        comparison_operator='GREATER_THAN', 
+                        threshold=threshold,
+                        threshold_type='PERCENTAGE',
+                        notification_type='ACTUAL'
+                    ),
+                    subscribers=[
+                        b.CfnBudget.SubscriberProperty(address=self.team_config.admin.email, subscription_type='EMAIL'),
+                    ]
+                )
+                for threshold in [0, 25, 50, 75, 100]
+            ]
+        )
             
