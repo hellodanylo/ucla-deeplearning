@@ -98,8 +98,8 @@ dependencies:
   - tensorflow-base=2.8.1
   - termcolor=2.3.0
   - tk=8.6.12
-  - typing-extensions=4.7.0
-  - typing_extensions=4.7.0
+  - typing-extensions=4.7.1
+  - typing_extensions=4.7.1
   - tzdata=2023c
   - urllib3=1.26.15
   - werkzeug=2.3.6
@@ -132,7 +132,7 @@ dependencies:
     - clize==4.2.0
     - colorama==0.4.4
     - comm==0.1.3
-    - constructs==10.2.66
+    - constructs==10.2.67
     - contourpy==1.1.0
     - cryptography==39.0.0
     - cycler==0.11.0
@@ -159,6 +159,7 @@ dependencies:
     - fsspec==2023.6.0
     - ftfy==6.1.1
     - future==0.18.3
+    - git-remote-codecommit==1.16
     - glob2==0.7
     - graphql-core==3.2.3
     - greenlet==2.0.2
