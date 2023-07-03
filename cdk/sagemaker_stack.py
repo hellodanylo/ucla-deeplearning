@@ -1,11 +1,15 @@
 import base64
+import json
 from pathlib import Path
 from aws_cdk import Stack
 from aws_cdk import aws_sagemaker as sm
 from aws_cdk import aws_ecr as ecr
 from aws_cdk import aws_iam as iam
 from aws_cdk import aws_ec2 as ec2
+from aws_cdk import aws_ssm as ssm
+from aws_cdk import aws_s3 as s3
 from constructs import Construct
+from cdk.environment import SSMParameter, SageMakerResources
 
 from studio_lifecycle_construct import StudioLifeCycleConstruct
 
@@ -44,12 +48,13 @@ class SageMakerStack(Stack):
     def __init__(self, scope: Construct, id: str, image_version: str):
         super().__init__(scope, id)
 
-        role = iam.Role(
+        role: iam.Role = iam.Role(
             self, 'SageMakerRole', 
             assumed_by=iam.ServicePrincipal('sagemaker.amazonaws.com'), 
             managed_policies=[
                 iam.ManagedPolicy.from_aws_managed_policy_name('AmazonSageMakerFullAccess'),
                 iam.ManagedPolicy.from_aws_managed_policy_name('AWSCodeCommitReadOnly'),
+                iam.ManagedPolicy.from_aws_managed_policy_name('AmazonS3FullAccess'),
             ]
         )
 
@@ -88,5 +93,27 @@ class SageMakerStack(Stack):
             ),
             subnet_ids=vpc.select_subnets().subnet_ids,
             vpc_id=vpc.vpc_id,
-            
+        )
+
+        # bucket = s3.Bucket(
+        #     self, 'BucketPublic', 
+        #     access_control=s3.BucketAccessControl.PUBLIC_READ, 
+        #     bucket_name='ucla-deeplearning-public',
+        #     public_read_access=True,
+        #     block_public_access=s3.BlockPublicAccess(
+        #         block_public_acls=False, 
+        #         block_public_policy=False, 
+        #         ignore_public_acls=False, 
+        #         restrict_public_buckets=False
+        #     )
+        # )
+
+        ssm.CfnParameter(
+            self, 'SageMakerResources', 
+            value=SageMakerResources(
+                bucket_public='danylo-ucla',
+                sagemaker_role_arn=role.role_arn,
+            ).to_json(),
+            name=SSMParameter.SAGEMAKER_RESOURCES.value,
+            type='String'
         )

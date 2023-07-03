@@ -1,5 +1,5 @@
 {
-    "app": "python cdk.py",
+    "app": "python -m cdk.app",
     "watch": {
       "include": [
         "**"

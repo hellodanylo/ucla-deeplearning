@@ -11,6 +11,8 @@ import aws_cdk.aws_ssm as ssm
 from aws_cdk import Stack, Duration
 from constructs import Construct
 
+from cdk.environment import BuildResources, SSMParameter
+
 
 class BuildVariable(Enum):
     COLLEGIUM_ECR = "COLLEGIUM_ECR"
@@ -27,7 +29,7 @@ class BuildStack(Stack):
             repository_name=package_name,
         )
 
-        ecr_repo = ecr.Repository(
+        ecr_repo: ecr.Repository = ecr.Repository(
             self, "ECRRepository", 
             repository_name=package_name,
             lifecycle_rules=[
@@ -47,22 +49,13 @@ class BuildStack(Stack):
             assumed_by=iam.CompositePrincipal(
                 iam.ServicePrincipal(service="codepipeline.amazonaws.com"),
                 iam.ServicePrincipal(service="codebuild.amazonaws.com"),
-                iam.ArnPrincipal(f"arn:aws:iam::{self.account}:role/collegium-codebuild"),
+                iam.ArnPrincipal(f"arn:aws:iam::{self.account}:role/{package_name}-codebuild"),
                 iam.AccountPrincipal(self.account),
             ),
             managed_policies=[
                 iam.ManagedPolicy.from_managed_policy_arn(self, arn, managed_policy_arn=arn)
                 for arn in [
-                    "arn:aws:iam::aws:policy/AWSCloudFormationFullAccess",
-                    "arn:aws:iam::aws:policy/AWSCodeBuildAdminAccess",
-                    "arn:aws:iam::aws:policy/AWSCodeCommitPowerUser",
-                    "arn:aws:iam::aws:policy/AWSCodePipeline_FullAccess",
-                    "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryFullAccess",
-                    "arn:aws:iam::aws:policy/AmazonEC2FullAccess",
-                    "arn:aws:iam::aws:policy/AmazonS3FullAccess",
-                    "arn:aws:iam::aws:policy/AmazonSSMFullAccess",
-                    "arn:aws:iam::aws:policy/CloudWatchFullAccess",
-                    "arn:aws:iam::aws:policy/IAMFullAccess",
+                    "arn:aws:iam::aws:policy/AdministratorAccess",
                 ]
             ]
         )
@@ -135,4 +128,13 @@ class BuildStack(Stack):
                 pipeline=pipeline, 
                 event_role=event_role  # type: ignore
             )]
+        )
+
+        ssm.CfnParameter(
+            self, 'BuildResources', 
+            value=BuildResources(
+                collegium_ecr=ecr_repo.repository_uri
+            ).to_json(),
+            name=SSMParameter.BUILD_RESOURCES.value,
+            type='String'
         )

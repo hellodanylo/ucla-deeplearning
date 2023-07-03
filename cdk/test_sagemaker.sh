@@ -2,8 +2,7 @@
 
 set -eux
 
-project_path="${0:a:h:h}"
-
+project_path=${0:h:h}
 versioned_uri="${COLLEGIUM_ECR}:${CODEBUILD_RESOLVED_SOURCE_VERSION}"
 
 # Import the temporary credentials
@@ -14,6 +13,5 @@ docker run \
     -e AWS_SECRET_ACCESS_KEY \
     -e AWS_SESSION_TOKEN \
     -e AWS_REGION \
-    --rm -w /app/collegium/cdk \
-    "$versioned_uri" \
-    npx cdk deploy --all
+    --rm "$versioned_uri" \
+    python -m cdk.cli sagemaker-jupyter-process --image-version "${CODEBUILD_RESOLVED_SOURCE_VERSION}"

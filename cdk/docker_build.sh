@@ -6,8 +6,6 @@ project_path=${0:h:h}
 latest_uri="${COLLEGIUM_ECR}:latest"
 versioned_uri="${COLLEGIUM_ECR}:${CODEBUILD_RESOLVED_SOURCE_VERSION}"
 
-aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $COLLEGIUM_ECR
-
 export DOCKER_BUILDKIT=1
 docker version
 docker buildx build \

@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import logging
 import os
 import subprocess
 from typing import Sequence, List
@@ -84,7 +85,14 @@ def jupyter_process(*modules, execute: bool = False, render: bool = False):
                     render_notebook(report_path)
             except Exception as e:
                 failed_notebooks.append(report_path)
-                print(e)
+                logging.exception(e)
 
     print("Failed notebooks:")
     print("\n".join(failed_notebooks))
+
+    # Report the exit code correctly,
+    # so that downstream tasks are stopped.
+    if len(failed_notebooks) > 0:
+        exit(1)
+    else:
+        exit(0)
