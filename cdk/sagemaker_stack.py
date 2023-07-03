@@ -55,6 +55,7 @@ class SageMakerStack(Stack):
                 iam.ManagedPolicy.from_aws_managed_policy_name('AmazonSageMakerFullAccess'),
                 iam.ManagedPolicy.from_aws_managed_policy_name('AWSCodeCommitReadOnly'),
                 iam.ManagedPolicy.from_aws_managed_policy_name('AmazonS3FullAccess'),
+                iam.ManagedPolicy.from_aws_managed_policy_name('AmazonRekognitionReadOnlyAccess'),
             ]
         )
 
