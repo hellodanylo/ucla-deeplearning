@@ -17,7 +17,7 @@ def sagemaker_jupyter_process(*, image_version: str):
     assert isinstance(sagemaker_resources, SageMakerResources)
     assert isinstance(build_resources, BuildResources)
 
-    training_job_name = f'collegium-test-{image_version}-{uuid.uuid4()}'
+    training_job_name = f'collegium-test-{image_version}-{uuid.uuid4()[:5]}'
 
     sm.create_training_job(
         TrainingJobName=training_job_name,

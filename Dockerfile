@@ -29,16 +29,15 @@ ENV PATH="/app/miniconda/envs/collegium/bin:$PATH"
 RUN conda init zsh
 WORKDIR /app
 
-# Git complains about ownership by another user (this image runs as root)
 USER user:user
 COPY --chown=user:user . /app/collegium
-RUN git config --global --add safe.directory /app/collegium
 RUN echo '/app/collegium' >/app/miniconda/envs/collegium/lib/python3.10/site-packages/collegium.pth
 
 # Nvidia Runtime
 ENV NVIDIA_VISIBLE_DEVICES=all
 ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility
 ENV NVIDIA_REQUIRE_CUDA="cuda>=10.0 brand=tesla,driver>=384,driver<385 brand=tesla,driver>=410,driver<411"
+ENV PYTHONUNBUFFERED=1
 
 CMD /app/miniconda/envs/jupyter/bin/jupyter \
     lab \
