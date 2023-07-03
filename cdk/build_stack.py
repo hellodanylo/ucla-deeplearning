@@ -70,7 +70,8 @@ class BuildStack(Stack):
                 privileged=True
             ),
             role=role,  # type: ignore
-            build_spec=cb.BuildSpec.from_source_filename("cdk/buildspec.yml")
+            build_spec=cb.BuildSpec.from_source_filename("cdk/buildspec.yml"),
+            timeout=Duration.hours(2),
         )
 
         source = cp.Artifact(artifact_name=package_name)

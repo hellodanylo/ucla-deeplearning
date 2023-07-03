@@ -38,7 +38,7 @@ def sagemaker_jupyter_process(*, image_version: str):
             'S3OutputPath': f's3://{sagemaker_resources.bucket_public}/app'
         },
         StoppingCondition={
-            'MaxRuntimeInSeconds': 60 * 60,
+            'MaxRuntimeInSeconds': 60 * 90,
         },
     )
     print("Started", training_job_name)
