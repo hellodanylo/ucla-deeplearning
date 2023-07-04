@@ -12,6 +12,6 @@ docker buildx build \
     --cache-from="$latest_uri" \
     --cache-to="type=inline" \
     --build-arg "BASE_IMAGE=${DOCTRINA_ECR}:base-latest" \
-    --build-arg "CONDA_ENV=conda_lock.yml" \
+    --build-arg "CONDA_ENV=conda_init.yml" \
     --tag "$versioned_uri" \
     "$project_path"

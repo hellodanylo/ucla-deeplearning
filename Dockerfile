@@ -31,7 +31,7 @@ WORKDIR /app
 
 USER user:user
 COPY --chown=user:user . /app/collegium
-RUN echo '/app/collegium' >/app/miniconda/envs/collegium/lib/python3.10/site-packages/collegium.pth
+RUN echo '/app' >/app/miniconda/envs/collegium/lib/python3.10/site-packages/app.pth
 
 # Nvidia Runtime
 ENV NVIDIA_VISIBLE_DEVICES=all

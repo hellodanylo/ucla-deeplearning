@@ -1,0 +1,120 @@
+\documentclass[11pt]{article}
+
+% Packages
+\usepackage{amsmath}
+\usepackage[a4paper, margin=1in]{geometry}
+\usepackage[pdf]{graphviz}
+\usepackage{textcomp}
+\usepackage{amssymb}
+\usepackage{stmaryrd}
+\usepackage[allbordercolors="0 0 0"]{hyperref}
+
+
+% Document
+\begin{document}
+
+\tableofcontents
+
+\section{Convolutional Layer}
+
+Convolutional layer is a feedforward layer that satisfies the following additional properties:
+* sparse connectivity - each neuron is connected with every channel of a small spatial region of the input
+* shared parameters - each neuron within layer uses the same parameters
+
+This notebook will not cover details of convolution arithmetic.
+Instead it focuses on Tensorflow's implementation and practical examples.
+For intuition behind convolutional operation, refer to the lecture slides.
+For mathematical details of convolutional operation, an excellent source would be:
+https://arxiv.org/abs/1603.07285
+
+In convolutional layers, it's very important to get a good grasp on the dimensions of inputs, filters, and outputs. To discuss dimensionality, we will use the following conventions in this notebook:
+* $ n^{[l]}_h $ - activation height of layer $l$, or of input image if $l = 0$
+* $ n^{[l]}_w $ - activation width of layer $l$, or of input image if $l = 0$
+* $ n^{[l]}_c $ - activation depth of layer $l$, or of input image if $l = 0$
+* $ f^{[l]} $ - height and width of a filter in layer $l$ (typically, the same across both dimensions)
+
+\subsection{1 input channel, 1 output channel}
+
+The key to understanding the relationship between dimensions of the input and of the output in a convolutional layer is to consider the basic case with 1 input and 1 output channels. Given input of shape $ n^{[l-1]}_h \times n^{[l-1]}_w $ and filter of shape $ f^{[l]} \times f^{[l]} $, the shape of the output of a convolution with padding $p$ and stride $s$:
+
+$ \text{Convolution}\big( n^{[l-1]}_h \times n^{[l-1]}_w, f^{[l]} \times f^{[l]} \big) \rightarrow n^{[l]}_h \times n^{[l]}_w $
+
+$ n^{[l]}_h = \big\lfloor \frac{n^{[l-1]}_h + p^{[l]} - f^{[l]}}{s^{[l]}} + 1 \big\rfloor $
+
+$ n^{[l]}_w = \big\lfloor \frac{n^{[l-1]}_w + p^{[l]} - f^{[l]}}{s^{[l]}} + 1 \big\rfloor $
+
+In practice, padding is often specified as either valid or same. Valid padding simply means no padding at all ($p$ = 0), while same padding means as much padding as needed to keep spatial dimensions of the input and of the ouput the same. The exact size of same padding depends on the stride and the spatial dimensions of the input and of the filter. Typically, if the filter is larger, then more padding is needed to keep the spatial dimensions of the output equal to that of the input. Let's see an example of this calculation with Tensorflow.
+
+\subsection{many input channels, 1 output channel}
+
+In the case of many input channels, the output dimensions are not affected, because the number of channels in the output depends on the number of channels in the filter. Given input of shape $n^{[l-1]}_h \times n^{[l-1]}_w \times n^{[l-1]}_c $ and filter of shape $f^{[l]} \times f^{[l]} \times n^{[l-1]}_c$, the shape of the output of a convolution with padding $p$ and stride $s$:
+
+$
+\text{Convolution} \big(
+    n^{[l-1]}_h \times n^{[l-1]}_w \times n^{[l-1]}_c,
+    f^{[l]} \times f^{[l]} \times n^{[l-1]}_c
+\big)
+\rightarrow n^{[l]}_h \times n^{[l]}_w
+$
+
+$ n^{[l]}_h = \big\lfloor \frac{n^{[l-1]}_h + p^{[l]} - f^{[l]}}{s^{[l]}} + 1 \big\rfloor $
+
+$ n^{[l]}_w = \big\lfloor \frac{n^{[l-1]}_w + p^{[l]} - f^{[l]}}{s^{[l]}} + 1 \big\rfloor $
+
+Note that the third dimension of the filter has to match the number of channels in the input. When the filter is applied to the input, the input's channels are matched with the filter's channels. Products of corresponding spatial locations are added together across space and channels, which is why the output is still flat.
+
+\subsection{many input channels, many output channels}
+
+When both input and output has many channels, the calculations are pretty similar but we calculate multiple independent activation maps, which gives depth to the activation tensor. Given input of shape $n^{[l-1]}_h \times n^{[l-1]}_w \times n^{[l-1]}_c $ and filter of shape $f^{[l]} \times f^{[l]} \times n^{[l-1]}_c \times n^{[l]}_c$, the shape of the output of a convolution with padding $p$ and stride $s$:
+
+$
+\text{Convolution} \big(
+    n^{[l-1]}_h \times n^{[l-1]}_w \times n^{[l-1]}_c,
+    f^{[l]} \times f^{[l]} \times n^{[l-1]}_c \times n^{[l]}_c
+\big)
+\rightarrow n^{[l]}_h \times n^{[l]}_w \times n^{[l]}_c
+$
+
+$ n^{[l]}_h = \big\lfloor \frac{n^{[l-1]}_h + p^{[l]} - f^{[l]}}{s^{[l]}} + 1 \big\rfloor $
+
+$ n^{[l]}_w = \big\lfloor \frac{n^{[l-1]}_w + p^{[l]} - f^{[l]}}{s^{[l]}} + 1 \big\rfloor $
+
+Note that the third dimension of the filter has to match the number of channels in the input,
+while the fourth dimension of the filter matches the number of channels in the output.
+Spatial dimensions (e.g. the first and the second dimensions) of the output are not affected by the number of channels.
+When applying the filter to the input, each activation map is calculated independently and then stacked together to produce activation volume. Simply stated, the fourth dimensions of the filter describes a collection of independent filters.
+
+\section{Symmetry}
+
+Image processing is frequently thought of as a task over a 2D arrays - an image (ignoring color channels for now).
+The framework for thinking about this task has been rooted in the 2D perspective of the camera (the observer).
+However, many tasks in computer vision are better defined as functions of 4D space-time intervals.
+This becomes very apparent when considering various transformations of the input.
+
+Let's consider the image classification task in particular: $R^2 \rightarrow class$.
+A well-known idea is that objects typically retain their classification when moved across the image.
+Equivariance to translations is the key reason for the efficiency of a convolutional layer.
+Invariance to translations is employed in data augmentation where images are shifted without changing the label.
+
+A broader perspective on translations is that physical objects sometimes retain
+their human-assigned classification regardless of their location in space and time.
+This is only true for some taxonomies (like ImageNet) and most taxonomies have this symmetry to some extent.
+For example, a car is a car, both in the garage and on the street, both today and 1 year ago.
+Once we accept that 2D invariance is merely an implication of the 4D symmetries of the taxonomies,
+we can start enumerating symmetries that are not obvious in 2D\@.
+
+As already mentioned, an object can retain its classification in various spatial contexts.
+3D translations and 3D rotations typically preserve classifications.
+Within certain boundaries, 3D scaling is also invariant.
+Any object that looks like a car that is 3 to 5 meters long can be classified as a car.
+However, a similar object that is only 3 centimeters long (scaling factor of $1e-3$) can be a toy.
+
+Over time, many objects change (aging, modifications by humans, elements) while preserving their classification.
+Changes of surface color and small deformations can be invariant for an object like a car.
+
+Due to relativity, some symmetries involve the observer.
+Translations and rotations of an object can be equally thought of as choices of the observer.
+Other choices of the observer include electromagnetic frequency (RGB, infrared, etc)
+-- physical scenes, locality to other objects, rotations.
+
+\end{document}

@@ -24,7 +24,7 @@ def sagemaker_jupyter_process(*, image_version: str):
         AlgorithmSpecification={
             'TrainingImage': f'{build_resources.collegium_ecr}:{image_version}',
             'TrainingInputMode': 'File',
-            'ContainerArguments': ['python', '-m', 'foundation.cli', 'jupyter-process', '--execute', '01_dnn', '02_cnn', '03_rnn', '04_gan', '05_ensemble'],
+            'ContainerArguments': ['python', '-m', 'collegium.foundation.cli', 'jupyter-process', '--execute', 'm01_dnn', 'm02_cnn', 'm03_rnn', 'm04_gan', 'm05_ensemble'],
             
         },
         Environment=environment,
