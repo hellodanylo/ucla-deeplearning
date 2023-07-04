@@ -3,7 +3,7 @@ import unittest
 
 import numpy as np
 
-from m01_dnn.utils.garden import cross
+from collegium.m01_dnn.utils.garden import cross
 
 
 class GardenTest(TestCase):
