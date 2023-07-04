@@ -71,7 +71,8 @@ def transform_split(task: dict):
     dataset.to_pq_workdir(workdir)
 
 
-def add_noise(image, mean, std):
+def add_noise(image: np.ndarray, mean: float, std: float):
+    np.random.seed(42)
     noise = np.random.normal(mean, std, image.shape)
     return np.clip(image + noise, 0, 1)
 

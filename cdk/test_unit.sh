@@ -5,5 +5,5 @@ set -eux
 versioned_uri="${COLLEGIUM_ECR}:${CODEBUILD_RESOLVED_SOURCE_VERSION}"
 
 docker run --rm "$versioned_uri" \
-    pytest test
+    pytest /app/collegium/test
 

@@ -26,11 +26,9 @@ RUN /app/miniconda/envs/collegium/bin/ipython kernel install --user --name=colle
 RUN conda run -n collegium npm -g install aws-cdk@2.86.0
 ENV PATH="/app/miniconda/envs/collegium/bin:$PATH"
 
-RUN conda init zsh
-WORKDIR /app
-
 USER user:user
 COPY --chown=user:user . /app/collegium
+WORKDIR /app/collegium
 RUN echo '/app' >/app/miniconda/envs/collegium/lib/python3.10/site-packages/app.pth
 
 # Nvidia Runtime

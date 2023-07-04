@@ -36,6 +36,7 @@ dependencies:
     - python-dotenv
     - regex
     - requests
+    - sagemaker
     - s3fs
     - scikit-learn
     - seaborn

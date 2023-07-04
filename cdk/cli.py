@@ -17,35 +17,32 @@ def sagemaker_jupyter_process(*, image_version: str):
     assert isinstance(sagemaker_resources, SageMakerResources)
     assert isinstance(build_resources, BuildResources)
 
-    training_job_name = f'collegium-test-{image_version}-{uuid.uuid4().__str__()[:5]}'
+    job_name = f'collegium-test-{image_version}-{uuid.uuid4().__str__()[:5]}'
 
-    sm.create_training_job(
-        TrainingJobName=training_job_name,
-        AlgorithmSpecification={
-            'TrainingImage': f'{build_resources.collegium_ecr}:{image_version}',
-            'TrainingInputMode': 'File',
+    sm.create_processing_job(
+        ProcessingJobName=job_name,
+        AppSpecification={
+            'ImageUri': f'{build_resources.collegium_ecr}:{image_version}',
             'ContainerArguments': ['python', '-m', 'collegium.foundation.cli', 'jupyter-process', '--execute', 'm01_dnn', 'm02_cnn', 'm03_rnn', 'm04_gan', 'm05_ensemble'],
-            
         },
         Environment=environment,
         RoleArn=sagemaker_resources.sagemaker_role_arn,
-        ResourceConfig={
-            'InstanceType': 'ml.p3.2xlarge',
-            'InstanceCount': 1,
-            'VolumeSizeInGB': 100,
-        },
-        OutputDataConfig={
-            'S3OutputPath': f's3://{sagemaker_resources.bucket_public}/app'
+        ProcessingResources={
+            'ClusterConfig': {
+                'InstanceType': 'ml.p3.2xlarge',
+                'InstanceCount': 1,
+                'VolumeSizeInGB': 100,
+            },
         },
         StoppingCondition={
             'MaxRuntimeInSeconds': 60 * 90,
         },
     )
-    print("Started", training_job_name)
-    sm.get_waiter('training_job_completed_or_stopped').wait(TrainingJobName=training_job_name)
+    print("Started", job_name)
+    sm.get_waiter('processing_job_completed_or_stopped').wait(ProcessingJobName=job_name)
     
-    status = sm.describe_training_job(TrainingJobName=training_job_name)['TrainingJobStatus']
-    print("Finished", training_job_name, "with status", status)
+    status = sm.describe_processing_job(ProcessingJobName=job_name)['ProcessingJobStatus']
+    print("Finished", job_name, "with status", status)
 
     if status == "Completed":
         exit(0)

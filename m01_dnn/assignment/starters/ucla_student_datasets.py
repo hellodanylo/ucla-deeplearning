@@ -5,7 +5,7 @@ from collections import OrderedDict
 from doctrina.pipeline import execute_pipeline
 from doctrina.task import execute, encode
 
-from ucla_mnist.pipelines import build_denoising_dataset
+from collegium.m01_dnn.assignment.pipelines import build_denoising_dataset
 
 students = 40
 

@@ -2,7 +2,7 @@ from collections import OrderedDict
 
 from doctrina.pipeline import execute_pipeline
 from doctrina.task import encode
-from ucla_mnist.jobs import transform_split, transform_noisy, transform_repack
+from collegium.m01_dnn.assignment.jobs import transform_split, transform_noisy, transform_repack
 
 
 def build_denoising_dataset(workspace: str, split_seed: int, noise_seed: int):
