@@ -14,6 +14,7 @@ docker run \
     -e AWS_SECRET_ACCESS_KEY \
     -e AWS_SESSION_TOKEN \
     -e AWS_REGION \
-    --rm -w /app/collegium/cdk \
+    --rm \
+    -w /app/collegium/cdk \
     "$versioned_uri" \
     npx cdk deploy --all
