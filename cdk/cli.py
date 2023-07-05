@@ -1,12 +1,21 @@
+#!/usr/bin/env python
+
 import json
 import uuid
 import clize
 import boto3
 
-from cdk.environment import BuildResources, SSMParameter, SageMakerResources
+import collegium.foundation.cli
+from collegium.cdk.environment import BuildResources, SSMParameter, SageMakerResources
 
 
-def sagemaker_jupyter_process(*, image_version: str):
+def sagemaker_jupyter_process(*, image_version: str = 'latest'):
+    job_prefix = f'collegium-test-{image_version[:16]}'
+    cmd = ['python', '-m', collegium.foundation.cli.__name__, 'jupyter-process', '--execute', 'm01_dnn', 'm02_cnn', 'm03_rnn', 'm04_gan', 'm05_ensemble']
+    sagemaker_process(*cmd, gpu=True, job_prefix=job_prefix, image_version=image_version)
+
+
+def sagemaker_process(*cmd, gpu: bool = False, job_prefix: str = 'collegium', image_version: str = 'latest'):
     sm = boto3.client('sagemaker', region_name='us-west-2')
     ssm = boto3.client('ssm', region_name='us-west-2')
 
@@ -17,19 +26,19 @@ def sagemaker_jupyter_process(*, image_version: str):
     assert isinstance(sagemaker_resources, SageMakerResources)
     assert isinstance(build_resources, BuildResources)
 
-    job_name = f'collegium-test-{image_version}-{uuid.uuid4().__str__()[:5]}'
+    job_name = f'{job_prefix}-{uuid.uuid4().__str__()[:5]}'
 
     sm.create_processing_job(
         ProcessingJobName=job_name,
         AppSpecification={
             'ImageUri': f'{build_resources.collegium_ecr}:{image_version}',
-            'ContainerArguments': ['python', '-m', 'collegium.foundation.cli', 'jupyter-process', '--execute', 'm01_dnn', 'm02_cnn', 'm03_rnn', 'm04_gan', 'm05_ensemble'],
+            'ContainerArguments': cmd,
         },
         Environment=environment,
         RoleArn=sagemaker_resources.sagemaker_role_arn,
         ProcessingResources={
             'ClusterConfig': {
-                'InstanceType': 'ml.p3.2xlarge',
+                'InstanceType': 'ml.c4.2xlarge' if not gpu else 'ml.p3.2xlarge',
                 'InstanceCount': 1,
                 'VolumeSizeInGB': 100,
             },
@@ -51,4 +60,4 @@ def sagemaker_jupyter_process(*, image_version: str):
 
 
 if __name__ == '__main__':
-    clize.run([sagemaker_jupyter_process])
+    clize.run([sagemaker_process, sagemaker_jupyter_process])

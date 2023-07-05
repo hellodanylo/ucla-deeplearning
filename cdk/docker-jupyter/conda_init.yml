@@ -27,6 +27,7 @@ dependencies:
     - line_profiler
     - lxml
     - matplotlib
+    - mlflow
     - mypy
     - nbconvert
     - nbformat

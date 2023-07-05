@@ -1,5 +1,5 @@
 import clize
-from foundation.jupyter_render import jupyter_process
+from collegium.foundation.jupyter_render import jupyter_process
 
 
 def hello():
