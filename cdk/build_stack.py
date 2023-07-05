@@ -8,10 +8,12 @@ import aws_cdk.aws_iam as iam
 import aws_cdk.aws_events as e
 import aws_cdk.aws_events_targets as et
 import aws_cdk.aws_ssm as ssm
+import aws_cdk.aws_codestarnotifications as csn
+import aws_cdk.aws_sns as sns
 from aws_cdk import Stack, Duration
 from constructs import Construct
 
-from cdk.environment import BuildResources, SSMParameter
+from collegium.cdk.environment import BuildResources, SSMParameter
 
 
 class BuildVariable(Enum):
@@ -76,7 +78,7 @@ class BuildStack(Stack):
 
         source = cp.Artifact(artifact_name=package_name)
 
-        pipeline = cp.Pipeline(
+        pipeline: cp.Pipeline = cp.Pipeline(
             self, 'CodePipeline',
             pipeline_name=package_name,
             role=role,  # type: ignore
@@ -106,6 +108,9 @@ class BuildStack(Stack):
                 ]),
             ]
         )
+        # pipeline.notify_on_execution_state_change('ExecutionChange', csn.INotificationRuleTarget)
+        # topic: sns.Topic = sns.Topic(self, 'Topic', display_name='collegium-build', topic_name='collegium-build')
+        # topic.add_subscription(sns.Subscription(self, ''))
 
         event_role = iam.Role(
             self, "RoleEvent", 

@@ -9,9 +9,8 @@ from aws_cdk import aws_ec2 as ec2
 from aws_cdk import aws_ssm as ssm
 from aws_cdk import aws_s3 as s3
 from constructs import Construct
-from cdk.environment import SSMParameter, SageMakerResources
-
-from studio_lifecycle_construct import StudioLifeCycleConstruct
+from collegium.cdk.environment import SSMParameter, SageMakerResources
+from collegium.cdk.studio_lifecycle_construct import StudioLifeCycleConstruct
 
 
 class ImageConstruct(Construct):
