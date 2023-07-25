@@ -35,6 +35,8 @@ dependencies:
     - pyarrow
     - pytest
     - python-dotenv
+    # https://github.com/yaml/pyyaml/issues/601
+    - PyYAML==6.0.1
     - regex
     - requests
     - sagemaker
