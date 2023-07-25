@@ -4,7 +4,7 @@ from collections import OrderedDict
 
 from doctrina.pipeline import execute_pipeline
 from doctrina.task import execute, encode
-from mnist.jobs import transform_split, train_autoencoder
+from collegium.m01_dnn.assignment.jobs import transform_split, train_autoencoder
 
 execute({
     'workspace': 'mnist',

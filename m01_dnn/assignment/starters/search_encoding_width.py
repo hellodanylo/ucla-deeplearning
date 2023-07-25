@@ -5,7 +5,7 @@ import random
 from doctrina.pipeline import execute_pipeline
 from doctrina.task import encode, get_task_workdir, execute
 from doctrina.util import send_slack
-from mnist.jobs import train_autoencoder
+from collegium.m01_dnn.assignment.jobs import train_autoencoder
 
 workspace = os.environ["APP_STORAGE_WORKSPACE"]
 experiment = "search_ew_06"

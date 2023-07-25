@@ -38,7 +38,7 @@ def sagemaker_process(*cmd, gpu: bool = False, job_prefix: str = 'collegium', im
         RoleArn=sagemaker_resources.sagemaker_role_arn,
         ProcessingResources={
             'ClusterConfig': {
-                'InstanceType': 'ml.c4.2xlarge' if not gpu else 'ml.p3.2xlarge',
+                'InstanceType': 'ml.c4.2xlarge' if not gpu else 'ml.g4dn.xlarge', #'ml.p3.2xlarge',
                 'InstanceCount': 1,
                 'VolumeSizeInGB': 100,
             },

@@ -10,7 +10,7 @@ from tensorflow.keras.datasets import mnist
 from tensorflow.keras.layers import Dense
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.optimizers import Adam
-from tensorflow.python import GlorotUniform
+from tensorflow.keras.initializers import GlorotUniform
 
 from doctrina.dataset import (
     Dataset,
