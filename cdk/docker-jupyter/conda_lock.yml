@@ -8,7 +8,7 @@ dependencies:
   - absl-py=1.4.0
   - aiosignal=1.3.1
   - astunparse=1.6.3
-  - async-timeout=4.0.2
+  - async-timeout=4.0.3
   - blinker=1.6.2
   - bzip2=1.0.8
   - c-ares=1.19.1
@@ -18,7 +18,7 @@ dependencies:
   - cachetools=5.3.1
   - certifi=2023.7.22
   - charset-normalizer=3.2.0
-  - click=8.1.6
+  - click=8.1.7
   - cuda-version=11.8
   - cudatoolkit=11.8.0
   - cudnn=8.8.0.121
@@ -54,22 +54,22 @@ dependencies:
   - libopenblas=0.3.23
   - libpng=1.6.39
   - libprotobuf=3.20.3
-  - libsqlite=3.42.0
+  - libsqlite=3.43.0
   - libssh2=1.10.0
   - libstdcxx-ng=13.1.0
   - libuuid=2.38.1
   - libuv=1.44.2
   - libzlib=1.2.13
-  - markdown=3.4.3
-  - nccl=2.18.3.1
+  - markdown=3.4.4
+  - nccl=2.18.5.1
   - ncurses=6.4
   - nodejs=18.12.1
   - oauthlib=3.2.2
-  - openssl=1.1.1u
+  - openssl=1.1.1v
   - opt_einsum=3.3.0
   - packaging=23.1
   - pip=23.2.1
-  - platformdirs=3.9.1
+  - platformdirs=3.10.0
   - pooch=1.7.0
   - pyasn1=0.4.8
   - pyasn1-modules=0.2.7
@@ -88,10 +88,10 @@ dependencies:
   - readline=8.2
   - requests=2.31.0
   - requests-oauthlib=1.3.1
-  - setuptools=68.0.0
+  - setuptools=68.1.2
   - six=1.16.0
   - snappy=1.1.10
-  - sqlite=3.42.0
+  - sqlite=3.43.0
   - tensorboard=2.8.0
   - tensorboard-plugin-wit=1.8.1
   - tensorflow-base=2.8.1
@@ -101,30 +101,31 @@ dependencies:
   - typing_extensions=4.7.1
   - tzdata=2023c
   - urllib3=1.26.15
-  - werkzeug=2.3.6
-  - wheel=0.41.0
+  - werkzeug=2.3.7
+  - wheel=0.41.2
   - xz=5.2.6
   - zipp=3.16.2
   - zlib=1.2.13
   - pip:
-    - aiofiles==23.1.0
+    - aiofiles==23.2.1
     - aiohttp==3.8.5
-    - alembic==1.11.1
-    - anyio==3.7.1
+    - alembic==1.12.0
+    - anyio==4.0.0
     - argcomplete==3.1.1
-    - asttokens==2.2.1
+    - asttokens==2.3.0
     - attrs==21.4.0
     - aws-cdk-asset-awscli-v1==2.2.200
     - aws-cdk-asset-kubectl-v20==2.1.2
-    - aws-cdk-asset-node-proxy-agent-v5==2.0.166
-    - aws-cdk-lib==2.88.0
-    - awscli==1.29.10
+    - aws-cdk-asset-node-proxy-agent-v6==2.0.1
+    - aws-cdk-lib==2.94.0
+    - awscli==1.29.40
     - backcall==0.2.0
     - beautifulsoup4==4.12.2
     - black==23.7.0
     - bleach==6.0.0
-    - boto3==1.28.10
-    - botocore==1.31.10
+    - blosc2==2.0.0
+    - boto3==1.28.40
+    - botocore==1.31.40
     - brotli==1.0.9
     - brotlipy==0.7.0
     - cattrs==23.1.2
@@ -132,46 +133,46 @@ dependencies:
     - clize==4.2.0
     - cloudpickle==2.2.1
     - colorama==0.4.4
-    - comm==0.1.3
-    - constructs==10.2.69
+    - comm==0.1.4
+    - constructs==10.2.70
     - contextlib2==21.6.0
     - contourpy==1.1.0
     - cryptography==39.0.0
     - cycler==0.11.0
+    - cython==3.0.2
     - dacite==1.7.0
     - databricks-cli==0.17.7
     - dataclass-wizard==0.22.2
-    - debugpy==1.6.7
+    - debugpy==1.6.7.post1
     - decorator==5.1.1
     - defusedxml==0.7.1
     - deprecated==1.2.14
     - dill==0.3.7
-    - dnspython==2.4.0
+    - dnspython==2.4.2
     - docker==6.1.3
     - docutils==0.16
     - entrypoints==0.4
-    - eventlet==0.33.3
-    - exceptiongroup==1.1.2
+    - exceptiongroup==1.1.3
     - executing==1.2.0
     - fastjsonschema==2.18.0
-    - fiftyone==0.21.4
-    - fiftyone-brain==0.13.0
+    - fiftyone==0.21.6
+    - fiftyone-brain==0.13.1
     - fiftyone-db==0.4.0
-    - filelock==3.12.2
-    - flask==2.3.2
-    - fonttools==4.41.1
+    - filelock==3.12.3
+    - flask==2.3.3
+    - fonttools==4.42.1
     - frozenlist==1.4.0
-    - fsspec==2023.6.0
+    - fsspec==2023.9.0
     - ftfy==6.1.1
     - future==0.18.3
-    - git-remote-codecommit==1.16
+    - git-remote-codecommit==1.17
     - gitdb==4.0.10
-    - gitpython==3.1.32
+    - gitpython==3.1.34
     - glob2==0.7
     - graphql-core==3.2.3
     - greenlet==2.0.2
     - grpcio==1.45.0
-    - gunicorn==20.1.0
+    - gunicorn==21.2.0
     - h11==0.14.0
     - h2==4.1.0
     - h5py==3.9.0
@@ -181,66 +182,68 @@ dependencies:
     - huggingface-hub==0.16.4
     - hypercorn==0.14.4
     - hyperframe==6.0.1
-    - imageio==2.31.1
+    - imageio==2.31.2
     - importlib-metadata==4.13.0
-    - importlib-resources==6.0.0
+    - importlib-resources==6.0.1
     - inflate64==0.3.1
     - iniconfig==2.0.0
-    - ipykernel==6.25.0
-    - ipython==8.14.0
-    - ipywidgets==8.0.7
+    - ipykernel==6.25.1
+    - ipython==8.15.0
+    - ipywidgets==8.1.0
     - itsdangerous==2.1.2
-    - jedi==0.18.2
+    - jedi==0.19.0
     - jinja2==3.1.2
     - jmespath==1.0.1
-    - joblib==1.3.1
-    - jsii==1.85.0
-    - jsonlines==3.1.0
+    - joblib==1.3.2
+    - jsii==1.88.0
+    - jsonlines==4.0.0
     - jsonschema==4.17.3
-    - jupyter-client==8.3.0
+    - jupyter-client==8.3.1
     - jupyter-core==5.3.1
     - jupyterlab-pygments==0.2.2
     - jupyterlab-widgets==3.0.8
     - kaggle==1.5.16
     - kaleido==0.2.1
     - keras-tuner==1.3.5
-    - kiwisolver==1.4.4
+    - kiwisolver==1.4.5
     - kt-legacy==1.0.5
     - lazy-loader==0.3
-    - line-profiler==4.0.3
+    - line-profiler==4.1.1
     - lxml==4.9.3
     - mako==1.2.4
     - markupsafe==2.1.3
     - matplotlib==3.7.2
     - matplotlib-inline==0.1.6
     - mistune==3.0.1
-    - mlflow==2.5.0
+    - mlflow==2.6.0
     - mongoengine==0.24.2
-    - motor==3.2.0
+    - motor==3.3.1
+    - msgpack==1.0.5
     - multidict==6.0.4
     - multiprocess==0.70.15
     - multivolumefile==0.2.3
-    - mypy==1.4.1
+    - mypy==1.5.1
     - mypy-extensions==1.0.0
     - nbclient==0.8.0
-    - nbconvert==7.7.3
-    - nbformat==5.9.1
-    - nest-asyncio==1.5.6
+    - nbconvert==7.8.0
+    - nbformat==5.9.2
+    - nest-asyncio==1.5.7
     - networkx==3.1
-    - numpy==1.25.1
+    - numexpr==2.8.5
+    - numpy==1.25.2
     - od==2.0.2
-    - opencv-python-headless==4.8.0.74
-    - pandas==2.0.3
+    - opencv-python-headless==4.8.0.76
+    - pandas==2.1.0
     - pandocfilters==1.5.0
     - parso==0.8.3
     - pathos==0.3.1
-    - pathspec==0.11.1
+    - pathspec==0.11.2
     - patsy==0.5.3
     - pexpect==4.8.0
     - pickleshare==0.7.5
     - pillow==10.0.0
-    - plotly==5.15.0
-    - pluggy==1.2.0
+    - plotly==5.16.1
+    - pluggy==1.3.0
     - pox==0.3.3
     - ppft==1.7.6.7
     - pprintpp==0.4.0
@@ -252,53 +255,55 @@ dependencies:
     - ptyprocess==0.7.0
     - publication==0.0.3
     - pure-eval==0.2.2
-    - py7zr==0.20.5
+    - py-cpuinfo==9.0.0
+    - py7zr==0.20.6
     - pyarrow==12.0.1
     - pybcj==1.0.1
     - pycryptodomex==3.18.0
-    - pygments==2.15.1
-    - pymongo==4.4.1
+    - pygments==2.16.1
+    - pymongo==4.5.0
     - pyparsing==3.0.9
     - pyppmd==1.0.0
     - pyrsistent==0.19.3
-    - pytest==7.4.0
+    - pytest==7.4.1
     - python-dotenv==1.0.0
     - python-slugify==8.0.1
     - pywavelets==1.4.1
     - pyyaml==6.0.1
-    - pyzmq==25.1.0
+    - pyzmq==25.1.1
     - pyzstd==0.15.9
     - querystring-parser==1.2.4
     - rarfile==4.0
-    - regex==2023.6.3
+    - regex==2023.8.8
     - retrying==1.3.4
     - rsa==4.7.2
     - s3fs==0.4.2
-    - s3transfer==0.6.1
-    - safetensors==0.3.1
+    - s3transfer==0.6.2
+    - safetensors==0.3.3
     - sagemaker==2.142.0
     - schema==0.7.5
     - scikit-image==0.21.0
     - scikit-learn==1.3.0
-    - scipy==1.11.1
+    - scipy==1.11.2
     - seaborn==0.12.2
     - sigtools==4.0.1
     - smdebug-rulesconfig==1.0.1
     - smmap==5.0.0
     - sniffio==1.3.0
     - sortedcontainers==2.4.0
-    - soupsieve==2.4.1
-    - sqlalchemy==2.0.19
+    - soupsieve==2.5
+    - sqlalchemy==2.0.20
     - sqlparse==0.4.4
     - sse-starlette==0.10.3
-    - sseclient-py==1.7.2
+    - sseclient-py==1.8.0
     - git+https://github.com/divamgupta/stable-diffusion-tensorflow.git@2873079b49eda63f41267c69b825e03cbcb2c308
     - stack-data==0.6.2
-    - starlette==0.26.1
+    - starlette==0.31.1
     - statsmodels==0.14.0
     - strawberry-graphql==0.138.1
+    - tables==3.8.0
     - tabulate==0.9.0
-    - tenacity==8.2.2
+    - tenacity==8.2.3
     - tensorboard-data-server==0.6.1
     - tensorflow==2.8.1
     - tensorflow-addons==0.21.0
@@ -307,21 +312,21 @@ dependencies:
     - text-unidecode==1.3
     - texttable==1.6.7
     - threadpoolctl==3.2.0
-    - tifffile==2023.7.18
+    - tifffile==2023.8.30
     - tinycss2==1.2.1
     - tokenizers==0.13.3
     - tomli==2.0.1
-    - tornado==6.3.2
-    - tqdm==4.65.0
+    - tornado==6.3.3
+    - tqdm==4.66.1
     - traitlets==5.9.0
-    - transformers==4.31.0
+    - transformers==4.32.1
     - typeguard==2.13.3
     - tzlocal==5.0.1
     - universal-analytics-python3==1.1.1
-    - voxel51-eta==0.10.0
+    - voxel51-eta==0.11.0
     - wcwidth==0.2.6
     - webencodings==0.5.1
-    - websocket-client==1.6.1
+    - websocket-client==1.6.2
     - widgetsnbextension==4.0.8
     - wrapt==1.15.0
     - wsproto==1.2.0

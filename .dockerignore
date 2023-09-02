@@ -5,4 +5,12 @@ instructor
 dev
 cdk/cdk.out
 **/__pycache__
-**/.mypy_cache
+**/.mypy_cachedream*
+**/pnp*
+**/weathernet_model
+**/datasets
+**/interclass*
+**/fakenet_dataset*
+**/fakenet_model
+**/carnet_dataset*
+**/carnet_model*

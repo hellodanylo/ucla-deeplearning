@@ -4,13 +4,12 @@ import random
 
 from doctrina.pipeline import execute_pipeline
 from doctrina.task import encode, get_task_workdir, execute
-from doctrina.util import send_slack
 from collegium.m01_dnn.assignment.jobs import train_autoencoder
 
 workspace = os.environ["APP_STORAGE_WORKSPACE"]
-experiment = "search_lr_03"
+experiment = "search_lr_01"
 total_jobs = 100
-concurrent_jobs = 1
+concurrent_jobs = 5
 
 execute(
     {
@@ -19,7 +18,7 @@ execute(
         "resume": get_task_workdir(
             workspace,
             execute_pipeline.__name__,
-            "20200906-222117_d1d6ccdc65e33085493262d3553282c0",
+            "20230902-103819_9e73e81f0b4e56f9a515fa0fd5561310",
         ),
         "parallel_processes": concurrent_jobs,
         "stages": {
@@ -27,8 +26,7 @@ execute(
                 {
                     "function": encode(train_autoencoder),
                     "training_mode": "reconstruction",
-                    # Inferred from initialization_seed_v4 search group
-                    "seed": 3488065078,
+                    "seed": 42,
                     "hyperparams": {
                         "encoder_nodes": [10],
                         "activation": "elu",
@@ -41,10 +39,8 @@ execute(
                     "experiment": experiment,
                     "workspace": workspace,
                 }
-                for i in range(total_jobs)
+                for _ in tqdm.range(total_jobs)
             ]
         },
     }
 )
-
-send_slack(f"Search Completed: {experiment} (n = {total_jobs})", [])

@@ -14,7 +14,7 @@ execute(
         "resume": get_task_workdir(
             workspace,
             execute_pipeline.__name__,
-            "20200906-222117_d1d6ccdc65e33085493262d3553282c0",
+            "20230902-103819_9e73e81f0b4e56f9a515fa0fd5561310",
         ),
         "parallel_processes": 1,
         "stages": {

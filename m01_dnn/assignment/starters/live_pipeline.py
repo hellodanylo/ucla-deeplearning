@@ -15,12 +15,20 @@ execute({
         transform_dataset={
             'workspace': 'mnist',
             'function' : encode(transform_split),
-            'seed'     : 42
+            'seed'     : 42,
+            'segments': {
+                'train': 0.8,
+                'validate': 0.1,
+                'test': 0.1,
+            }
         },
 
         train_autoencoder={
             'workspace'              : 'mnist',
             'function'               : encode(train_autoencoder),
+            'experiment': 'live_pipeline',
+            'training_mode': 'reconstruction',
+            'dataset_upstream_name': 'transform_dataset',
 
             # Inferred from initialization_seed_v10
             'seed'                   : 1664456243,

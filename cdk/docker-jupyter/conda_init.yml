@@ -44,6 +44,7 @@ dependencies:
     - scikit-learn
     - seaborn
     - statsmodels
+    - tables
     - tensorflow-hub
     - tensorflow_addons
     - tqdm

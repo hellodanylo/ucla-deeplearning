@@ -37,3 +37,22 @@ def build_denoising_dataset(workspace: str, split_seed: int, noise_seed: int):
             },
         )
     }
+
+
+def build_reconstruction_dataset(workspace: str, seed: int):
+    return {
+        'workspace': workspace,
+        'function': encode(execute_pipeline),
+        'stages': {
+            'transform_split': {
+                'workspace': workspace,
+                'function' : encode(transform_split),
+                'seed'     : seed,
+                'segments': {
+                    'train': 0.8,
+                    'validate': 0.1,
+                    'test': 0.1,
+                }
+            },
+        }
+    }

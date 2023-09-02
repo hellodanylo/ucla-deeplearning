@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+import functools
+import itertools
 import os
 import random
 
@@ -8,9 +10,14 @@ from doctrina.util import send_slack
 from collegium.m01_dnn.assignment.jobs import train_autoencoder
 
 workspace = os.environ["APP_STORAGE_WORKSPACE"]
-experiment = "search_ew_06"
+experiment = "search_ew_01"
 total_jobs = 100
-concurrent_jobs = 1
+concurrent_jobs = 5
+
+encoder_widths = [
+    random.randint(4, 256)
+    for _ in range(total_jobs)
+]
 
 execute(
     {
@@ -19,32 +26,31 @@ execute(
         "resume": get_task_workdir(
             workspace,
             execute_pipeline.__name__,
-            "20200906-222117_d1d6ccdc65e33085493262d3553282c0",
+            "20230902-103819_9e73e81f0b4e56f9a515fa0fd5561310",
         ),
         "parallel_processes": concurrent_jobs,
         "stages": {
             "train_autoencoders": [
                 {
                     "function": encode(train_autoencoder),
-                    "training_mode": "denoising",
-                    # Inferred from initialization_seed_v4 search group
-                    "seed": 3488065078,
+                    "training_mode": "reconstruction",
+                    "seed": 42,
                     "hyperparams": {
-                        "encoder_nodes": [random.randint(4, 256)],
+                        "encoder_width": encoder_width,
+                        "encoder_nodes": [encoder_width],
                         "activation": "elu",
                         "batch_size": 128,
+                        # inferred from search_lr_01
                         "learning_rate_exponent": -2.5,
                         'loss_function': 'mean_squared_error'
                     },
                     "epochs": 20,
-                    "dataset_upstream_name": "transform_repack",
+                    "dataset_upstream_name": "transform_split",
                     "experiment": experiment,
                     "workspace": workspace,
                 }
-                for i in range(total_jobs)
+                for _, encoder_width in zip(range(total_jobs), encoder_widths)
             ]
         },
     }
 )
-
-send_slack(f"Search Completed: {experiment} (n = {total_jobs})", [])

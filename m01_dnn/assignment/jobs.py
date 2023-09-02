@@ -1,16 +1,18 @@
 import os
 import shutil
+from typing import Dict, TypedDict
 
 import numpy as np
 import pandas as pd
 import tensorflow as tf
 from sklearn.model_selection import train_test_split
-from tensorflow.keras.callbacks import EarlyStopping
+from tensorflow.keras.callbacks import EarlyStopping, Callback
 from tensorflow.keras.datasets import mnist
 from tensorflow.keras.layers import Dense
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.initializers import GlorotUniform
+import mlflow
 
 from doctrina.dataset import (
     Dataset,
@@ -24,7 +26,13 @@ from doctrina.task import mlflow_run, encode
 from collegium.m01_dnn.assignment.report import plot_image_examples
 
 
-def transform_split(task: dict):
+class TransformSplit(TypedDict):
+    workdir: str
+    segments: Dict[str, float]
+    seed: int
+
+
+def transform_split(task: TransformSplit):
     workdir = task["workdir"]
 
     (train_X, train_y), (test_X, test_y) = mnist.load_data()
@@ -189,7 +197,7 @@ def train_autoencoder(task: dict):
 
     autoencoder = Sequential(layers)
     autoencoder.compile(
-        optimizer=Adam(lr=learning_rate),
+        optimizer=Adam(learning_rate=learning_rate),
         loss=hyperparams["loss_function"]
     )
 
@@ -205,6 +213,8 @@ def train_autoencoder(task: dict):
             )
         )
 
+    callbacks.append(MlflowCallback())
+
     history = autoencoder.fit(
         x=dataset["train"]['x'].values,
         y=dataset["train"]['y'].values,
@@ -215,6 +225,7 @@ def train_autoencoder(task: dict):
             dataset["validate"]['y'].values,
         ],
         callbacks=callbacks,
+        verbose=task.get("verbose", "auto"),
     )
 
     dataset['train']['y_hat'] = pd.DataFrame(autoencoder.predict(dataset["train"]["x"]))
@@ -244,6 +255,11 @@ def train_autoencoder(task: dict):
     save_keras_model(workdir, autoencoder)
 
 
+class MlflowCallback(Callback):
+    def on_epoch_end(self, epoch: int, logs: Dict[str, float]):
+        mlflow.log_metrics(metrics=logs, step=epoch)
+
+
 def tf_gpu_init():
     gpus = tf.config.experimental.list_physical_devices("GPU")
     if gpus:
@@ -263,8 +279,8 @@ def build_autoencoder_task(is_test: bool, training_mode: str):
         "function": encode(train_autoencoder),
         "experiment": experiment,
         "training_mode": training_mode,
-        # Inferred from search_is_03
-        "seed": 2366951942,
+        # Inferred from search_is_01
+        "seed": 908616996,
         "hyperparams": {
             "encoder_nodes": [200, 100] if not is_test else [10],
             "activation": "elu",

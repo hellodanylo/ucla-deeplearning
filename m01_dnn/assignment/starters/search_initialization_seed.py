@@ -8,9 +8,9 @@ from doctrina.util import send_slack
 from collegium.m01_dnn.assignment.jobs import train_autoencoder
 
 workspace = os.environ["APP_STORAGE_WORKSPACE"]
-experiment = "search_is_03"
+experiment = "search_is_01"
 total_jobs = 100
-concurrent_jobs = 1
+concurrent_jobs = 8
 
 execute(
     {
@@ -19,7 +19,7 @@ execute(
         "resume": get_task_workdir(
             workspace,
             execute_pipeline.__name__,
-            "20200906-222117_d1d6ccdc65e33085493262d3553282c0",
+            "20230902-103819_9e73e81f0b4e56f9a515fa0fd5561310",
         ),
         "parallel_processes": concurrent_jobs,
         "stages": {
@@ -37,15 +37,14 @@ execute(
                         "learning_rate_exponent": -2.5,
                         'loss_function': 'mean_squared_error'
                     },
+                    "verbose": 0,
                     "epochs": 20,
                     "dataset_upstream_name": "transform_split",
                     "experiment": experiment,
                     "workspace": workspace,
                 }
-                for i in range(total_jobs)
+                for _ in range(total_jobs)
             ]
         },
     }
 )
-
-send_slack(f"Search Completed: {experiment} (n = {total_jobs})", [])
