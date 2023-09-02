@@ -10,6 +10,7 @@ import aws_cdk.aws_events_targets as et
 import aws_cdk.aws_ssm as ssm
 import aws_cdk.aws_codestarnotifications as csn
 import aws_cdk.aws_sns as sns
+import aws_cdk.aws_sns_subscriptions as sns_subs
 from aws_cdk import Stack, Duration
 from constructs import Construct
 
@@ -108,9 +109,8 @@ class BuildStack(Stack):
                 ]),
             ]
         )
-        # pipeline.notify_on_execution_state_change('ExecutionChange', csn.INotificationRuleTarget)
-        # topic: sns.Topic = sns.Topic(self, 'Topic', display_name='collegium-build', topic_name='collegium-build')
-        # topic.add_subscription(sns.Subscription(self, ''))
+        topic: sns.Topic = sns.Topic(self, 'Topic', display_name='collegium-build', topic_name='collegium-build')
+        pipeline.notify_on_execution_state_change('ExecutionChange', topic)
 
         event_role = iam.Role(
             self, "RoleEvent", 

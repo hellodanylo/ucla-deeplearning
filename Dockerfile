@@ -23,7 +23,7 @@ COPY cdk/docker-jupyter/$CONDA_ENV ./conda_collegium.yml
 ENV CONDA_OVERRIDE_CUDA="11.2"
 RUN conda env create -n collegium -f ./conda_collegium.yml
 RUN /app/miniconda/envs/collegium/bin/ipython kernel install --user --name=collegium
-RUN conda run -n collegium npm -g install aws-cdk@2.86.0
+RUN conda run -n collegium npm -g install aws-cdk@2.94.0
 RUN echo '/app' >/app/miniconda/envs/collegium/lib/python3.10/site-packages/app.pth
 ENV PATH="/app/miniconda/envs/collegium/bin:$PATH"
 
