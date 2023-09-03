@@ -127,7 +127,8 @@ class BuildStack(Stack):
                 detail={
                     "action-type": ["PUSH"],
                     "result": ["SUCCESS"],
-                    "repository-name": [ecr_doctrina.repository_name]
+                    "repository-name": [ecr_doctrina.repository_name],
+                    "image-tag": ["base-latest"],
                 }
             ),
             targets=[et.CodePipeline(
