@@ -19,11 +19,6 @@ class SSMParameter(Enum):
     # Created by the admin.
     TEAM_CONFIG = "/collegium/team-config"
 
-    # Environment variables that are created outside of this packge
-    # and need to be passed to the collegium image for execution.
-    # Created by the admin.
-    IMAGE_ENVIRONMENT = "/collegium/image-environment"
-
     # Created by the SageMaker stack.
     SAGEMAKER_RESOURCES = '/collegium/sagemaker-resources'
 

@@ -3,7 +3,10 @@
 2. deploy `CollegiumBuild` via local repo
 3. push `collegium` to CodeCommit
 4. wait for CodePipeline to finish: image build, test, cdk deploy
+5. attach lifecycle policy to the SageMaker domain
 
+# Maintenance Steps
+If the Studio lifecycle script has changed, it must be recreated by changing the CDK resource name.
 
 # Cleanup Steps
 1. delete all SageMaker apps

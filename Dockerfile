@@ -27,6 +27,10 @@ RUN conda run -n collegium npm -g install aws-cdk@2.94.0
 RUN echo '/app' >/app/miniconda/envs/collegium/lib/python3.10/site-packages/app.pth
 ENV PATH="/app/miniconda/envs/collegium/bin:$PATH"
 
+# Jupyter Server Proxy for MLFlow
+RUN conda run -n jupyter pip install jupyter-server-proxy==4.0.0
+COPY cdk/docker-jupyter/jupyter_server_config.py /app/miniconda/envs/jupyter/etc/jupyter/
+
 USER user:user
 COPY --chown=user:user . /app/collegium
 WORKDIR /app/collegium

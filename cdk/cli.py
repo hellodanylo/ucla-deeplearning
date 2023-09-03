@@ -19,8 +19,6 @@ def sagemaker_train(*cmd, gpu: bool = False, job_prefix: str = 'collegium', imag
     sm = boto3.client('sagemaker', region_name='us-west-2')
     ssm = boto3.client('ssm', region_name='us-west-2')
 
-    environment = json.loads(ssm.get_parameter(Name=SSMParameter.IMAGE_ENVIRONMENT.value)['Parameter']['Value'])
-
     sagemaker_resources = SageMakerResources.from_json(ssm.get_parameter(Name=SSMParameter.SAGEMAKER_RESOURCES.value)['Parameter']['Value'])
     build_resources = BuildResources.from_json(ssm.get_parameter(Name=SSMParameter.BUILD_RESOURCES.value)['Parameter']['Value'])
     assert isinstance(sagemaker_resources, SageMakerResources)

@@ -68,8 +68,10 @@ class SageMakerStack(Stack):
             subnet_configuration=[ec2.SubnetConfiguration(name='Private', subnet_type=ec2.SubnetType.PRIVATE_ISOLATED, cidr_mask=25)],
         )
     
-        script = base64.standard_b64encode((Path(__file__).parent / 'studio_lifecycle.sh').read_bytes()).decode()
-        lifecycle = StudioLifeCycleConstruct(self, 'StudioLifecycle', script, 'JupyterServer', 'collegium-jupyter')
+        revision = '8'
+        script_text = (Path(__file__).parent / 'studio_lifecycle.sh').read_text().replace('{revision}', revision)
+        script = base64.standard_b64encode(script_text.encode()).decode()
+        lifecycle = StudioLifeCycleConstruct(self, 'StudioLifecycle', script, 'JupyterServer', f'collegium-jupyter-r{revision}')
 
         self.domain: sm.CfnDomain = sm.CfnDomain(
             self, 'Domain', 

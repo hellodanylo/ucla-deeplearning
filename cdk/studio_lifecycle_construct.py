@@ -41,11 +41,6 @@ class StudioLifeCycleConstruct(Construct):
             code=l.Code.from_inline((Path(__file__).parent / 'studio_lifecycle_lambda.py').read_text()),
             handler="index.handler",
             role=lifecycle_config_role,
-            environment={
-                "studio_lifecycle_config_content": self.studio_lifecycle_config_content,
-                "studio_lifecycle_config_name": self.studio_lifecycle_config_name,
-                "studio_lifecycle_config_app_type": self.studio_lifecycle_config_app_type,
-            },
         )
 
         config_custom_resource_provider = custom_resources.Provider(
@@ -56,8 +51,13 @@ class StudioLifeCycleConstruct(Construct):
 
         studio_lifecycle_config_custom_resource: CustomResource = CustomResource(
             self,
-            "LifeCycleCustomResource",
+            id=studio_lifecycle_config_name,
             service_token=config_custom_resource_provider.service_token,
+            properties={
+                "studio_lifecycle_config_content": self.studio_lifecycle_config_content,
+                "studio_lifecycle_config_name": self.studio_lifecycle_config_name,
+                "studio_lifecycle_config_app_type": self.studio_lifecycle_config_app_type,
+            },
         )
         self.studio_lifecycle_config_arn = (
             studio_lifecycle_config_custom_resource.get_att_string("StudioLifecycleConfigArn")
