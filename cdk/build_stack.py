@@ -11,7 +11,7 @@ import aws_cdk.aws_ssm as ssm
 import aws_cdk.aws_codestarnotifications as csn
 import aws_cdk.aws_sns as sns
 import aws_cdk.aws_sns_subscriptions as sns_subs
-from aws_cdk import Stack, Duration
+from aws_cdk import Stack, Duration, RemovalPolicy
 from constructs import Construct
 
 from collegium.cdk.environment import BuildResources, SSMParameter
@@ -41,7 +41,8 @@ class BuildStack(Stack):
                     max_image_count=5,
                     description="keep last 5 images"
                 ),
-            ]
+            ],
+            removal_policy=RemovalPolicy.DESTROY,
         )
 
         ecr_doctrina = ecr.Repository.from_repository_name(self, "ECRRepositoryDoctrina", repository_name="doctrina")
@@ -52,7 +53,7 @@ class BuildStack(Stack):
             assumed_by=iam.CompositePrincipal(
                 iam.ServicePrincipal(service="codepipeline.amazonaws.com"),
                 iam.ServicePrincipal(service="codebuild.amazonaws.com"),
-                iam.ArnPrincipal(f"arn:aws:iam::{self.account}:role/{package_name}-codebuild"),
+                # iam.ArnPrincipal(f"arn:aws:iam::{self.account}:role/{package_name}-codebuild"),
                 iam.AccountPrincipal(self.account),
             ),
             managed_policies=[
@@ -110,7 +111,11 @@ class BuildStack(Stack):
             ]
         )
         topic: sns.Topic = sns.Topic(self, 'Topic', display_name='collegium-build', topic_name='collegium-build')
-        pipeline.notify_on_execution_state_change('ExecutionChange', topic)
+        pipeline.notify_on(
+            id="notify_success_or_failure",
+            target=topic, 
+            events=[cp.PipelineNotificationEvents.PIPELINE_EXECUTION_FAILED, cp.PipelineNotificationEvents.PIPELINE_EXECUTION_SUCCEEDED]
+        )
 
         event_role = iam.Role(
             self, "RoleEvent", 

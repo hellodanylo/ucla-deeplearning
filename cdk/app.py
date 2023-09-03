@@ -20,17 +20,17 @@ def get_current_version():
 
 def main():
     app = App()
-    build = BuildStack(app, 'Build')
+    build = BuildStack(app, 'CollegiumBuild')
     version = get_current_version()
 
-    sagemaker: SageMakerStack = SageMakerStack(app, 'SageMaker', image_version=version)
+    sagemaker: SageMakerStack = SageMakerStack(app, 'CollegiumSageMaker', image_version=version)
 
     ssm = boto3.client('ssm', region_name='us-west-2')
     config_json = ssm.get_parameter(Name=SSMParameter.TEAM_CONFIG.value)['Parameter']['Value']
     team_config = TeamConfig.from_json(config_json)
     assert isinstance(team_config, TeamConfig)
 
-    iam_team = TeamStack(app, 'Team', sagemaker.domain.attr_domain_id, team_config)
+    iam_team = TeamStack(app, 'CollegiumTeam', sagemaker.domain.attr_domain_id, team_config)
 
     app.synth()
 
