@@ -1,7 +1,10 @@
 #!/usr/bin/env zsh
+set -eux
+
+conda_path=${0:a:h}
 
 export CONDA_OVERRIDE_CUDA="11.2"
-conda env create -n collegium -f ./conda_collegium.yml
+conda env create -n collegium -f $conda_path/conda_collegium.yml
 /app/miniconda/envs/collegium/bin/ipython kernel install --user --name=collegium
 conda run -n collegium npm -g install aws-cdk@2.94.0
 

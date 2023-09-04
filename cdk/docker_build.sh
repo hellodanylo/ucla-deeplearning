@@ -15,4 +15,5 @@ docker buildx build \
     --build-arg "BASE_IMAGE=${DOCTRINA_ECR}:base-latest" \
     --build-arg "CONDA_ENV=${conda_env}" \
     --tag "$versioned_uri" \
+    -f cdk/docker-jupyter/Dockerfile \
     "$project_path"

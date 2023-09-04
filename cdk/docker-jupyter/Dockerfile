@@ -19,14 +19,16 @@ RUN sudo apt-get update -q && \
 RUN conda info
 
 ARG CONDA_ENV=conda_lock.yml
-COPY cdk/docker-jupyter/$CONDA_ENV ./conda_collegium.yml
-COPY cdk/docker-jupyter/conda_env_setup.sh ./conda_env_setup.sh
-RUN ./conda_env_setup.sh
+COPY cdk/docker-jupyter/$CONDA_ENV ./miniconda/conda_collegium.yml
+COPY cdk/docker-jupyter/conda_collegium_setup.sh ./miniconda/conda_collegium_setup.sh
+RUN ./miniconda/conda_collegium_setup.sh
 ENV PATH="/app/miniconda/envs/collegium/bin:$PATH"
 
 # Jupyter Server Proxy for MLFlow
 RUN conda run -n jupyter pip install jupyter-server-proxy==4.0.0
 COPY cdk/docker-jupyter/jupyter_server_config.py /app/miniconda/envs/jupyter/etc/jupyter/
+COPY cdk/docker-jupyter/mlflow.svg /app/miniconda/envs/jupyter/mlflow.svg
+ENV MLFLOW_TRACKING_URI=file:///app/mlflow
 
 USER user:user
 COPY --chown=user:user . /app/collegium

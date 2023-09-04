@@ -10,7 +10,7 @@ from aws_cdk import aws_ssm as ssm
 from aws_cdk import aws_s3 as s3
 from constructs import Construct
 from collegium.cdk.environment import SSMParameter, SageMakerResources
-from collegium.cdk.studio_lifecycle_construct import StudioLifeCycleConstruct
+from collegium.cdk.studio_lifecycle_construct import StudioLifeCycleConstruct, StudioLifeCycleProvider
 
 
 class ImageConstruct(Construct):
@@ -58,20 +58,35 @@ class SageMakerStack(Stack):
             ]
         )
 
-        images = []
         ecr_collegium = ecr.Repository.from_repository_name(self, 'CollegiumRepo', 'collegium')
-        images.append(ImageConstruct(self, 'ImageCollegium', 'collegium', ecr_collegium.repository_uri_for_tag(image_version), role, "collegium"))
+        collegium_image = ImageConstruct(self, 'ImageCollegium', 'collegium', ecr_collegium.repository_uri_for_tag(image_version), role, "collegium")
+        images = [collegium_image]
 
         vpc = ec2.Vpc(
             self, 'Collegium', 
             ip_addresses=ec2.IpAddresses.cidr('10.42.5.0/24'), max_azs=1,
             subnet_configuration=[ec2.SubnetConfiguration(name='Private', subnet_type=ec2.SubnetType.PRIVATE_ISOLATED, cidr_mask=25)],
         )
+
+        lifecycle_provider = StudioLifeCycleProvider(self, "StudioLifecycleProvider")
     
-        revision = '8'
-        script_text = (Path(__file__).parent / 'studio_lifecycle.sh').read_text().replace('{revision}', revision)
-        script = base64.standard_b64encode(script_text.encode()).decode()
-        lifecycle = StudioLifeCycleConstruct(self, 'StudioLifecycle', script, 'JupyterServer', f'collegium-jupyter-r{revision}')
+        revision = '9'
+        studio_jupyter_lifecycle = (Path(__file__).parent / 'studio_jupyter_lifecycle.sh').read_text().replace('{revision}', revision)
+        studio_jupyter_lifecycle = base64.standard_b64encode(studio_jupyter_lifecycle.encode()).decode()
+        jupyter_lifecycle = StudioLifeCycleConstruct(
+            self, 'StudioJupyterLifecycle', 
+            lifecycle_provider, 
+            studio_jupyter_lifecycle, 'JupyterServer', f'collegium-jupyter-r{revision}'
+        )
+
+        revision = '1'
+        studio_kernel_lifecycle = (Path(__file__).parent / 'studio_kernel_lifecycle.sh').read_text().replace('{revision}', revision)
+        studio_kernel_lifecycle = base64.standard_b64encode(studio_kernel_lifecycle.encode()).decode()
+        kernel_lifecycle = StudioLifeCycleConstruct(
+            self, 'StudioKernelLifecycle', 
+            lifecycle_provider, 
+            studio_kernel_lifecycle, 'KernelGateway', f'collegium-kernel-r{revision}'
+        )
 
         self.domain: sm.CfnDomain = sm.CfnDomain(
             self, 'Domain', 
@@ -80,9 +95,15 @@ class SageMakerStack(Stack):
             default_user_settings=sm.CfnDomain.UserSettingsProperty(
                 execution_role=role.role_arn,
                 jupyter_server_app_settings=sm.CfnDomain.JupyterServerAppSettingsProperty(default_resource_spec=sm.CfnDomain.ResourceSpecProperty(
-                    lifecycle_config_arn=lifecycle.studio_lifecycle_config_arn,
+                    lifecycle_config_arn=jupyter_lifecycle.studio_lifecycle_config_arn,
                 )),
                 kernel_gateway_app_settings=sm.CfnDomain.KernelGatewayAppSettingsProperty(
+                    default_resource_spec=sm.CfnDomain.ResourceSpecProperty(
+                        instance_type="ml.t3.xlarge",
+                        lifecycle_config_arn=kernel_lifecycle.studio_lifecycle_config_arn,
+                        sage_maker_image_arn=collegium_image.image.attr_image_arn,
+                        sage_maker_image_version_arn=collegium_image.image_version.attr_image_version_arn,
+                    ),
                     custom_images=[
                         sm.CfnDomain.CustomImageProperty(
                             app_image_config_name=image.app_image.app_image_config_name,
@@ -91,7 +112,7 @@ class SageMakerStack(Stack):
                         )
                         for image in images
                     ]
-                )
+                ),
             ),
             subnet_ids=vpc.select_subnets().subnet_ids,
             vpc_id=vpc.vpc_id,

@@ -26,11 +26,11 @@ mkdir -p $HOME/.jupyter
 cat - >$HOME/.jupyter/jupyter_notebook_config.py <<EOF
 c.ServerProxy.servers = {
         "mlflow": {
-            "command": ["/opt/conda/envs/mlflow/bin/python", "-m", "mlflow", "server", "--port", "{port}", "--backend-store-uri", "file:///home/sagemaker-user/mlflow"],
+            "command": ["/opt/conda/envs/mlflow/bin/python", "-m", "mlflow", "server", "--port", "{port}", "--backend-store-uri", "file:///app/mlflow"],
             'launcher_entry': {
                 'enabled': True,
                 'title': 'mlflow',
-                'icon_path': '/opt/conda/envs/mlflow/icon.svg'
+                'icon_path': '/app/miniconda/envs/jupyter/mlflow.svg'
             },
             'environment': {
                 "PATH": '/opt/conda/envs/mlflow/bin',
