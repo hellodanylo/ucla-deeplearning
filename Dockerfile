@@ -20,11 +20,8 @@ RUN conda info
 
 ARG CONDA_ENV=conda_lock.yml
 COPY cdk/docker-jupyter/$CONDA_ENV ./conda_collegium.yml
-ENV CONDA_OVERRIDE_CUDA="11.2"
-RUN conda env create -n collegium -f ./conda_collegium.yml
-RUN /app/miniconda/envs/collegium/bin/ipython kernel install --user --name=collegium
-RUN conda run -n collegium npm -g install aws-cdk@2.94.0
-RUN echo '/app' >/app/miniconda/envs/collegium/lib/python3.10/site-packages/app.pth
+COPY cdk/docker-jupyter/conda_env_setup.sh ./conda_env_setup.sh
+RUN ./conda_env_setup.sh
 ENV PATH="/app/miniconda/envs/collegium/bin:$PATH"
 
 # Jupyter Server Proxy for MLFlow
@@ -44,7 +41,7 @@ ENV TF_CPP_MIN_LOG_LEVEL=3
 
 CMD /app/miniconda/envs/jupyter/bin/jupyter \
     lab \
-    --notebook-dir=/app/collegium \
+    --notebook-dir=/app \
     --ip=0.0.0.0 \
     --port=80 \
     --no-browser \
