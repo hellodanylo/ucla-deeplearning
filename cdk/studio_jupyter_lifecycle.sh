@@ -22,15 +22,17 @@ conda run -n mlflow pip install mlflow==2.6.0
 # Logo for the launch icon is required and must be SVG
 wget -O /opt/conda/envs/mlflow/icon.svg https://raw.githubusercontent.com/mlflow/mlflow/master/assets/icon.svg
 
+# This Jupyter proxy and MLFlow will run on the JupyterServer instance,
+# where the Collegium image is not used. So the path to EFS is via /home/sagemaker-user.
 mkdir -p $HOME/.jupyter
 cat - >$HOME/.jupyter/jupyter_notebook_config.py <<EOF
 c.ServerProxy.servers = {
         "mlflow": {
-            "command": ["/opt/conda/envs/mlflow/bin/python", "-m", "mlflow", "server", "--port", "{port}", "--backend-store-uri", "file:///app/mlflow"],
+            "command": ["/opt/conda/envs/mlflow/bin/python", "-m", "mlflow", "server", "--port", "{port}", "--backend-store-uri", "file:///home/sagemaker-user/mlflow"],
             'launcher_entry': {
                 'enabled': True,
                 'title': 'mlflow',
-                'icon_path': '/app/miniconda/envs/jupyter/mlflow.svg'
+                'icon_path': '/opt/conda/envs/mlflow/icon.svg'
             },
             'environment': {
                 "PATH": '/opt/conda/envs/mlflow/bin',
@@ -42,4 +44,4 @@ EOF
 
 restart-jupyter-server
 
-echo "Revision {revision}" >version
+echo "Revision {revision}" >~/.jupyter/studio_jupyter_revision

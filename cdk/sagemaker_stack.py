@@ -1,7 +1,7 @@
 import base64
 import json
 from pathlib import Path
-from aws_cdk import Stack
+from aws_cdk import RemovalPolicy, Stack
 from aws_cdk import aws_sagemaker as sm
 from aws_cdk import aws_ecr as ecr
 from aws_cdk import aws_iam as iam
@@ -29,6 +29,7 @@ class ImageConstruct(Construct):
             base_image=image_uri,
             image_name=image_name
         )
+        self.image_version.apply_removal_policy(RemovalPolicy.RETAIN)
 
         self.image_version.add_dependency(self.image)
 
@@ -70,7 +71,7 @@ class SageMakerStack(Stack):
 
         lifecycle_provider = StudioLifeCycleProvider(self, "StudioLifecycleProvider")
     
-        revision = '9'
+        revision = '11'
         studio_jupyter_lifecycle = (Path(__file__).parent / 'studio_jupyter_lifecycle.sh').read_text().replace('{revision}', revision)
         studio_jupyter_lifecycle = base64.standard_b64encode(studio_jupyter_lifecycle.encode()).decode()
         jupyter_lifecycle = StudioLifeCycleConstruct(
@@ -79,7 +80,7 @@ class SageMakerStack(Stack):
             studio_jupyter_lifecycle, 'JupyterServer', f'collegium-jupyter-r{revision}'
         )
 
-        revision = '1'
+        revision = '3'
         studio_kernel_lifecycle = (Path(__file__).parent / 'studio_kernel_lifecycle.sh').read_text().replace('{revision}', revision)
         studio_kernel_lifecycle = base64.standard_b64encode(studio_kernel_lifecycle.encode()).decode()
         kernel_lifecycle = StudioLifeCycleConstruct(
@@ -104,14 +105,16 @@ class SageMakerStack(Stack):
                         sage_maker_image_arn=collegium_image.image.attr_image_arn,
                         sage_maker_image_version_arn=collegium_image.image_version.attr_image_version_arn,
                     ),
-                    custom_images=[
-                        sm.CfnDomain.CustomImageProperty(
-                            app_image_config_name=image.app_image.app_image_config_name,
-                            image_name=image.image.image_name,
-                            image_version_number=image.image_version.attr_version,
-                        )
-                        for image in images
-                    ]
+                    # Disabled, because it detaches previous versions of images,
+                    # that might still be in use by active profiles.
+                    # custom_images=[
+                    #     sm.CfnDomain.CustomImageProperty(
+                    #         app_image_config_name=image.app_image.app_image_config_name,
+                    #         image_name=image.image.image_name,
+                    #         image_version_number=image.image_version.attr_version,
+                    #     )
+                    #     for image in images
+                    # ]
                 ),
             ),
             subnet_ids=vpc.select_subnets().subnet_ids,

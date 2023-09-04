@@ -17,3 +17,5 @@ docker buildx build \
     --tag "$versioned_uri" \
     -f cdk/docker-jupyter/Dockerfile \
     "$project_path"
+
+docker tag "$versioned_uri" "$latest_uri"
