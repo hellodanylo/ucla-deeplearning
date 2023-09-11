@@ -8,6 +8,7 @@ from doctrina.pipeline import execute_pipeline
 from doctrina.task import encode, get_task_workdir, execute
 from doctrina.util import send_slack
 from collegium.m01_dnn.assignment.jobs import train_autoencoder
+import mlflow
 
 workspace = os.environ["APP_STORAGE_WORKSPACE"]
 experiment = "search_ew_01"
@@ -19,6 +20,10 @@ encoder_widths = [
     for _ in range(total_jobs)
 ]
 
+# To prevent a race condition among the parallel stages
+if mlflow.get_experiment_by_name(experiment) is None:
+    mlflow.create_experiment(experiment)
+
 execute(
     {
         "workspace": workspace,
@@ -26,7 +31,7 @@ execute(
         "resume": get_task_workdir(
             workspace,
             execute_pipeline.__name__,
-            "20230902-103819_9e73e81f0b4e56f9a515fa0fd5561310",
+            "20230903-212050_8430596ef0a8d9c71e7338368691cfa9",
         ),
         "parallel_processes": concurrent_jobs,
         "stages": {
