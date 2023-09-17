@@ -19,3 +19,14 @@ local
 .empty
 **/mlruns
 **/assignment_submission
+**/denoiser_model
+**/denoiser_hyperop
+**/dream*
+**/pnp*
+**/weathernet_model
+**/datasets
+**/interclass*
+**/fakenet_dataset*
+**/fakenet_model
+**/carnet_dataset*
+**/carnet_model*
