@@ -4,7 +4,7 @@ dependencies:
   - pandas
   - pip
   - python
-  - tensorflow=2.11.1=cuda*
+  - tensorflow=2.8.1=cuda*
   - pip:
     - aws-cdk-lib
     - awscli
@@ -23,6 +23,7 @@ dependencies:
     - ipython
     - ipywidgets
     - kaggle
+    - keras-tuner
     - line_profiler
     - lxml
     - matplotlib
