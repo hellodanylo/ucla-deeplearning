@@ -76,7 +76,7 @@ class MemberConstruct(Construct):
             budget=b.CfnBudget.BudgetDataProperty(
                 budget_type='COST',
                 time_unit='ANNUALLY',
-                budget_limit=b.CfnBudget.SpendProperty(amount=70, unit='USD'),
+                budget_limit=b.CfnBudget.SpendProperty(amount=80, unit='USD'),
                 budget_name=f"{member.name}-full",
                 cost_filters={
                     "TagKeyValue": [
@@ -95,7 +95,7 @@ class MemberConstruct(Construct):
             budget=b.CfnBudget.BudgetDataProperty(
                 budget_type='COST',
                 time_unit='DAILY',
-                budget_limit=b.CfnBudget.SpendProperty(amount=10, unit='USD'),
+                budget_limit=b.CfnBudget.SpendProperty(amount=20, unit='USD'),
                 budget_name=f"{member.name}-daily",
                 cost_filters={
                     "TagKeyValue": [
@@ -151,7 +151,7 @@ class TeamStack(Stack):
             budget=b.CfnBudget.BudgetDataProperty(
                 budget_type='COST',
                 time_unit='ANNUALLY',
-                budget_limit=b.CfnBudget.SpendProperty(amount=70*len(self.team_config.users), unit='USD'),
+                budget_limit=b.CfnBudget.SpendProperty(amount=80*len(self.team_config.users), unit='USD'),
                 budget_name=f"team-full",
             ),
             notifications_with_subscribers=[
