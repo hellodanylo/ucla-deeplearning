@@ -2,7 +2,7 @@
 import os
 
 from doctrina.task import execute
-from collegium.m01_dnn.assignment.pipelines import build_reconstruction_dataset
+from collegium.m01_dnn.mnist.pipelines import build_reconstruction_dataset
 
 execute(
     build_reconstruction_dataset(

@@ -3,7 +3,7 @@ import os
 
 from doctrina.pipeline import execute_pipeline
 from doctrina.task import execute, encode, get_task_workdir
-from collegium.m01_dnn.assignment.jobs import build_autoencoder_task
+from collegium.m01_dnn.mnist.jobs import build_autoencoder_task
 
 workspace = os.environ['APP_STORAGE_WORKSPACE']
 

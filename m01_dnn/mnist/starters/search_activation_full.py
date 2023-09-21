@@ -5,7 +5,7 @@ from joblib import Parallel, delayed
 
 from doctrina.task import get_last_workdir, execute
 from doctrina.util import send_slack
-from collegium.m01_dnn.assignment.jobs import transform_split, train_autoencoder
+from collegium.m01_dnn.mnist.jobs import transform_split, train_autoencoder
 
 search_group = 'activation_v1'
 total_jobs = 16

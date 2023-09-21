@@ -23,7 +23,7 @@ from doctrina.dataset import (
 from doctrina.keras import save_keras_model
 from doctrina.learning_curve import LearningCurve
 from doctrina.task import mlflow_run, encode
-from collegium.m01_dnn.assignment.report import plot_image_examples
+from collegium.m01_dnn.mnist.report import plot_image_examples
 
 
 class TransformSplit(TypedDict):
