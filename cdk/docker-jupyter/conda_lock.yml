@@ -332,4 +332,4 @@ dependencies:
     - wsproto==1.2.0
     - xmltodict==0.13.0
     - yarl==1.9.2
-prefix: /app/miniconda/envs/collegium
+prefix: /app/conda/envs/collegium

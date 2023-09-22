@@ -19,15 +19,15 @@ RUN sudo apt-get update -q && \
 RUN conda info
 
 ARG CONDA_ENV=conda_lock.yml
-COPY cdk/docker-jupyter/$CONDA_ENV ./miniconda/conda_collegium.yml
-COPY cdk/docker-jupyter/conda_collegium_setup.sh ./miniconda/conda_collegium_setup.sh
-RUN ./miniconda/conda_collegium_setup.sh
-ENV PATH="/app/miniconda/envs/collegium/bin:$PATH"
+COPY cdk/docker-jupyter/$CONDA_ENV ./conda/conda_collegium.yml
+COPY cdk/docker-jupyter/conda_collegium_setup.sh ./conda/conda_collegium_setup.sh
+RUN ./conda/conda_collegium_setup.sh
+ENV PATH="/app/conda/envs/collegium/bin:$PATH"
 
 # Jupyter Server Proxy for MLFlow
 RUN conda run -n jupyter pip install jupyter-server-proxy==4.0.0
-COPY cdk/docker-jupyter/jupyter_server_config.py /app/miniconda/envs/jupyter/etc/jupyter/
-COPY cdk/docker-jupyter/mlflow.svg /app/miniconda/envs/jupyter/mlflow.svg
+COPY cdk/docker-jupyter/jupyter_server_config.py /app/conda/envs/jupyter/etc/jupyter/
+COPY cdk/docker-jupyter/mlflow.svg /app/conda/envs/jupyter/mlflow.svg
 ENV MLFLOW_TRACKING_URI=file:///app/mlflow
 
 USER user:user
@@ -41,7 +41,7 @@ ENV NVIDIA_REQUIRE_CUDA="cuda>=10.0 brand=tesla,driver>=384,driver<385 brand=tes
 ENV PYTHONUNBUFFERED=1
 ENV TF_CPP_MIN_LOG_LEVEL=3
 
-CMD /app/miniconda/envs/jupyter/bin/jupyter \
+CMD /app/conda/envs/jupyter/bin/jupyter \
     lab \
     --notebook-dir=/app \
     --ip=0.0.0.0 \
