@@ -30,7 +30,6 @@ COPY cdk/docker-jupyter/jupyter_server_config.py /app/conda/envs/jupyter/etc/jup
 COPY cdk/docker-jupyter/mlflow.svg /app/conda/envs/jupyter/mlflow.svg
 ENV MLFLOW_TRACKING_URI=file:///app/mlflow
 
-USER user:user
 COPY --chown=user:user . /app/collegium
 WORKDIR /app/collegium
 

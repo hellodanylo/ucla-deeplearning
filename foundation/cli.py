@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import clize
 from collegium.foundation.jupyter_render import jupyter_process
 
