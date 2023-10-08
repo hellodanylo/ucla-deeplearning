@@ -72,12 +72,12 @@ class MemberConstruct(Construct):
         )
 
         b.CfnBudget(
-            self, 'BudgetAnnual',
+            self, 'BudgetAnnual-r2',
             budget=b.CfnBudget.BudgetDataProperty(
                 budget_type='COST',
                 time_unit='ANNUALLY',
                 budget_limit=b.CfnBudget.SpendProperty(amount=80, unit='USD'),
-                budget_name=f"{member.name}-full",
+                budget_name=f"{member.name}-full-r2",
                 cost_filters={
                     "TagKeyValue": [
                         f"user:owner${member.name}"
@@ -91,12 +91,12 @@ class MemberConstruct(Construct):
         )
 
         b.CfnBudget(
-            self, 'BudgetDaily',
+            self, 'BudgetDaily-r2',
             budget=b.CfnBudget.BudgetDataProperty(
                 budget_type='COST',
                 time_unit='DAILY',
                 budget_limit=b.CfnBudget.SpendProperty(amount=20, unit='USD'),
-                budget_name=f"{member.name}-daily",
+                budget_name=f"{member.name}-daily-r2",
                 cost_filters={
                     "TagKeyValue": [
                         f"user:owner${member.name}"
@@ -125,7 +125,7 @@ class MemberConstruct(Construct):
         )
 
     def add_permissions(self, identity: iam.IIdentity):
-        for policy in ['AmazonSageMakerReadOnly', 'AWSCodeCommitReadOnly', 'IAMUserChangePassword', 'AmazonEC2ContainerRegistryReadOnly', 'AWSBudgetsReadOnlyAccess']:
+        for policy in ['AmazonSageMakerReadOnly', 'AWSCodeCommitReadOnly', 'IAMUserChangePassword', 'AmazonEC2ContainerRegistryReadOnly', 'AWSBudgetsReadOnlyAccess', 'AmazonRekognitionReadOnlyAccess']:
             identity.add_managed_policy(
                 policy=iam.ManagedPolicy.from_aws_managed_policy_name(policy)
             )
