@@ -1,10 +1,15 @@
+channels:
+  - conda-forge
+  - pytorch
 dependencies:
   - nodejs
   - numpy
   - pandas
   - pip
   - python
+  - pytorch
   - tensorflow=2.8.1=cuda*
+  - torchvision
   - pip:
     - aws-cdk-lib
     - awscli
