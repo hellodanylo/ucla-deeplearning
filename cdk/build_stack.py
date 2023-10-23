@@ -38,8 +38,8 @@ class BuildStack(Stack):
             lifecycle_rules=[
                 ecr.LifecycleRule(
                     tag_status=ecr.TagStatus.ANY, 
-                    max_image_count=5,
-                    description="keep last 5 images"
+                    max_image_age=Duration.days(90),
+                    description="keep for 90 days"
                 ),
             ],
             removal_policy=RemovalPolicy.DESTROY,

@@ -72,12 +72,12 @@ class MemberConstruct(Construct):
         )
 
         b.CfnBudget(
-            self, 'BudgetAnnual-r3',
+            self, 'BudgetAnnual-r4',
             budget=b.CfnBudget.BudgetDataProperty(
                 budget_type='COST',
                 time_unit='ANNUALLY',
-                budget_limit=b.CfnBudget.SpendProperty(amount=80, unit='USD'),
-                budget_name=f"{member.name}-full-r3",
+                budget_limit=b.CfnBudget.SpendProperty(amount=150, unit='USD'),
+                budget_name=f"{member.name}-full-r4",
                 cost_filters={
                     "TagKeyValue": [
                         f"user:owner${member.name}"
@@ -125,7 +125,7 @@ class MemberConstruct(Construct):
         )
 
     def add_permissions(self, identity: iam.IIdentity):
-        for policy in ['AmazonSageMakerReadOnly', 'AWSCodeCommitReadOnly', 'IAMUserChangePassword', 'AmazonEC2ContainerRegistryReadOnly', 'AWSBudgetsReadOnlyAccess', 'AmazonRekognitionReadOnlyAccess']:
+        for policy in ['AmazonSageMakerReadOnly', 'AWSCodeCommitReadOnly', 'IAMUserChangePassword', 'AmazonEC2ContainerRegistryReadOnly', 'AWSBudgetsReadOnlyAccess', 'AmazonRekognitionReadOnlyAccess', 'CloudWatchLogsFullAccess']:
             identity.add_managed_policy(
                 policy=iam.ManagedPolicy.from_aws_managed_policy_name(policy)
             )
