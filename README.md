@@ -13,7 +13,7 @@ The course consists of 5 module:
 4. Generative Adversarial Networks
 5. Ensemble Methods
 
-Copyright: Danylo Vashchilenko, 2019-2022.
+Copyright: Danylo Vashchilenko, 2019-2024.
 
 ### Table of Contents
 1. [AWS SageMaker](#jupyter-on-aws-sagemaker)
@@ -67,7 +67,7 @@ Each App has 1 or more Sessions.
 Each Session has exactly 1 notebook.
 
 #### Resource Reuse
-When you launch a kernel, SageMaker will attempt to re-use instances and apps that are alread running.
+When you launch a kernel, SageMaker will attempt to re-use instances and apps that are already running.
 The following table summarizes SageMaker's action depending on whether requested resources are already running.
 
 |Same instance type?|Same image, startup script, and kernel?|SageMaker's action on session launch|

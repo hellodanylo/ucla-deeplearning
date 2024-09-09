@@ -2,9 +2,11 @@
 
 set -eux
 
-cdk/docker_login.sh
-cdk/docker_build.sh
-cdk/test_unit.sh
-cdk/docker_push.sh
-cdk/test_sagemaker.sh
-cdk/cdk_deploy.sh
+project_path=${0:a:h:h}
+
+$project_path/cdk/docker_login.sh
+$project_path/cdk/docker_build.sh
+$project_path/cdk/test_unit.sh
+$project_path/cdk/docker_push.sh
+$project_path/cdk/test_sagemaker.sh
+$project_path/cdk/cdk_deploy.sh
