@@ -22,7 +22,6 @@ dependencies:
     - docker
     - fiftyone
     - ftfy
-    # git+https://github.com/divamgupta/stable-diffusion-tensorflow.git@2873079b49eda63f41267c69b825e03cbcb2c308
     - git-remote-codecommit
     - ipykernel
     - ipython
@@ -50,7 +49,7 @@ dependencies:
     - seaborn
     - statsmodels
     - tables
-    - tensorflow-hub
+    - tensorflow-hub==0.15.0
     - tensorflow_addons
     - tqdm
     - transformers
