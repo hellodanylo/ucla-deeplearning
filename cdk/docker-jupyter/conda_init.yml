@@ -35,6 +35,7 @@ dependencies:
     - mypy
     - nbconvert
     - nbformat
+    - polars
     - protobuf==3.20
     - pyarrow
     - pytest

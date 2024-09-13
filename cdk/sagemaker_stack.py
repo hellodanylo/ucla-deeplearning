@@ -66,8 +66,14 @@ class SageMakerStack(Stack):
         vpc = ec2.Vpc(
             self, 'Collegium', 
             ip_addresses=ec2.IpAddresses.cidr('10.42.5.0/24'), max_azs=1,
-            subnet_configuration=[ec2.SubnetConfiguration(name='Private', subnet_type=ec2.SubnetType.PRIVATE_ISOLATED, cidr_mask=25)],
+            subnet_configuration=[
+                ec2.SubnetConfiguration(name='Private', subnet_type=ec2.SubnetType.PRIVATE_ISOLATED, cidr_mask=25),
+                ec2.SubnetConfiguration(name='Public', subnet_type=ec2.SubnetType.PUBLIC, cidr_mask=25),
+            ],
         )
+
+        sg = ec2.SecurityGroup(self, 'PublicSSH', vpc=vpc, security_group_name='collegium-devbox')
+        sg.add_ingress_rule(ec2.Peer.ipv4('0.0.0.0/0'), ec2.Port.SSH)
 
         lifecycle_provider = StudioLifeCycleProvider(self, "StudioLifecycleProvider")
     
