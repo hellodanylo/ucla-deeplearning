@@ -33,7 +33,7 @@ usage_lines
 # %%
 sm = s.client('sagemaker')
 for app in sm.list_apps()['Apps']:
-    if app['AppType'] != 'KernelGateway':
+    if app['AppType'] != 'KernelGateway' or app['Status'] != 'InService':
         continue
     timestamp = app['CreationTime']
     duration_hours = round((dt.datetime.now().astimezone() - timestamp).seconds / 60 / 60, 2)
