@@ -1,5 +1,6 @@
 from enum import Enum
 import json
+import os
 import aws_cdk.aws_ecr as ecr
 import aws_cdk.aws_codebuild as cb
 import aws_cdk.aws_codecommit as cc
@@ -79,7 +80,7 @@ class BuildStack(Stack):
             timeout=Duration.hours(2),
         )
 
-        ssm_client = boto3.client('ssm')
+        ssm_client = boto3.client('ssm', region_name=os.environ.get('AWS_REGION'))
         app_resources = json.loads(ssm_client.get_parameter(Name=SSMParameter.APP_RESOURCES.value)['Parameter']['Value'])
         code_connection_arn = app_resources['code_connection_arn']
         source = cp.Artifact(artifact_name=package_name)
