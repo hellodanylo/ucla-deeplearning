@@ -1,4 +1,5 @@
 from enum import Enum
+import json
 import aws_cdk.aws_ecr as ecr
 import aws_cdk.aws_codebuild as cb
 import aws_cdk.aws_codecommit as cc
@@ -8,11 +9,11 @@ import aws_cdk.aws_iam as iam
 import aws_cdk.aws_events as e
 import aws_cdk.aws_events_targets as et
 import aws_cdk.aws_ssm as ssm
-import aws_cdk.aws_codestarnotifications as csn
 import aws_cdk.aws_sns as sns
-import aws_cdk.aws_sns_subscriptions as sns_subs
 from aws_cdk import Stack, Duration, RemovalPolicy
+import boto3.session
 from constructs import Construct
+import boto3
 
 from collegium.cdk.environment import BuildResources, SSMParameter
 
@@ -78,6 +79,9 @@ class BuildStack(Stack):
             timeout=Duration.hours(2),
         )
 
+        ssm_client = boto3.client('ssm')
+        app_resources = json.loads(ssm_client.get_parameter(Name=SSMParameter.APP_RESOURCES.value)['Parameter']['Value'])
+        code_connection_arn = app_resources['code_connection_arn']
         source = cp.Artifact(artifact_name=package_name)
 
         pipeline: cp.Pipeline = cp.Pipeline(
@@ -86,13 +90,14 @@ class BuildStack(Stack):
             role=role,  # type: ignore
             stages=[
                 cp.StageProps(stage_name="source", actions=[
-                    cpa.CodeCommitSourceAction(
-                        repository=git_repo,
+                    cpa.CodeStarConnectionsSourceAction(
+                        owner="hellodanylo",
+                        repo="ucla-deeplearning",
+                        connection_arn=code_connection_arn,
                         code_build_clone_output=True,
                         action_name=package_name,
                         output=source,
                         branch='main',
-                        trigger=cpa.CodeCommitTrigger.EVENTS,
                         role=role,  # type: ignore
                     )
                 ]),

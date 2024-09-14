@@ -14,7 +14,16 @@ class BuildResources(JSONWizard):
     collegium_ecr: str
 
 
+@dataclass
+class AppResources:
+    ses_source: str
+
+
 class SSMParameter(Enum):
+    # Shared resources that are not stack-specific.
+    # Created by the admin. 
+    APP_RESOURCES = "/collegium/app-resources"
+
     # Description of the team to be created by the Team stack.
     # Created by the admin.
     TEAM_CONFIG = "/collegium/team-config"
