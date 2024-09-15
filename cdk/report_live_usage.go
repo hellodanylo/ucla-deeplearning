@@ -24,10 +24,15 @@ type UsageLine struct {
 	InstanceType  string
 	Status        string
 	DurationHours float64
+	Url           string
 }
 
 type AppResources struct {
 	SesSource string `json:"ses_source"`
+}
+
+type SageMakerResources struct {
+	DomainId string `json:"domain_id"`
 }
 
 type Member struct {
@@ -108,6 +113,7 @@ func buildEC2UsageLines() []UsageLine {
 				InstanceType:  *instance.InstanceType,
 				Status:        *instance.State.Name,
 				DurationHours: durationHours,
+				Url:           fmt.Sprintf("https://%s.console.aws.amazon.com/ec2/home#InstanceDetails:instanceId=%s", os.Getenv("AWS_REGION"), *instance.InstanceId),
 			})
 		}
 	}
@@ -135,6 +141,8 @@ func buildSageMakerUsageLines() []UsageLine {
 			User:          *app.UserProfileName,
 			Status:        *app.Status,
 			DurationHours: durationHours,
+			Url: fmt.Sprintf("https://%s.console.aws.amazon.com/sagemaker/home?region=%s#/studio/%s/user/%s",
+				os.Getenv("AWS_REGION"), os.Getenv("AWS_REGION"), *app.DomainId, *app.UserProfileName),
 		})
 	}
 
@@ -146,8 +154,8 @@ func formatUsageLines(usageLines []UsageLine, from string, to string) string {
 	htmlRows.WriteString("<tbody>")
 	for _, row := range usageLines {
 		htmlRows.WriteString("<tr>")
-		htmlRows.WriteString(fmt.Sprintf("<td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%.2f</td>",
-			row.User, row.Resource, row.InstanceType, row.Status, row.DurationHours))
+		htmlRows.WriteString(fmt.Sprintf(`<td>%s</td><td><a href="%s">%s</a></td><td>%s</td><td>%s</td><td>%.2f</td>`,
+			row.User, row.Url, row.Resource, row.InstanceType, row.Status, row.DurationHours))
 		htmlRows.WriteString("</tr>")
 	}
 	htmlRows.WriteString("</tbody>")
