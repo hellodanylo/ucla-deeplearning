@@ -4,8 +4,7 @@
 # It appears to have a Conda environment with Python that can be used below.
 # Based on https://github.com/aws-samples/amazon-sagemaker-codeserver/blob/cc153da6be44c92d2b5cf0115ac61c746b57c25e/install-scripts/studio/install-codeserver.sh
 
-pip install git-remote-codecommit
-git clone --depth 1 codecommit::us-west-2://collegium
+git clone --depth 1 https://github.com/hellodanylo/ucla-deeplearning collegium
 
 sudo yum install -y vim wget zsh
 
@@ -16,8 +15,8 @@ conda run -n studio pip install sagemaker-jproxy-launcher-ext-0.1.3.tar.gz
 conda run -n studio jupyter labextension disable jupyterlab-server-proxy
 
 conda create -n mlflow
-conda install -n mlflow python==3.11.5
-conda run -n mlflow pip install mlflow==2.6.0
+conda install -n mlflow python==3.12.5
+conda run -n mlflow pip install mlflow==2.16.1
 
 # Logo for the launch icon is required and must be SVG
 wget -O /opt/conda/envs/mlflow/icon.svg https://raw.githubusercontent.com/mlflow/mlflow/master/assets/icon.svg

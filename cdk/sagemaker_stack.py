@@ -77,7 +77,7 @@ class SageMakerStack(Stack):
 
         lifecycle_provider = StudioLifeCycleProvider(self, "StudioLifecycleProvider")
     
-        revision = '12'
+        revision = '13'
         studio_jupyter_lifecycle = (Path(__file__).parent / 'studio_jupyter_lifecycle.sh').read_text().replace('{revision}', revision)
         studio_jupyter_lifecycle = base64.standard_b64encode(studio_jupyter_lifecycle.encode()).decode()
         jupyter_lifecycle = StudioLifeCycleConstruct(
@@ -145,6 +145,7 @@ class SageMakerStack(Stack):
             value=SageMakerResources(
                 bucket_public='danylo-ucla',
                 sagemaker_role_arn=role.role_arn,
+                domain_id=self.domain.attr_domain_id,
             ).to_json(),
             name=SSMParameter.SAGEMAKER_RESOURCES.value,
             type='String'

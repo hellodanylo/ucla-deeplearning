@@ -7,6 +7,7 @@ from dataclass_wizard import JSONWizard
 class SageMakerResources(JSONWizard):
     sagemaker_role_arn: str
     bucket_public: str
+    domain_id: str
 
 
 @dataclass

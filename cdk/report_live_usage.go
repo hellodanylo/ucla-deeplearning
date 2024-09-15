@@ -62,10 +62,10 @@ func reportLiveUsage() {
 			usageLines[i].DurationHours < usageLines[j].DurationHours
 	})
 
-	htmlBody := formatUsageLines(usageLines)
 	teamConfig := getTeamConfig()
-	fmt.Printf("TeamConfig = %v\n", teamConfig)
-	sendEmail(htmlBody, []*string{aws.String(teamConfig.Admin.Email)})
+	appResources := getAppResources()
+	htmlBody := formatUsageLines(usageLines, teamConfig.Admin.Name, teamConfig.Admin.Name)
+	sendEmail(appResources.SesSource, htmlBody, []*string{aws.String(teamConfig.Admin.Email)})
 
 	linesByUser := make(map[string][]UsageLine)
 	for _, usageLine := range usageLines {
@@ -81,8 +81,8 @@ func reportLiveUsage() {
 		if user == "" {
 			continue
 		}
-		htmlBody := formatUsageLines(usageLinesForUser)
-		sendEmail(htmlBody, []*string{&teamConfig.Admin.Email, aws.String(emailByName[user])})
+		htmlBody := formatUsageLines(usageLinesForUser, teamConfig.Admin.Name, user)
+		sendEmail(appResources.SesSource, htmlBody, []*string{&teamConfig.Admin.Email, aws.String(emailByName[user])})
 	}
 }
 
@@ -141,7 +141,7 @@ func buildSageMakerUsageLines() []UsageLine {
 	return usageLines
 }
 
-func formatUsageLines(usageLines []UsageLine) string {
+func formatUsageLines(usageLines []UsageLine, from string, to string) string {
 	var htmlRows strings.Builder
 	htmlRows.WriteString("<tbody>")
 	for _, row := range usageLines {
@@ -152,8 +152,23 @@ func formatUsageLines(usageLines []UsageLine) string {
 	}
 	htmlRows.WriteString("</tbody>")
 
-	header := `<thead><th>User</th><th>Resource</th><th>Instance Type</th><th>Status</th><th>Current Session Duration (Hours)</th></thead>`
-	return fmt.Sprintf(`Hello!<br>The following billable compute resources are currently active:<br><table>%s%s</table>`, header, htmlRows.String())
+	header := `
+	<thead>
+	<th>User</th>
+	<th>Resource</th>
+	<th>Instance Type</th>
+	<th>Status</th>
+	<th>Current Session Duration (Hours)</th>
+	</thead>
+	`
+	return fmt.Sprintf(`
+	Hello, %s!<br><br>
+	The following billable compute resources are currently active:<br><br>
+	<table>%s%s</table>
+	<br><br>
+	Thanks,<br>
+	%s
+	`, to, header, htmlRows.String(), from)
 }
 
 func getTeamConfig() TeamConfig {
@@ -166,10 +181,11 @@ func getTeamConfig() TeamConfig {
 	}
 	var teamConfig TeamConfig
 	json.Unmarshal([]byte(*teamConfigParam.Parameter.Value), &teamConfig)
+	fmt.Printf("TeamConfig = %v\n", teamConfig)
 	return teamConfig
 }
 
-func sendEmail(htmlBody string, recepients []*string) {
+func getAppResources() AppResources {
 	ssmSvc := ssm.New(sess)
 	appResourcesParam, err := ssmSvc.GetParameter(&ssm.GetParameterInput{
 		Name: aws.String("/collegium/app-resources"),
@@ -180,10 +196,13 @@ func sendEmail(htmlBody string, recepients []*string) {
 	var appResources AppResources
 	json.Unmarshal([]byte(*appResourcesParam.Parameter.Value), &appResources)
 	fmt.Printf("AppResources = %v\n", appResources)
+	return appResources
+}
 
+func sendEmail(sesSource string, htmlBody string, recepients []*string) {
 	sesSvc := ses.New(sess)
-	_, err = sesSvc.SendEmail(&ses.SendEmailInput{
-		Source: aws.String(appResources.SesSource),
+	_, err := sesSvc.SendEmail(&ses.SendEmailInput{
+		Source: aws.String(sesSource),
 		Destination: &ses.Destination{
 			ToAddresses: recepients,
 		},
