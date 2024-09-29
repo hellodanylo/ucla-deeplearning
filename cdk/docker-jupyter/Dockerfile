@@ -6,14 +6,15 @@ RUN echo $TZ | sudo tee -a /etc/timezone
 
 RUN sudo apt-get update -q && \
     sudo apt-get install -qy \
-    procps \
-    htop \
-    gnupg \
-    texlive-xetex \
-    software-properties-common \
-    protobuf-compiler \
     build-essential \
     ffmpeg \
+    gnupg \
+    htop \
+    jq \
+    procps \
+    protobuf-compiler \
+    software-properties-common \
+    texlive-xetex \
     >/dev/null 2>&1
 
 RUN conda info
