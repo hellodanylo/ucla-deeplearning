@@ -216,7 +216,7 @@ func sendEmail(sesSource string, htmlBody string, recepients []*string) {
 		},
 		Message: &ses.Message{
 			Subject: &ses.Content{
-				Data: aws.String("Collegium - Live Usage Report"),
+				Data: aws.String("Collegium - Live Usage"),
 			},
 			Body: &ses.Body{
 				Html: &ses.Content{
