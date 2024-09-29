@@ -37,6 +37,10 @@ class MemberConstruct(Construct):
             iam.PolicyStatement(
                 actions=["license-manager:ListReceivedLicenses"],
                 resources=["*"],
+            ),
+            iam.PolicyStatement(
+                actions=["s3:GetObject", "s3:HeadObject"],
+                resources=["arn:aws:s3:::danylo-ucla/*"],
             )
         ])
 
@@ -55,7 +59,10 @@ class MemberConstruct(Construct):
         
         self.role: iam.Role = iam.Role(
             self, "Role", 
-            assumed_by=iam.ServicePrincipal('sagemaker.amazonaws.com'),
+            assumed_by=iam.CompositePrincipal(
+                iam.ServicePrincipal('sagemaker.amazonaws.com'),
+                iam.AccountRootPrincipal(),
+            )
         )
         self.add_permissions(self.role)
 

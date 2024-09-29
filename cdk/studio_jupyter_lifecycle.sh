@@ -14,12 +14,12 @@ wget -O sagemaker-jproxy-launcher-ext-0.1.3.tar.gz https://github.com/aws-sample
 conda run -n studio pip install sagemaker-jproxy-launcher-ext-0.1.3.tar.gz
 conda run -n studio jupyter labextension disable jupyterlab-server-proxy
 
-conda create -n mlflow
-conda install -n mlflow python==3.12.5
-conda run -n mlflow pip install mlflow==2.16.1
-
+sudo yum install unzip
+aws s3 cp s3://danylo-ucla/mlflow.zip ./
+unzip mlflow.zip -d /opt/conda/envs
+rm mlflow.zip
 # Logo for the launch icon is required and must be SVG
-wget -O /opt/conda/envs/mlflow/icon.svg https://raw.githubusercontent.com/mlflow/mlflow/master/assets/icon.svg
+wget -O /opt/conda/envs/mlflow/icon.svg https://raw.githubusercontent.com/hellodanylo/ucla-deeplearning/refs/heads/main/cdk/docker-jupyter/mlflow.svg
 
 # This Jupyter proxy and MLFlow will run on the JupyterServer instance,
 # where the Collegium image is not used. So the path to EFS is via /home/sagemaker-user.
