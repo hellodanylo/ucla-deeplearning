@@ -6,7 +6,7 @@
 
 git clone --depth 1 https://github.com/hellodanylo/ucla-deeplearning collegium
 
-sudo yum install -y vim wget zsh
+sudo yum install -y vim wget zsh unzip
 
 mkdir -p $HOME/.collegium
 cd $HOME/.collegium
@@ -14,7 +14,6 @@ wget -O sagemaker-jproxy-launcher-ext-0.1.3.tar.gz https://github.com/aws-sample
 conda run -n studio pip install sagemaker-jproxy-launcher-ext-0.1.3.tar.gz
 conda run -n studio jupyter labextension disable jupyterlab-server-proxy
 
-sudo yum install unzip
 aws s3 cp s3://danylo-ucla/mlflow.zip ./
 unzip mlflow.zip -d /opt/conda/envs
 rm mlflow.zip

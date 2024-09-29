@@ -77,7 +77,7 @@ class SageMakerStack(Stack):
 
         lifecycle_provider = StudioLifeCycleProvider(self, "StudioLifecycleProvider")
     
-        revision = '14'
+        revision = '15'
         studio_jupyter_lifecycle = (Path(__file__).parent / 'studio_jupyter_lifecycle.sh').read_text().replace('{revision}', revision)
         studio_jupyter_lifecycle = base64.standard_b64encode(studio_jupyter_lifecycle.encode()).decode()
         jupyter_lifecycle = StudioLifeCycleConstruct(
