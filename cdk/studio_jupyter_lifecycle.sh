@@ -14,6 +14,11 @@ wget -O sagemaker-jproxy-launcher-ext-0.1.3.tar.gz https://github.com/aws-sample
 conda run -n studio pip install sagemaker-jproxy-launcher-ext-0.1.3.tar.gz
 conda run -n studio jupyter labextension disable jupyterlab-server-proxy
 
+# Link the store to the location that's expected by collegium image
+mkdir -p /home/sagemaker-user/mlflow
+sudo mkdir -p /app
+sudo ln -s /home/sagemaker-user/mlflow /app/mlflow
+
 aws s3 cp s3://danylo-ucla/mlflow.zip ./
 unzip mlflow.zip -d /opt/conda/envs
 rm mlflow.zip
