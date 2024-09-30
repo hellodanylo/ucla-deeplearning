@@ -5,8 +5,8 @@ from collegium.foundation.jupyter_render import jupyter_process
 
 
 def hello():
-    print('world')
+    print("world")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     clize.run([hello, jupyter_process])

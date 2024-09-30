@@ -16,9 +16,7 @@ from nbformat import NotebookNode
 
 def find_notebooks(prefix: str = "/app/collegium") -> Sequence[str]:
     reports = (
-        subprocess.run(
-            ["find", prefix, "-name", "*.ipynb"], capture_output=True
-        )
+        subprocess.run(["find", prefix, "-name", "*.ipynb"], capture_output=True)
         .stdout.decode()
         .split("\n")
     )
@@ -74,7 +72,7 @@ def jupyter_process(*modules, execute: bool = False, render: bool = False):
     failed_notebooks = []
 
     for module in modules:
-        notebooks = sorted(find_notebooks(prefix=f'/app/collegium/{module}'))
+        notebooks = sorted(find_notebooks(prefix=f"/app/collegium/{module}"))
 
         for report_path in notebooks:
             try:
