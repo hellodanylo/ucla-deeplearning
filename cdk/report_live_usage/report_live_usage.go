@@ -1,22 +1,26 @@
 package main
 
 import (
-	"encoding/json"
+	"bytes"
+	_ "embed"
 	"fmt"
+	"html/template"
 	"os"
 
+	collegium "github.com/hellodanylo/collegium"
+
 	"sort"
-	"strings"
 	"time"
 
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/aws/aws-sdk-go/service/sagemaker"
-	"github.com/aws/aws-sdk-go/service/ses"
-	"github.com/aws/aws-sdk-go/service/ssm"
+	"github.com/aymerick/douceur/inliner"
 )
+
+//go:embed report_live_usage.html
+var report_live_usage_html string
 
 type UsageLine struct {
 	User          string
@@ -27,33 +31,7 @@ type UsageLine struct {
 	Url           string
 }
 
-type AppResources struct {
-	SesSource string `json:"ses_source"`
-}
-
-type SageMakerResources struct {
-	DomainId string `json:"domain_id"`
-}
-
-type Member struct {
-	Name  string `json:"name"`
-	Email string `json:"email"`
-}
-
-type TeamConfig struct {
-	Admin Member   `json:"admin"`
-	Users []Member `json:"users"`
-}
-
-var sess *session.Session
-
-func init() {
-	sess = session.Must(session.NewSession(&aws.Config{
-		Region: aws.String(os.Getenv("AWS_REGION")),
-	}))
-}
-
-func reportLiveUsage() {
+func sendLiveUsageEmail() {
 	usageLines := append(buildEC2UsageLines(), buildSageMakerUsageLines()...)
 	if len(usageLines) == 0 {
 		return
@@ -67,10 +45,9 @@ func reportLiveUsage() {
 			usageLines[i].DurationHours < usageLines[j].DurationHours
 	})
 
-	teamConfig := getTeamConfig()
-	appResources := getAppResources()
+	teamConfig := collegium.GetTeamConfig()
 	htmlBody := formatUsageLines(usageLines, teamConfig.Admin.Name, teamConfig.Admin.Name)
-	sendEmail(appResources.SesSource, htmlBody, []*string{aws.String(teamConfig.Admin.Email)})
+	collegium.SendEmail("UCLA MSBA-434 - AWS Resource Usage", htmlBody, []*string{&teamConfig.Admin.Email}, teamConfig.Admin.Email)
 
 	linesByUser := make(map[string][]UsageLine)
 	for _, usageLine := range usageLines {
@@ -87,12 +64,12 @@ func reportLiveUsage() {
 			continue
 		}
 		htmlBody := formatUsageLines(usageLinesForUser, teamConfig.Admin.Name, user)
-		sendEmail(appResources.SesSource, htmlBody, []*string{&teamConfig.Admin.Email, aws.String(emailByName[user])})
+		collegium.SendEmail("UCLA MSBA-434 - AWS Resource Usage", htmlBody, []*string{&teamConfig.Admin.Email, aws.String(emailByName[user])}, teamConfig.Admin.Email)
 	}
 }
 
 func buildEC2UsageLines() []UsageLine {
-	ec2Svc := ec2.New(sess)
+	ec2Svc := ec2.New(collegium.GetSession())
 	var usageLines []UsageLine
 
 	result, err := ec2Svc.DescribeInstances(nil)
@@ -122,7 +99,7 @@ func buildEC2UsageLines() []UsageLine {
 }
 
 func buildSageMakerUsageLines() []UsageLine {
-	smSvc := sagemaker.New(sess)
+	smSvc := sagemaker.New(collegium.GetSession())
 	var usageLines []UsageLine
 
 	result, err := smSvc.ListApps(&sagemaker.ListAppsInput{})
@@ -150,90 +127,18 @@ func buildSageMakerUsageLines() []UsageLine {
 }
 
 func formatUsageLines(usageLines []UsageLine, from string, to string) string {
-	var htmlRows strings.Builder
-	htmlRows.WriteString("<tbody>")
-	for _, row := range usageLines {
-		htmlRows.WriteString("<tr>")
-		htmlRows.WriteString(fmt.Sprintf(`<td>%s</td><td><a href="%s">%s</a></td><td>%s</td><td>%s</td><td>%.2f</td>`,
-			row.User, row.Url, row.Resource, row.InstanceType, row.Status, row.DurationHours))
-		htmlRows.WriteString("</tr>")
-	}
-	htmlRows.WriteString("</tbody>")
-
-	header := `
-	<thead>
-	<th>User</th>
-	<th>Resource</th>
-	<th>Instance Type</th>
-	<th>Status</th>
-	<th>Current Session Duration (Hours)</th>
-	</thead>
-	`
-	return fmt.Sprintf(`
-	Hello, %s!<br><br>
-	The following billable compute resources are currently active:<br><br>
-	<table>%s%s</table>
-	<br><br>
-	Thanks,<br>
-	%s
-	`, to, header, htmlRows.String(), from)
-}
-
-func getTeamConfig() TeamConfig {
-	ssmSvc := ssm.New(sess)
-	teamConfigParam, err := ssmSvc.GetParameter(&ssm.GetParameterInput{
-		Name: aws.String("/collegium/team-config"),
-	})
-	if err != nil {
-		panic(fmt.Sprintf("Error getting TeamConfig: %s", err))
-	}
-	var teamConfig TeamConfig
-	json.Unmarshal([]byte(*teamConfigParam.Parameter.Value), &teamConfig)
-	fmt.Printf("TeamConfig = %v\n", teamConfig)
-	return teamConfig
-}
-
-func getAppResources() AppResources {
-	ssmSvc := ssm.New(sess)
-	appResourcesParam, err := ssmSvc.GetParameter(&ssm.GetParameterInput{
-		Name: aws.String("/collegium/app-resources"),
-	})
-	if err != nil {
-		panic(fmt.Sprintf("Error getting AppResources: %s", err))
-	}
-	var appResources AppResources
-	json.Unmarshal([]byte(*appResourcesParam.Parameter.Value), &appResources)
-	fmt.Printf("AppResources = %v\n", appResources)
-	return appResources
-}
-
-func sendEmail(sesSource string, htmlBody string, recepients []*string) {
-	sesSvc := ses.New(sess)
-	_, err := sesSvc.SendEmail(&ses.SendEmailInput{
-		Source: aws.String(sesSource),
-		Destination: &ses.Destination{
-			ToAddresses: recepients,
-		},
-		Message: &ses.Message{
-			Subject: &ses.Content{
-				Data: aws.String("Collegium - Live Usage"),
-			},
-			Body: &ses.Body{
-				Html: &ses.Content{
-					Data: aws.String(htmlBody),
-				},
-			},
-		},
-	})
-	if err != nil {
-		panic(fmt.Sprintf("Error sending email: %s", err))
-	}
+	tmpl, _ := template.New("report_live_usage").Parse(report_live_usage_html)
+	var buff bytes.Buffer
+	tmpl.Execute(&buff, map[string]any{"User": to, "Admin": from, "UsageLines": usageLines})
+	html, _ := inliner.Inline(buff.String())
+	return html
 }
 
 func main() {
+	collegium.InitSession()
 	if os.Getenv("AWS_LAMBDA_FUNCTION_NAME") != "" {
-		lambda.Start(reportLiveUsage)
+		lambda.Start(sendLiveUsageEmail)
 	} else {
-		reportLiveUsage()
+		sendLiveUsageEmail()
 	}
 }

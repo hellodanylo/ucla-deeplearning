@@ -7,7 +7,7 @@ from doctrina.task import execute, encode
 
 from collegium.m01_dnn.mnist.pipelines import build_denoising_dataset
 
-students = 50
+students = 80
 
 workspace = os.environ["APP_STORAGE_WORKSPACE"]
 

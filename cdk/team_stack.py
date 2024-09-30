@@ -83,7 +83,7 @@ class MemberConstruct(Construct):
             budget=b.CfnBudget.BudgetDataProperty(
                 budget_type='COST',
                 time_unit='ANNUALLY',
-                budget_limit=b.CfnBudget.SpendProperty(amount=150, unit='USD'),
+                budget_limit=b.CfnBudget.SpendProperty(amount=80, unit='USD'),
                 budget_name=f"{member.name}-full-r4",
                 cost_filters={
                     "TagKeyValue": [
