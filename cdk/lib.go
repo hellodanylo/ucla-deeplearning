@@ -16,7 +16,7 @@ type AppResources struct {
 }
 
 type SageMakerResources struct {
-	DomainId string `json:"domain_id"`
+	DomainId string `json:"domainId"`
 }
 
 type Member struct {
@@ -38,6 +38,9 @@ func InitSession() {
 }
 
 func GetSession() *session.Session {
+	if sess == nil {
+		panic("No session")
+	}
 	return sess
 }
 
@@ -47,10 +50,15 @@ func GetTeamConfig() TeamConfig {
 		Name: aws.String("/collegium/team-config"),
 	})
 	if err != nil {
-		panic(fmt.Sprintf("Error getting TeamConfig: %s", err))
+		panic(err)
 	}
+
 	var teamConfig TeamConfig
-	json.Unmarshal([]byte(*teamConfigParam.Parameter.Value), &teamConfig)
+	err = json.Unmarshal([]byte(*teamConfigParam.Parameter.Value), &teamConfig)
+	if err != nil {
+		panic(err)
+	}
+
 	fmt.Printf("TeamConfig = %v\n", teamConfig)
 	return teamConfig
 }
@@ -64,9 +72,28 @@ func GetAppResources() AppResources {
 		panic(fmt.Sprintf("Error getting AppResources: %s", err))
 	}
 	var appResources AppResources
-	json.Unmarshal([]byte(*appResourcesParam.Parameter.Value), &appResources)
+	err = json.Unmarshal([]byte(*appResourcesParam.Parameter.Value), &appResources)
+	if err != nil {
+		panic(err)
+	}
 	fmt.Printf("AppResources = %v\n", appResources)
 	return appResources
+}
+
+func GetSageMakerResources() SageMakerResources {
+	ssmSvc := ssm.New(sess)
+	response, err := ssmSvc.GetParameter(&ssm.GetParameterInput{
+		Name: aws.String("/collegium/sagemaker-resources"),
+	})
+	if err != nil {
+		panic(fmt.Sprintf("Error getting SageMakerResources: %s", err))
+	}
+	var resources SageMakerResources
+	err = json.Unmarshal([]byte(*response.Parameter.Value), &resources)
+	if err != nil {
+		panic(err)
+	}
+	return resources
 }
 
 func SendEmail(title string, htmlBody string, recepients []*string, replyTo string) {
@@ -90,6 +117,6 @@ func SendEmail(title string, htmlBody string, recepients []*string, replyTo stri
 		},
 	})
 	if err != nil {
-		panic(fmt.Sprintf("Error sending email: %s", err))
+		panic(fmt.Sprintf("Error sending email to %v: %s", recepients, err))
 	}
 }

@@ -79,12 +79,12 @@ class MemberConstruct(Construct):
         )
 
         b.CfnBudget(
-            self, 'BudgetAnnual-r4',
+            self, 'BudgetAnnual-r6',
             budget=b.CfnBudget.BudgetDataProperty(
                 budget_type='COST',
                 time_unit='ANNUALLY',
                 budget_limit=b.CfnBudget.SpendProperty(amount=80, unit='USD'),
-                budget_name=f"{member.name}-full-r4",
+                budget_name=f"{member.name}-full-r6",
                 cost_filters={
                     "TagKeyValue": [
                         f"user:owner${member.name}"
@@ -97,24 +97,24 @@ class MemberConstruct(Construct):
             ]
         )
 
-        b.CfnBudget(
-            self, 'BudgetDaily-r3',
-            budget=b.CfnBudget.BudgetDataProperty(
-                budget_type='COST',
-                time_unit='DAILY',
-                budget_limit=b.CfnBudget.SpendProperty(amount=20, unit='USD'),
-                budget_name=f"{member.name}-daily-r3",
-                cost_filters={
-                    "TagKeyValue": [
-                        f"user:owner${member.name}"
-                    ],
-                }
-            ),
-            notifications_with_subscribers=[
-                self.build_subscription(threshold, member, admin_email)
-                for threshold in [0, 25, 50, 75, 100]
-            ]
-        )
+        # b.CfnBudget(
+        #     self, 'BudgetDaily-r4',
+        #     budget=b.CfnBudget.BudgetDataProperty(
+        #         budget_type='COST',
+        #         time_unit='DAILY',
+        #         budget_limit=b.CfnBudget.SpendProperty(amount=20, unit='USD'),
+        #         budget_name=f"{member.name}-daily-r4",
+        #         cost_filters={
+        #             "TagKeyValue": [
+        #                 f"user:owner${member.name}"
+        #             ],
+        #         }
+        #     ),
+        #     notifications_with_subscribers=[
+        #         self.build_subscription(threshold, member, admin_email)
+        #         for threshold in [0, 25, 50, 75, 100]
+        #     ]
+        # )
 
 
     def build_subscription(self, threshold: int, member: Member, admin_email: str):

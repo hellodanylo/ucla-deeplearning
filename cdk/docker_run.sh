@@ -9,4 +9,5 @@ docker run \
     --name collegium \
     --hostname collegium \
     -it \
-    $COLLEGIUM_ECR:$CODEBUILD_RESOLVED_SOURCE_VERSION
+    $COLLEGIUM_ECR:$CODEBUILD_RESOLVED_SOURCE_VERSION \
+    $*
