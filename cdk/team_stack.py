@@ -40,7 +40,19 @@ class MemberConstruct(Construct):
             ),
             iam.PolicyStatement(
                 actions=["s3:GetObject", "s3:HeadObject"],
-                resources=["arn:aws:s3:::danylo-ucla/*"],
+                resources=["arn:aws:s3:::danylo-ucla/*", "arn:aws:s3:::sagemaker-*/*"],
+            ),
+            iam.PolicyStatement(
+                actions=["s3:HeadBucket", "s3:ListBucket", "s3:Get*"],
+                resources=["arn:aws:s3:::danylo-ucla", "arn:aws:s3:::sagemaker-*"],
+            ),
+            iam.PolicyStatement(
+                actions=["sagemaker:GetSagemakerServicecatalog*"],
+                resources=["*"],
+            ),
+            iam.PolicyStatement(
+                actions=["servicecatalog:ListAcceptedPortfolioShares"],
+                resources=["*"],
             )
         ])
 
@@ -79,12 +91,12 @@ class MemberConstruct(Construct):
         )
 
         b.CfnBudget(
-            self, 'BudgetAnnual-r6',
+            self, 'BudgetAnnual-r7',
             budget=b.CfnBudget.BudgetDataProperty(
                 budget_type='COST',
                 time_unit='ANNUALLY',
                 budget_limit=b.CfnBudget.SpendProperty(amount=80, unit='USD'),
-                budget_name=f"{member.name}-full-r6",
+                budget_name=f"{member.name}-full-r7",
                 cost_filters={
                     "TagKeyValue": [
                         f"user:owner${member.name}"

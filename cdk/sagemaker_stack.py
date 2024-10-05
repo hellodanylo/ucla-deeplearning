@@ -101,6 +101,8 @@ class SageMakerStack(Stack):
             auth_mode='IAM',
             default_user_settings=sm.CfnDomain.UserSettingsProperty(
                 execution_role=role.role_arn,
+                studio_web_portal="DISABLED",
+                default_landing_uri="app:JupyterServer:",
                 jupyter_server_app_settings=sm.CfnDomain.JupyterServerAppSettingsProperty(default_resource_spec=sm.CfnDomain.ResourceSpecProperty(
                     lifecycle_config_arn=jupyter_lifecycle.studio_lifecycle_config_arn,
                 )),
