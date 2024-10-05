@@ -1,16 +1,12 @@
 channels:
   - conda-forge
-  - pytorch
 dependencies:
   - nodejs
-  - numpy
-  - pandas
   - pip
-  - python
-  - pytorch
-  - tensorflow=2.8.1=cuda*
-  - torchvision
+  - python=3.10
   - pip:
+    # https://github.com/yaml/pyyaml/issues/601
+    - PyYAML==6.0.1
     - aws-cdk-lib
     - awscli
     - beautifulsoup4
@@ -27,30 +23,28 @@ dependencies:
     - ipython
     - ipywidgets
     - kaggle
+    - keras-cv
     - keras-tuner
-    - line_profiler
     - lxml
     - matplotlib
     - mlflow==2.16.1
     - mypy
     - nbconvert
     - nbformat
+    - numpy
+    - pandas
     - polars
-    - protobuf==3.20
     - pyarrow
     - pytest
     - python-dotenv
-    # https://github.com/yaml/pyyaml/issues/601
-    - PyYAML==6.0.1
     - regex
     - requests
-    - sagemaker
     - s3fs
+    - sagemaker
     - scikit-learn
     - seaborn
     - statsmodels
     - tables
-    - tensorflow-hub==0.15.0
-    - tensorflow_addons
+    - tensorflow[and-cuda]
     - tqdm
     - transformers

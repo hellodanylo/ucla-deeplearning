@@ -213,7 +213,7 @@ def plot_images_grid(images: Mapping[Text, np.ndarray]) -> None:
     ncols = 2
     nrows = math.ceil(len(images) / ncols)
 
-    plt.figure(figsize=[15, nrows * 6], dpi=100)
+    plt.figure(figsize=[6, nrows * 3], dpi=100)
 
     for idx, name in enumerate(images):
         plt.subplot(nrows, ncols, idx + 1)
@@ -308,17 +308,17 @@ def draw_boxes(
         if scores[i] < min_score:
             continue
 
-        ymin, xmin, ymax, xmax = tuple(boxes[i])
+        xmin, ymin, width, height = tuple(boxes[i])
         display_str = "{}: {}%".format(class_names[i], int(100 * scores[i]))
 
         color = colors[hash(class_names[i]) % len(colors)]
 
         draw_bounding_box_on_image(
             image_pil,
-            ymin,
-            xmin,
-            ymax,
-            xmax,
+            ymin / image_pil.size[1],
+            xmin / image_pil.size[0],
+            (ymin + height) / image_pil.size[1],
+            (xmin + width) / image_pil.size[0],
             color,
             font,
             display_str_list=[display_str],
