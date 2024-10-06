@@ -1,13 +1,12 @@
 from typing import Optional
 import zipfile
 import PIL.Image
-from keras.applications.mobilenet import preprocess_input
 
 import numpy as np
 import tensorflow as tf
 
 
-def load_images(segment: str, limit: Optional[int] = None, preprocess: bool = True):
+def load_images(segment: str, limit: Optional[int] = None):
     with zipfile.ZipFile('pnp_dataset.zip') as z:
 
         targets = sorted(p for p in z.namelist() if p.startswith(f'pnp_dataset/{segment}') and 'npy' not in p)
@@ -17,8 +16,6 @@ def load_images(segment: str, limit: Optional[int] = None, preprocess: bool = Tr
         for _, target in enumerate(targets):
             with z.open(target) as f:
                 image_pixels = np.array(PIL.Image.open(f), dtype=np.float32)
-                if preprocess:
-                    image_pixels = preprocess_input(image_pixels)
                 yield image_pixels.astype(np.float16)
 
 def load_labels(segment: str, limit: Optional[int] = None):
