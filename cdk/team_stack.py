@@ -1,24 +1,11 @@
-from typing import List
-from dataclasses import dataclass
 import aws_cdk.aws_iam as iam
 import aws_cdk.aws_sagemaker as sm
 import aws_cdk.aws_secretsmanager as s
 import aws_cdk.aws_budgets as b
-from aws_cdk import Stack, Duration, CfnTag
+from aws_cdk import Stack, CfnTag
 from constructs import Construct
-from dataclass_wizard import JSONWizard
 
-
-@dataclass
-class Member:
-    name: str
-    email: str
-
-
-@dataclass
-class TeamConfig(JSONWizard):
-    admin: Member
-    users: List[Member]
+from collegium.cdk.environment import Member, TeamConfig
 
 
 class MemberConstruct(Construct):
@@ -72,8 +59,8 @@ class MemberConstruct(Construct):
         self.role: iam.Role = iam.Role(
             self, "Role", 
             assumed_by=iam.CompositePrincipal(
-                iam.ServicePrincipal('sagemaker.amazonaws.com'),
-                iam.AccountRootPrincipal(),
+                iam.ServicePrincipal('sagemaker.amazonaws.com'), # type: ignore
+                iam.AccountRootPrincipal(), # type: ignore
             )
         )
         self.add_permissions(self.role)

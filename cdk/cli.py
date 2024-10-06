@@ -1,12 +1,11 @@
 #!/usr/bin/env python
 
-import json
 import uuid
 import clize
 import boto3
 
 import collegium.foundation.cli
-from collegium.cdk.environment import BuildResources, SSMParameter, SageMakerResources
+from collegium.cdk.environment import BuildResources, SSMParameter, SageMakerResources, load_build_resources, load_sagemaker_resources
 
 
 def sagemaker_jupyter_process(*, image_version: str = 'latest'):
@@ -17,12 +16,8 @@ def sagemaker_jupyter_process(*, image_version: str = 'latest'):
 
 def sagemaker_train(*cmd, gpu: bool = False, job_prefix: str = 'collegium', image_version: str = 'latest'):
     sm = boto3.client('sagemaker', region_name='us-west-2')
-    ssm = boto3.client('ssm', region_name='us-west-2')
-
-    sagemaker_resources = SageMakerResources.from_json(ssm.get_parameter(Name=SSMParameter.SAGEMAKER_RESOURCES.value)['Parameter']['Value'])
-    build_resources = BuildResources.from_json(ssm.get_parameter(Name=SSMParameter.BUILD_RESOURCES.value)['Parameter']['Value'])
-    assert isinstance(sagemaker_resources, SageMakerResources)
-    assert isinstance(build_resources, BuildResources)
+    sagemaker_resources = load_sagemaker_resources()
+    build_resources = load_build_resources()
 
     job_name = f'{job_prefix}-{uuid.uuid4().__str__()[:5]}'
 
@@ -62,8 +57,6 @@ def sagemaker_process(*cmd, gpu: bool = False, job_prefix: str = 'collegium', im
     sm = boto3.client('sagemaker', region_name='us-west-2')
     ssm = boto3.client('ssm', region_name='us-west-2')
 
-    environment = json.loads(ssm.get_parameter(Name=SSMParameter.IMAGE_ENVIRONMENT.value)['Parameter']['Value'])
-
     sagemaker_resources = SageMakerResources.from_json(ssm.get_parameter(Name=SSMParameter.SAGEMAKER_RESOURCES.value)['Parameter']['Value'])
     build_resources = BuildResources.from_json(ssm.get_parameter(Name=SSMParameter.BUILD_RESOURCES.value)['Parameter']['Value'])
     assert isinstance(sagemaker_resources, SageMakerResources)
@@ -77,7 +70,6 @@ def sagemaker_process(*cmd, gpu: bool = False, job_prefix: str = 'collegium', im
             'ImageUri': f'{build_resources.collegium_ecr}:{image_version}',
             'ContainerArguments': cmd,
         },
-        Environment=environment,
         RoleArn=sagemaker_resources.sagemaker_role_arn,
         ProcessingResources={
             'ClusterConfig': {
