@@ -18,6 +18,7 @@ local
 **/denoiser_hyperop
 **/dream*
 **/*.zip
+**/pnp_model
 **/weathernet_model
 **/datasets
 **/interclass*
