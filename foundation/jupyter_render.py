@@ -43,7 +43,7 @@ def render_notebook(absolute_path: str):
         Key=ipynb_s3_path,
         Body=notebook_str.encode("utf-8"),
     )
-    print(f"{absolute_path} -> {ipynb_s3_path}")
+    logging.info(f"{absolute_path} -> {ipynb_s3_path}")
 
     notebook = nbformat.reads(notebook_str, as_version=4)  # type: NotebookNode
     exporter = HTMLExporter()
@@ -57,7 +57,7 @@ def render_notebook(absolute_path: str):
         ContentType="text/html",
         Body=html.encode("utf-8"),
     )
-    print(f"{absolute_path} -> {html_s3_path}")
+    logging.info(f"{absolute_path} -> {html_s3_path}")
 
 
 def execute_notebook(path: str):
@@ -79,7 +79,7 @@ def jupyter_process(*modules, execute: bool = False, render: bool = False):
 
         for report_path in notebooks:
             try:
-                print("Started", report_path)
+                logging.info("Started", report_path)
                 if execute:
                     execute_notebook(report_path)
                 if render:
