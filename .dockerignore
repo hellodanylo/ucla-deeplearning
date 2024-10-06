@@ -9,11 +9,6 @@
 .idea
 .vscode
 cdk.out
-dev/*.env
-dev/*.key
-dev/aws-ec2/key
-dev/aws-ec2/key.pub
-dev/team.json
 instructor
 local
 .empty
@@ -22,7 +17,8 @@ local
 **/denoiser_model
 **/denoiser_hyperop
 **/dream*
-**/pnp*
+**/*.zip
+**/pnp_model
 **/weathernet_model
 **/datasets
 **/interclass*
