@@ -71,6 +71,9 @@ def execute_notebook(path: str):
 def jupyter_process(*modules, execute: bool = False, render: bool = False):
     failed_notebooks = []
 
+    user = subprocess.check_output('whoami').strip()
+    subprocess.check_call(['sudo', 'chown', '-R', user, '/tmp'])
+
     for module in modules:
         notebooks = sorted(find_notebooks(prefix=f"/app/collegium/{module}"))
 
@@ -85,8 +88,7 @@ def jupyter_process(*modules, execute: bool = False, render: bool = False):
                 failed_notebooks.append(report_path)
                 logging.exception(e)
 
-    print("Failed notebooks:")
-    print("\n".join(failed_notebooks))
+    logging.info(f"Finished jupyter-process {failed_notebooks=}")
 
     # Report the exit code correctly,
     # so that downstream tasks are stopped.
