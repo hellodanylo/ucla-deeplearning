@@ -1,6 +1,6 @@
 #!/usr/bin/env zsh
 
-project_path=${0:a:h:h}
+export project_path=${0:a:h:h}
 
 conda activate collegium 2>/dev/null || true
 

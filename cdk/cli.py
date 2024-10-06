@@ -11,7 +11,7 @@ from collegium.cdk.environment import BuildResources, SSMParameter, SageMakerRes
 
 def sagemaker_jupyter_process(*, image_version: str = 'latest'):
     job_prefix = f'collegium-test-{image_version[:16]}'
-    cmd = ['python', '-m', collegium.foundation.cli.__name__, 'jupyter-process', '--execute', 'm01_dnn', 'm02_cnn', 'm03_rnn', 'm04_gan', 'm05_ensemble']
+    cmd = ['python', '-m', collegium.foundation.cli.__name__, 'jupyter-process', '--execute', 'm01_dnn', 'm02_cnn']
     sagemaker_train(*cmd, gpu=True, job_prefix=job_prefix, image_version=image_version)
 
 

@@ -46,5 +46,6 @@ dependencies:
     - statsmodels
     - tables
     - tensorflow[and-cuda]
+    - tf-keras
     - tqdm
     - transformers

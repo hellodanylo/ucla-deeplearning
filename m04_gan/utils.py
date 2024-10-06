@@ -2,6 +2,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from PIL import Image
 import os
+import tensorflow as tf
+import pandas as pd
 
 try:
     get_ipython().run_line_magic('config', 'InlineBackend.figure_format = "retina"')
