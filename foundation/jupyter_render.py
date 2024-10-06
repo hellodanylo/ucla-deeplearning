@@ -79,7 +79,7 @@ def jupyter_process(*modules, execute: bool = False, render: bool = False):
 
         for report_path in notebooks:
             try:
-                logging.info("Started", report_path)
+                logging.info(f"Started {report_path=}")
                 if execute:
                     execute_notebook(report_path)
                 if render:
