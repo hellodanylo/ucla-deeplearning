@@ -88,7 +88,10 @@ class MemberConstruct(Construct):
                     "TagKeyValue": [
                         f"user:owner${member.name}"
                     ],
-                }
+                },
+                cost_types=b.CfnBudget.CostTypesProperty(
+                    include_credit=False,
+                ),
             ),
             notifications_with_subscribers=[
                 self.build_subscription(threshold, member, admin_email)
@@ -159,6 +162,9 @@ class TeamStack(Stack):
                 time_unit='ANNUALLY',
                 budget_limit=b.CfnBudget.SpendProperty(amount=80*len(self.team_config.users), unit='USD'),
                 budget_name=f"team-full",
+                cost_types=b.CfnBudget.CostTypesProperty(
+                    include_credit=False,
+                ),
             ),
             notifications_with_subscribers=[
                 b.CfnBudget.NotificationWithSubscribersProperty(
@@ -183,6 +189,9 @@ class TeamStack(Stack):
                 time_unit='DAILY',
                 budget_limit=b.CfnBudget.SpendProperty(amount=100, unit='USD'),
                 budget_name=f"team-daily",
+                cost_types=b.CfnBudget.CostTypesProperty(
+                    include_credit=False,
+                ),
             ),
             notifications_with_subscribers=[
                 b.CfnBudget.NotificationWithSubscribersProperty(
