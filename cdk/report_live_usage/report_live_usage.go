@@ -64,7 +64,7 @@ func sendLiveUsageEmail() {
 			continue
 		}
 		htmlBody := formatUsageLines(usageLinesForUser, teamConfig.Admin.Name, user)
-		collegium.SendEmail("UCLA MSBA-434 - AWS Resource Usage", htmlBody, []*string{&teamConfig.Admin.Email, aws.String(emailByName[user])}, teamConfig.Admin.Email)
+		collegium.SendEmail("UCLA MSBA-434 - AWS Resource Usage", htmlBody, []*string{aws.String(emailByName[user])}, teamConfig.Admin.Email)
 	}
 }
 
@@ -102,7 +102,7 @@ func buildSageMakerUsageLines() []UsageLine {
 	smSvc := sagemaker.New(collegium.GetSession())
 	var usageLines []UsageLine
 
-	result, err := smSvc.ListApps(&sagemaker.ListAppsInput{})
+	result, err := smSvc.ListApps(&sagemaker.ListAppsInput{MaxResults: aws.Int64(100)})
 	if err != nil {
 		panic(fmt.Sprintf("Error listing SageMaker apps: %s", err))
 	}
