@@ -22,7 +22,9 @@ local
 **/weathernet_model
 **/datasets
 **/interclass*
-**/fakenet_dataset*
+**/fakenet_dataset
+**/fakenet_dataset.zip
 **/fakenet_model
 **/carnet_dataset*
 **/carnet_model*
+
