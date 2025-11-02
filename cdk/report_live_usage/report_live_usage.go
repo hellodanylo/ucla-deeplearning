@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"context"
 	_ "embed"
 	"fmt"
 	"html/template"
@@ -13,9 +14,9 @@ import (
 	"time"
 
 	"github.com/aws/aws-lambda-go/lambda"
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/service/ec2"
-	"github.com/aws/aws-sdk-go/service/sagemaker"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/ec2"
+	"github.com/aws/aws-sdk-go-v2/service/sagemaker"
 	"github.com/aymerick/douceur/inliner"
 )
 
@@ -47,7 +48,7 @@ func sendLiveUsageEmail() {
 
 	teamConfig := collegium.GetTeamConfig()
 	htmlBody := formatUsageLines(usageLines, teamConfig.Admin.Name, teamConfig.Admin.Name)
-	collegium.SendEmail("UCLA MSBA-434 - AWS Resource Usage", htmlBody, []*string{&teamConfig.Admin.Email}, teamConfig.Admin.Email)
+	collegium.SendEmail("UCLA MSBA-434 - AWS Resource Usage", htmlBody, []string{teamConfig.Admin.Email}, teamConfig.Admin.Email)
 
 	linesByUser := make(map[string][]UsageLine)
 	for _, usageLine := range usageLines {
@@ -64,15 +65,15 @@ func sendLiveUsageEmail() {
 			continue
 		}
 		htmlBody := formatUsageLines(usageLinesForUser, teamConfig.Admin.Name, user)
-		collegium.SendEmail("UCLA MSBA-434 - AWS Resource Usage", htmlBody, []*string{aws.String(emailByName[user])}, teamConfig.Admin.Email)
+		collegium.SendEmail("UCLA MSBA-434 - AWS Resource Usage", htmlBody, []string{emailByName[user]}, teamConfig.Admin.Email)
 	}
 }
 
 func buildEC2UsageLines() []UsageLine {
-	ec2Svc := ec2.New(collegium.GetSession())
+	ec2Svc := ec2.NewFromConfig(collegium.GetSession())
 	var usageLines []UsageLine
 
-	result, err := ec2Svc.DescribeInstances(nil)
+	result, err := ec2Svc.DescribeInstances(context.TODO(), nil)
 	if err != nil {
 		fmt.Println("Error describing EC2 instances:", err)
 		return usageLines
@@ -80,15 +81,15 @@ func buildEC2UsageLines() []UsageLine {
 
 	for _, res := range result.Reservations {
 		for _, instance := range res.Instances {
-			if *instance.State.Name != "running" {
+			if instance.State.Name != "running" {
 				continue
 			}
 			durationHours := time.Since(*instance.LaunchTime).Hours()
 			usageLines = append(usageLines, UsageLine{
 				User:          "",
 				Resource:      "ec2",
-				InstanceType:  *instance.InstanceType,
-				Status:        *instance.State.Name,
+				InstanceType:  string(instance.InstanceType),
+				Status:        string(instance.State.Name),
 				DurationHours: durationHours,
 				Url:           fmt.Sprintf("https://%s.console.aws.amazon.com/ec2/home#InstanceDetails:instanceId=%s", os.Getenv("AWS_REGION"), *instance.InstanceId),
 			})
@@ -99,24 +100,24 @@ func buildEC2UsageLines() []UsageLine {
 }
 
 func buildSageMakerUsageLines() []UsageLine {
-	smSvc := sagemaker.New(collegium.GetSession())
+	smSvc := sagemaker.NewFromConfig(collegium.GetSession())
 	var usageLines []UsageLine
 
-	result, err := smSvc.ListApps(&sagemaker.ListAppsInput{MaxResults: aws.Int64(100)})
+	result, err := smSvc.ListApps(context.TODO(), &sagemaker.ListAppsInput{MaxResults: aws.Int32(100)})
 	if err != nil {
 		panic(fmt.Sprintf("Error listing SageMaker apps: %s", err))
 	}
 
 	for _, app := range result.Apps {
-		if !(*app.AppType == "KernelGateway" && (*app.Status == "InService" || *app.Status == "Pending")) {
+		if !(app.AppType == "KernelGateway" && (app.Status == "InService" || app.Status == "Pending")) {
 			continue
 		}
 		durationHours := time.Since(*app.CreationTime).Hours()
 		usageLines = append(usageLines, UsageLine{
 			Resource:      "sagemaker_kernel",
-			InstanceType:  *app.ResourceSpec.InstanceType,
+			InstanceType:  string(app.ResourceSpec.InstanceType),
 			User:          *app.UserProfileName,
-			Status:        *app.Status,
+			Status:        string(app.Status),
 			DurationHours: durationHours,
 			Url: fmt.Sprintf("https://%s.console.aws.amazon.com/sagemaker/home?region=%s#/studio/%s/user/%s",
 				os.Getenv("AWS_REGION"), os.Getenv("AWS_REGION"), *app.DomainId, *app.UserProfileName),

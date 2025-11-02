@@ -1,14 +1,16 @@
 package lib
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/ses"
-	"github.com/aws/aws-sdk-go/service/ssm"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/ses"
+	ses_types "github.com/aws/aws-sdk-go-v2/service/ses/types"
+	"github.com/aws/aws-sdk-go-v2/service/ssm"
 )
 
 type AppResources struct {
@@ -29,24 +31,22 @@ type TeamConfig struct {
 	Users []Member `json:"users"`
 }
 
-var sess *session.Session
+var sess aws.Config
 
 func InitSession() {
-	sess = session.Must(session.NewSession(&aws.Config{
-		Region: aws.String(os.Getenv("AWS_REGION")),
-	}))
+	cfg, _ := config.LoadDefaultConfig(context.TODO(),
+		config.WithRegion(os.Getenv("AWS_REGION")),
+	)
+	sess = cfg
 }
 
-func GetSession() *session.Session {
-	if sess == nil {
-		panic("No session")
-	}
+func GetSession() aws.Config {
 	return sess
 }
 
 func GetTeamConfig() TeamConfig {
-	ssmSvc := ssm.New(sess)
-	teamConfigParam, err := ssmSvc.GetParameter(&ssm.GetParameterInput{
+	ssmSvc := ssm.NewFromConfig(sess)
+	teamConfigParam, err := ssmSvc.GetParameter(context.TODO(), &ssm.GetParameterInput{
 		Name: aws.String("/collegium/team-config"),
 	})
 	if err != nil {
@@ -64,8 +64,8 @@ func GetTeamConfig() TeamConfig {
 }
 
 func GetAppResources() AppResources {
-	ssmSvc := ssm.New(sess)
-	appResourcesParam, err := ssmSvc.GetParameter(&ssm.GetParameterInput{
+	ssmSvc := ssm.NewFromConfig(sess)
+	appResourcesParam, err := ssmSvc.GetParameter(context.TODO(), &ssm.GetParameterInput{
 		Name: aws.String("/collegium/app-resources"),
 	})
 	if err != nil {
@@ -76,13 +76,12 @@ func GetAppResources() AppResources {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("AppResources = %v\n", appResources)
 	return appResources
 }
 
 func GetSageMakerResources() SageMakerResources {
-	ssmSvc := ssm.New(sess)
-	response, err := ssmSvc.GetParameter(&ssm.GetParameterInput{
+	ssmSvc := ssm.NewFromConfig(sess)
+	response, err := ssmSvc.GetParameter(context.TODO(), &ssm.GetParameterInput{
 		Name: aws.String("/collegium/sagemaker-resources"),
 	})
 	if err != nil {
@@ -96,21 +95,21 @@ func GetSageMakerResources() SageMakerResources {
 	return resources
 }
 
-func SendEmail(title string, htmlBody string, recepients []*string, replyTo string) {
+func SendEmail(title string, htmlBody string, recepients []string, replyTo string) {
 	sesSource := GetAppResources().SesSource
-	sesSvc := ses.New(sess)
-	_, err := sesSvc.SendEmail(&ses.SendEmailInput{
+	sesSvc := ses.NewFromConfig(sess)
+	_, err := sesSvc.SendEmail(context.TODO(), &ses.SendEmailInput{
 		Source: aws.String(sesSource),
-		Destination: &ses.Destination{
+		Destination: &ses_types.Destination{
 			ToAddresses: recepients,
 		},
-		ReplyToAddresses: []*string{&replyTo},
-		Message: &ses.Message{
-			Subject: &ses.Content{
+		ReplyToAddresses: []string{replyTo},
+		Message: &ses_types.Message{
+			Subject: &ses_types.Content{
 				Data: aws.String(title),
 			},
-			Body: &ses.Body{
-				Html: &ses.Content{
+			Body: &ses_types.Body{
+				Html: &ses_types.Content{
 					Data: aws.String(htmlBody),
 				},
 			},
