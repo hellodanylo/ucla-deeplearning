@@ -11,6 +11,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/ses"
 	ses_types "github.com/aws/aws-sdk-go-v2/service/ses/types"
 	"github.com/aws/aws-sdk-go-v2/service/ssm"
+	"github.com/aws/aws-sdk-go-v2/service/sts"
 )
 
 type AppResources struct {
@@ -118,4 +119,13 @@ func SendEmail(title string, htmlBody string, recepients []string, replyTo strin
 	if err != nil {
 		panic(fmt.Sprintf("Error sending email to %v: %s", recepients, err))
 	}
+}
+
+func GetAccountId() *string {
+	sts := sts.NewFromConfig(GetSession())
+	ident, err := sts.GetCallerIdentity(context.TODO(), nil)
+	if err != nil {
+		panic(err)
+	}
+	return ident.Account
 }

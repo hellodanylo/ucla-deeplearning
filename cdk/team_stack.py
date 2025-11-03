@@ -38,8 +38,12 @@ class MemberConstruct(Construct):
                 resources=["*"],
             ),
             iam.PolicyStatement(
-                actions=["servicecatalog:ListAcceptedPortfolioShares"],
+                actions=["servicecatalog:List*"],
                 resources=["*"],
+            ),
+            iam.PolicyStatement(
+                actions=["*"],
+                resources=[f"arn:aws:sagemaker:*:*:space/{domain_id}/{member.name}"]
             )
         ])
 
