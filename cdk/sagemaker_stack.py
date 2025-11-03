@@ -1,5 +1,4 @@
 import base64
-import json
 from pathlib import Path
 from aws_cdk import RemovalPolicy, Stack
 from aws_cdk import aws_sagemaker as sm
@@ -10,11 +9,10 @@ from aws_cdk import aws_ssm as ssm
 from aws_cdk import aws_s3 as s3
 from constructs import Construct
 from collegium.cdk.environment import SSMParameter, SageMakerResources
-from collegium.cdk.studio_lifecycle_construct import StudioLifeCycleConstruct, StudioLifeCycleProvider
 
 
 class ImageConstruct(Construct):
-    def __init__(self, scope: Construct, id: str, image_name: str, image_uri: str, role: iam.Role, kernel_name: str) -> None:
+    def __init__(self, scope: Construct, id: str, image_name: str, image_uri: str, role: iam.Role) -> None:
         super().__init__(scope, id)
 
         self.image = sm.CfnImage(
@@ -35,12 +33,8 @@ class ImageConstruct(Construct):
 
         self.app_image = sm.CfnAppImageConfig(
             self, f'AppImageConfig', 
-            app_image_config_name=self.image_version.image_name,
-            kernel_gateway_image_config=sm.CfnAppImageConfig.KernelGatewayImageConfigProperty(
-                kernel_specs=[
-                    sm.CfnAppImageConfig.KernelSpecProperty(name=kernel_name, display_name=kernel_name)
-                ]
-            ),
+            app_image_config_name=f'{image_name}-r2',
+            jupyter_lab_app_image_config=sm.CfnAppImageConfig.JupyterLabAppImageConfigProperty(),
         )
 
 
@@ -60,8 +54,7 @@ class SageMakerStack(Stack):
         )
 
         ecr_collegium = ecr.Repository.from_repository_name(self, 'CollegiumRepo', 'collegium')
-        collegium_image = ImageConstruct(self, 'ImageCollegium', 'collegium', ecr_collegium.repository_uri_for_tag(image_version), role, "collegium")
-        images = [collegium_image]
+        collegium_image = ImageConstruct(self, 'ImageCollegium', 'collegium', ecr_collegium.repository_uri_for_tag(image_version), role)
 
         vpc = ec2.Vpc(
             self, 'Collegium', 
@@ -75,25 +68,13 @@ class SageMakerStack(Stack):
         sg = ec2.SecurityGroup(self, 'PublicSSH', vpc=vpc, security_group_name='collegium-devbox')
         sg.add_ingress_rule(ec2.Peer.ipv4('0.0.0.0/0'), ec2.Port.SSH)
 
-        lifecycle_provider = StudioLifeCycleProvider(self, "StudioLifecycleProvider")
-    
-        revision = '16'
-        studio_jupyter_lifecycle = (Path(__file__).parent / 'studio_jupyter_lifecycle.sh').read_text().replace('{revision}', revision)
-        studio_jupyter_lifecycle = base64.standard_b64encode(studio_jupyter_lifecycle.encode()).decode()
-        jupyter_lifecycle = StudioLifeCycleConstruct(
-            self, 'StudioJupyterLifecycle', 
-            lifecycle_provider, 
-            studio_jupyter_lifecycle, 'JupyterServer', f'collegium-jupyter-r{revision}'
+        self.lifecycle_config = sm.CfnStudioLifecycleConfig(
+            self, 'Lifecycle', 
+            studio_lifecycle_config_app_type='JupyterLab', 
+            studio_lifecycle_config_content=base64.b64encode((Path(__file__).parent / 'studio_jupyter_lifecycle.sh').read_bytes()).decode(),
+            studio_lifecycle_config_name='collegium-r4'
         )
-
-        revision = '4'
-        studio_kernel_lifecycle = (Path(__file__).parent / 'studio_kernel_lifecycle.sh').read_text().replace('{revision}', revision)
-        studio_kernel_lifecycle = base64.standard_b64encode(studio_kernel_lifecycle.encode()).decode()
-        kernel_lifecycle = StudioLifeCycleConstruct(
-            self, 'StudioKernelLifecycle', 
-            lifecycle_provider, 
-            studio_kernel_lifecycle, 'KernelGateway', f'collegium-kernel-r{revision}'
-        )
+        self.lifecycle_config.apply_removal_policy(RemovalPolicy.RETAIN)
 
         self.domain: sm.CfnDomain = sm.CfnDomain(
             self, 'Domain', 
@@ -101,33 +82,29 @@ class SageMakerStack(Stack):
             auth_mode='IAM',
             default_user_settings=sm.CfnDomain.UserSettingsProperty(
                 execution_role=role.role_arn,
-                studio_web_portal="DISABLED",
-                default_landing_uri="app:JupyterServer:",
-                jupyter_server_app_settings=sm.CfnDomain.JupyterServerAppSettingsProperty(default_resource_spec=sm.CfnDomain.ResourceSpecProperty(
-                    lifecycle_config_arn=jupyter_lifecycle.studio_lifecycle_config_arn,
-                )),
-                kernel_gateway_app_settings=sm.CfnDomain.KernelGatewayAppSettingsProperty(
+                studio_web_portal="ENABLED",
+                studio_web_portal_settings=sm.CfnDomain.StudioWebPortalSettingsProperty(
+                    hidden_app_types=['Canvas', 'JupyterServer', 'RStudioServerPro'],
+                ),
+                default_landing_uri='studio::',
+                jupyter_lab_app_settings=sm.CfnDomain.JupyterLabAppSettingsProperty(
+                    lifecycle_config_arns=[self.lifecycle_config.attr_studio_lifecycle_config_arn],
                     default_resource_spec=sm.CfnDomain.ResourceSpecProperty(
-                        instance_type="ml.t3.xlarge",
-                        lifecycle_config_arn=kernel_lifecycle.studio_lifecycle_config_arn,
-                        sage_maker_image_arn=collegium_image.image.attr_image_arn,
+                        lifecycle_config_arn=self.lifecycle_config.attr_studio_lifecycle_config_arn,
                         sage_maker_image_version_arn=collegium_image.image_version.attr_image_version_arn,
+                        instance_type='ml.t3.xlarge'
                     ),
-                    # Disabled, because it detaches previous versions of images,
-                    # that might still be in use by active profiles.
-                    # custom_images=[
-                    #     sm.CfnDomain.CustomImageProperty(
-                    #         app_image_config_name=image.app_image.app_image_config_name,
-                    #         image_name=image.image.image_name,
-                    #         image_version_number=image.image_version.attr_version,
-                    #     )
-                    #     for image in images
-                    # ]
+                    custom_images=[sm.CfnDomain.CustomImageProperty(
+                        app_image_config_name=collegium_image.app_image.app_image_config_name,
+                        image_name=collegium_image.image.image_name,
+                        image_version_number=collegium_image.image_version.attr_version
+                    )]
                 ),
             ),
             subnet_ids=vpc.select_subnets().subnet_ids,
             vpc_id=vpc.vpc_id,
         )
+
 
         # bucket = s3.Bucket(
         #     self, 'BucketPublic', 

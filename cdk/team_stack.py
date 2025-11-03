@@ -74,7 +74,7 @@ class MemberConstruct(Construct):
             domain_id=domain_id, 
             user_profile_name=member.name,
             user_settings=sm.CfnUserProfile.UserSettingsProperty(
-                execution_role=self.role.role_arn
+                execution_role=self.role.role_arn,
             ),
             tags=[
                 CfnTag(key="owner", value=member.name),
@@ -102,6 +102,25 @@ class MemberConstruct(Construct):
                 for threshold in [0, 25, 50, 75, 90, 100]
             ]
         )
+
+        self.space = sm.CfnSpace(
+            self, 'Space',
+            domain_id=domain_id,
+            space_name=f'{member.name}-space',
+            ownership_settings=sm.CfnSpace.OwnershipSettingsProperty(owner_user_profile_name=self.domain_user.user_profile_name),
+            space_sharing_settings=sm.CfnSpace.SpaceSharingSettingsProperty(sharing_type='Private'),
+            space_display_name=f'{member.name}-space',
+            space_settings=sm.CfnSpace.SpaceSettingsProperty(
+                app_type='JupyterLab',
+                space_storage_settings=sm.CfnSpace.SpaceStorageSettingsProperty(ebs_storage_settings=sm.CfnSpace.EbsStorageSettingsProperty(
+                    ebs_volume_size_in_gb=10,
+                )),
+            ),
+            tags=[
+                CfnTag(key="owner", value=member.name),
+            ]
+        )
+        self.space.add_dependency(self.domain_user)
 
         # b.CfnBudget(
         #     self, 'BudgetDaily-r4',
