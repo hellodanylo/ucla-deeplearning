@@ -48,6 +48,7 @@ RUN cat - >/opt/conda/lib/python3.12/site-packages/app.pth <<EOF
 EOF
 
 ENV XLA_FLAGS=--xla_gpu_cuda_data_dir=/opt/conda
+RUN pip install clize
 
 CMD jupyter \
     lab \
