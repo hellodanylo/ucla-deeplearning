@@ -6,6 +6,7 @@ RUN echo $TZ | sudo tee -a /etc/timezone
 
 RUN sudo apt-get update -q && \
     sudo apt-get install -qy \
+    zsh \
     build-essential \
     ffmpeg \
     gnupg \
@@ -19,10 +20,10 @@ RUN sudo apt-get update -q && \
 
 RUN conda info
 
-# ARG CONDA_ENV=conda_lock.yml
-# COPY cdk/docker-jupyter/$CONDA_ENV ./conda/conda_collegium.yml
-# COPY cdk/docker-jupyter/conda_collegium_setup.sh ./conda/conda_collegium_setup.sh
-# RUN ./conda/conda_collegium_setup.sh
+ARG CONDA_ENV=conda_init.yml
+COPY cdk/docker-jupyter/$CONDA_ENV ./conda/conda_collegium.yml
+COPY cdk/docker-jupyter/conda_collegium_setup.sh ./conda/conda_collegium_setup.sh
+RUN ./conda/conda_collegium_setup.sh
 # ENV PATH="/app/conda/envs/collegium/bin:$PATH"
 
 # Jupyter Server Proxy for MLFlow
@@ -45,6 +46,8 @@ RUN touch $HOME/test.123
 RUN cat - >/opt/conda/lib/python3.12/site-packages/app.pth <<EOF
 /app
 EOF
+
+ENV XLA_FLAGS=--xla_gpu_cuda_data_dir=/opt/conda
 
 CMD jupyter \
     lab \

@@ -16,4 +16,4 @@ docker run \
     -e AWS_SESSION_TOKEN \
     -e AWS_REGION \
     --rm "$versioned_uri" \
-    python -m collegium.cdk.cli sagemaker-jupyter-process --image-version "${CODEBUILD_RESOLVED_SOURCE_VERSION}"
+    /opt/conda/envs/collegium/bin/python -m collegium.cdk.cli sagemaker-jupyter-process --image-version "${CODEBUILD_RESOLVED_SOURCE_VERSION}"
