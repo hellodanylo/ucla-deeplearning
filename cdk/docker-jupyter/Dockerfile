@@ -17,6 +17,9 @@ RUN sudo apt-get update -q && \
     protobuf-compiler \
     software-properties-common \
     texlive-xetex \
+    vim \
+    wget \
+    unzip \
     zsh \
     >/dev/null 2>&1
 

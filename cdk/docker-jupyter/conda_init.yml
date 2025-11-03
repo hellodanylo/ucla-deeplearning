@@ -12,6 +12,7 @@ dependencies:
     - cachetools
     - clize
     - dataclass-wizard
+    - ipykernel
     - ipython
     - mypy
     - nbconvert
