@@ -42,6 +42,9 @@ ENV PYTHONUNBUFFERED=1
 ENV TF_CPP_MIN_LOG_LEVEL=3
 
 RUN touch $HOME/test.123
+RUN cat - >/opt/conda/lib/python3.12/site-packages/app.pth <<EOF
+/app
+EOF
 
 CMD jupyter \
     lab \
