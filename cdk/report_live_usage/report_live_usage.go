@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"html/template"
 	"os"
+	"strings"
 
 	collegium "github.com/hellodanylo/collegium"
 
@@ -61,11 +62,15 @@ func sendLiveUsageEmail() {
 	}
 
 	for user, usageLinesForUser := range linesByUser {
-		if user == "" {
+		email, exists := emailByName[user]
+		if !exists {
+			if user != "" {
+				fmt.Printf("Skipping usage line because no user email is associated %v\n", usageLinesForUser)
+			}
 			continue
 		}
 		htmlBody := formatUsageLines(usageLinesForUser, teamConfig.Admin.Name, user)
-		collegium.SendEmail("UCLA MSBA-434 - AWS Resource Usage", htmlBody, []string{emailByName[user]}, teamConfig.Admin.Email)
+		collegium.SendEmail("UCLA MSBA-434 - AWS Resource Usage", htmlBody, []string{email}, teamConfig.Admin.Email)
 	}
 }
 
@@ -109,18 +114,42 @@ func buildSageMakerUsageLines() []UsageLine {
 	}
 
 	for _, app := range result.Apps {
-		if !(app.AppType == "KernelGateway" && (app.Status == "InService" || app.Status == "Pending")) {
+		if !(app.AppType == "JupyterLab" && (app.Status == "InService" || app.Status == "Pending")) {
+			fmt.Printf("Skipping app due to filters %v\n", app)
 			continue
 		}
 		durationHours := time.Since(*app.CreationTime).Hours()
+		accountId := collegium.GetAccountId()
+		spaceArn := fmt.Sprintf("arn:aws:sagemaker:%s:%s:space/%s/%s", os.Getenv("AWS_REGION"), *accountId, *app.DomainId, *app.SpaceName)
+
+		tags, err := smSvc.ListTags(context.TODO(), &sagemaker.ListTagsInput{ResourceArn: &spaceArn})
+		if err != nil {
+			fmt.Printf("Failed to get tags for %s due to %s\n", spaceArn, err)
+			continue
+		}
+
+		var owner *string
+		for _, tag := range tags.Tags {
+			if *tag.Key == "sagemaker:user-profile-arn" {
+				parts := strings.Split(*tag.Value, "/")
+				owner = &parts[len(parts)-1]
+			}
+
+		}
+
+		if owner == nil {
+			fmt.Printf("Skipping app due to unknown owner of the space %v\n", app)
+			continue
+		}
+
 		usageLines = append(usageLines, UsageLine{
-			Resource:      "sagemaker_kernel",
+			Resource:      "sagemaker_jupyter",
 			InstanceType:  string(app.ResourceSpec.InstanceType),
-			User:          *app.UserProfileName,
+			User:          *owner,
 			Status:        string(app.Status),
 			DurationHours: durationHours,
 			Url: fmt.Sprintf("https://%s.console.aws.amazon.com/sagemaker/home?region=%s#/studio/%s/user/%s",
-				os.Getenv("AWS_REGION"), os.Getenv("AWS_REGION"), *app.DomainId, *app.UserProfileName),
+				os.Getenv("AWS_REGION"), os.Getenv("AWS_REGION"), *app.DomainId, *owner),
 		})
 	}
 
