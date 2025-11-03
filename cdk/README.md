@@ -12,8 +12,10 @@ If the Studio lifecycle script has changed, it must be recreated by changing the
 1. delete all SageMaker apps
 2. delete EFS volume
 3. delete EFS-related security groups
+4. delete EC2 instances in the SageMaker VPC
 4. delete `CollegiumTeam` stack
-4. delete `CollegiumSageMaker` stack
-5. delete `CollegiumBuild` stack
-6. delete CodePipeline's artifact S3 bucket
-7. delete SSM parameters
+5. delete `CollegiumSageMaker` stack
+6. delete `CollegiumBuild` stack
+7. delete CodePipeline's artifact S3 bucket
+8. delete SSM parameters
+9. delete SageMaker images and lifecycle configurations

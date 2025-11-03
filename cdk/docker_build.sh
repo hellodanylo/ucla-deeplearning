@@ -12,7 +12,7 @@ docker version
 docker buildx build \
     --cache-from="$latest_uri" \
     --cache-to="type=inline" \
-    --build-arg "BASE_IMAGE=${DOCTRINA_ECR}:base-latest" \
+    --build-arg "BASE_IMAGE=public.ecr.aws/sagemaker/sagemaker-distribution:3.5.0-gpu" \
     --build-arg "CONDA_ENV=${conda_env}" \
     --tag "$versioned_uri" \
     -f $project_path/cdk/docker-jupyter/Dockerfile \
