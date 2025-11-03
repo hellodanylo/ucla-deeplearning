@@ -13,6 +13,7 @@ RUN sudo apt-get update -q && \
     gnupg \
     htop \
     jq \
+    nvtop \
     procps \
     protobuf-compiler \
     software-properties-common \
@@ -29,13 +30,11 @@ ARG CONDA_ENV=conda_init.yml
 COPY cdk/docker-jupyter/$CONDA_ENV ./conda/conda_collegium.yml
 COPY cdk/docker-jupyter/conda_collegium_setup.sh ./conda/conda_collegium_setup.sh
 RUN ./conda/conda_collegium_setup.sh
-# ENV PATH="/app/conda/envs/collegium/bin:$PATH"
 
 # Jupyter Server Proxy for MLFlow
-# RUN conda run -n jupyter pip install jupyter-server-proxy==4.0.0
-# COPY cdk/docker-jupyter/jupyter_server_config.py /app/conda/envs/jupyter/etc/jupyter/
-# COPY cdk/docker-jupyter/mlflow.svg /app/conda/envs/jupyter/mlflow.svg
-# ENV MLFLOW_TRACKING_URI=file:///app/mlflow
+RUN pip install jupyter-server-proxy==4.4.0
+COPY cdk/docker-jupyter/jupyter_server_config.py /opt/conda/etc/jupyter/
+ENV MLFLOW_TRACKING_URI=file:///home/sagemaker-user/mlflow
 
 COPY --chown=sagemaker-user:sagemaker-user . /app/collegium
 WORKDIR /app/collegium
@@ -43,7 +42,6 @@ WORKDIR /app/collegium
 # Nvidia Runtime
 ENV NVIDIA_VISIBLE_DEVICES=all
 ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility
-# ENV NVIDIA_REQUIRE_CUDA="cuda>=10.0 brand=tesla,driver>=384,driver<385 brand=tesla,driver>=410,driver<411"
 ENV PYTHONUNBUFFERED=1
 ENV TF_CPP_MIN_LOG_LEVEL=3
 
@@ -60,6 +58,10 @@ RUN jupyter kernelspec uninstall -y glue_spark
 RUN jupyter kernelspec uninstall -y pysparkkernel
 RUN jupyter kernelspec uninstall -y sparkkernel
 RUN python -m ipykernel install --sys-prefix --name collegium
+
+COPY cdk/docker-jupyter/install_go.sh /app/install_go.sh
+RUN /app/install_go.sh
+ENV PATH=/app/go/bin:$PATH
 
 CMD jupyter \
     lab \
