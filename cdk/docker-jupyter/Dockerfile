@@ -52,7 +52,8 @@ RUN cat - >/opt/conda/lib/python3.12/site-packages/app.pth <<EOF
 EOF
 
 ENV XLA_FLAGS=--xla_gpu_cuda_data_dir=/opt/conda
-RUN pip install clize
+RUN pip install clize==5.0.2 keras_cv==0.9.0
+RUN pip install 'transformers<=4.54.1' || true
 
 RUN jupyter kernelspec uninstall -y glue_pyspark
 RUN jupyter kernelspec uninstall -y glue_spark
