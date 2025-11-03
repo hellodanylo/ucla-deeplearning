@@ -19,7 +19,7 @@ class MemberConstruct(Construct):
             ),
             iam.PolicyStatement(
                 actions=["*"],
-                resources=[f"arn:aws:sagemaker:*:*:app/{domain_id}/{member.name}/*/*"],
+                resources=[f"arn:aws:sagemaker:*:*:app/{domain_id}/{member.name}*/*/*"],
             ),
             iam.PolicyStatement(
                 actions=["license-manager:ListReceivedLicenses"],
@@ -43,7 +43,7 @@ class MemberConstruct(Construct):
             ),
             iam.PolicyStatement(
                 actions=["*"],
-                resources=[f"arn:aws:sagemaker:*:*:space/{domain_id}/{member.name}"]
+                resources=[f"arn:aws:sagemaker:*:*:space/{domain_id}/{member.name}*"]
             )
         ])
 

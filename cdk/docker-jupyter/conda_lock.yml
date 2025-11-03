@@ -1,4 +1,4 @@
-name: collegium
+name: cdk
 channels:
   - conda-forge
 dependencies:
@@ -120,4 +120,4 @@ dependencies:
       - urllib3==2.5.0
       - wcwidth==0.2.14
       - webencodings==0.5.1
-prefix: /opt/conda/envs/collegium
+prefix: /opt/conda/envs/cdk

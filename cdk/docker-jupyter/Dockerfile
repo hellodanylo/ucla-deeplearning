@@ -1,13 +1,14 @@
 ARG BASE_IMAGE
 FROM ${BASE_IMAGE}
 
+ARG TZ=America/Los_Angeles
 RUN sudo ln -snf /usr/share/zoneinfo/$TZ /etc/localtime
 RUN echo $TZ | sudo tee -a /etc/timezone
 
 RUN sudo apt-get update -q && \
     sudo apt-get install -qy \
-    zsh \
     build-essential \
+    exa \
     ffmpeg \
     gnupg \
     htop \
@@ -16,6 +17,7 @@ RUN sudo apt-get update -q && \
     protobuf-compiler \
     software-properties-common \
     texlive-xetex \
+    zsh \
     >/dev/null 2>&1
 
 RUN conda info
@@ -42,7 +44,6 @@ ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility
 ENV PYTHONUNBUFFERED=1
 ENV TF_CPP_MIN_LOG_LEVEL=3
 
-RUN touch $HOME/test.123
 RUN cat - >/opt/conda/lib/python3.12/site-packages/app.pth <<EOF
 /app
 EOF
@@ -50,9 +51,15 @@ EOF
 ENV XLA_FLAGS=--xla_gpu_cuda_data_dir=/opt/conda
 RUN pip install clize
 
+RUN jupyter kernelspec uninstall -y glue_pyspark
+RUN jupyter kernelspec uninstall -y glue_spark
+RUN jupyter kernelspec uninstall -y pysparkkernel
+RUN jupyter kernelspec uninstall -y sparkkernel
+RUN python -m ipykernel install --sys-prefix --name collegium
+
 CMD jupyter \
     lab \
-    --notebook-dir=/app \
+    --notebook-dir=/home/sagemaker-user \
     --ip=0.0.0.0 \
     --port=8888 \
     --no-browser \
