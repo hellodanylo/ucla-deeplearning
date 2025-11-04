@@ -54,7 +54,7 @@ RUN pip install clize==5.0.2 keras_cv==0.9.0
 RUN pip install 'transformers<=4.54.1' || true
 
 # Cleanup of unused features
-RUN pip uninstall amazon_sagemaker_jupyter_ai_q_developer \
+RUN pip uninstall -y amazon_sagemaker_jupyter_ai_q_developer \
     sagemaker-jupyterlab-emr-extension \
     sagemaker_gen_ai_jupyterlab_extension \
     sagemaker-studio-dataengineering-extensions \
