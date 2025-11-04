@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"html/template"
 	"os"
-	"strings"
 
 	collegium "github.com/hellodanylo/collegium"
 
@@ -130,15 +129,14 @@ func buildSageMakerUsageLines() []UsageLine {
 
 		var owner *string
 		for _, tag := range tags.Tags {
-			if *tag.Key == "sagemaker:user-profile-arn" {
-				parts := strings.Split(*tag.Value, "/")
-				owner = &parts[len(parts)-1]
+			if *tag.Key == "owner" {
+				owner = tag.Value
 			}
 
 		}
 
 		if owner == nil {
-			fmt.Printf("Skipping app due to unknown owner of the space %v\n", app)
+			fmt.Printf("Skipping app due to unknown owner of the space %v\n", *app.SpaceName)
 			continue
 		}
 
