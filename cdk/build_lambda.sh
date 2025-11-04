@@ -1,7 +1,7 @@
 #!/usr/bin/env zsh
 
 project_path=${0:a:h:h}
-cd $project_path/cdk
+cd $project_path/cdk/report_live_usage
 
 go build -o bootstrap
 zip lambda.zip bootstrap

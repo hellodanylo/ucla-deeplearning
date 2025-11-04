@@ -6,7 +6,6 @@ from aws_cdk import aws_ecr as ecr
 from aws_cdk import aws_iam as iam
 from aws_cdk import aws_ec2 as ec2
 from aws_cdk import aws_ssm as ssm
-from aws_cdk import aws_s3 as s3
 from constructs import Construct
 from collegium.cdk.environment import SSMParameter, SageMakerResources
 
@@ -107,7 +106,7 @@ class SageMakerStack(Stack):
                         'Projects',
                         'HyperPodClusters'
                     ],
-                    hidden_instance_types=['ml.t3.medium', 'ml.t3.large', 'ml.t3.2xlarge', 'ml.g4dn.xlarge', 'ml.g4dn.2xlarge', 'ml.g4dn.8xlarge', 'ml.g4dn.12xlarge', 'ml.g4dn.16xlarge'],
+                    hidden_instance_types=['ml.t3.medium', 'ml.t3.large', 'ml.g4dn.xlarge', 'ml.g4dn.2xlarge', 'ml.g4dn.8xlarge', 'ml.g4dn.12xlarge', 'ml.g4dn.16xlarge'],
                 ),
                 default_landing_uri='studio::',
                 jupyter_lab_app_settings=sm.CfnDomain.JupyterLabAppSettingsProperty(
@@ -127,20 +126,6 @@ class SageMakerStack(Stack):
             subnet_ids=vpc.select_subnets().subnet_ids,
             vpc_id=vpc.vpc_id,
         )
-
-
-        # bucket = s3.Bucket(
-        #     self, 'BucketPublic', 
-        #     access_control=s3.BucketAccessControl.PUBLIC_READ, 
-        #     bucket_name='ucla-deeplearning-public',
-        #     public_read_access=True,
-        #     block_public_access=s3.BlockPublicAccess(
-        #         block_public_acls=False, 
-        #         block_public_policy=False, 
-        #         ignore_public_acls=False, 
-        #         restrict_public_buckets=False
-        #     )
-        # )
 
         ssm.CfnParameter(
             self, 'SageMakerResources', 

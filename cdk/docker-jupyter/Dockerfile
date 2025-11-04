@@ -53,6 +53,15 @@ ENV XLA_FLAGS=--xla_gpu_cuda_data_dir=/opt/conda
 RUN pip install clize==5.0.2 keras_cv==0.9.0
 RUN pip install 'transformers<=4.54.1' || true
 
+# Cleanup of unused features
+RUN pip uninstall amazon_sagemaker_jupyter_ai_q_developer \
+    sagemaker-jupyterlab-emr-extension \
+    sagemaker_gen_ai_jupyterlab_extension \
+    sagemaker-studio-dataengineering-extensions \
+    sagemaker-studio-analytics-extension \
+    amazon_sagemaker_sql_editor \
+    jupyter_ai
+
 RUN jupyter kernelspec uninstall -y glue_pyspark
 RUN jupyter kernelspec uninstall -y glue_spark
 RUN jupyter kernelspec uninstall -y pysparkkernel
