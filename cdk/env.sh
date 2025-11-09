@@ -1,6 +1,7 @@
 #!/usr/bin/env zsh
 
 export project_path=${0:a:h:h}
+pushd $project_path
 
 conda activate collegium 2>/dev/null || true
 
@@ -14,3 +15,5 @@ build_vars=$(aws --region $AWS_REGION ssm get-parameter --name /collegium/build-
 export COLLEGIUM_ECR=$(echo $build_vars | jq -r .collegiumEcr)
 export DOCTRINA_ECR=$(echo $app_vars | jq -r .doctrina_ecr)
 export CODEBUILD_RESOLVED_SOURCE_VERSION=${CODEBUILD_RESOLVED_SOURCE_VERSION:-$(git rev-parse HEAD)}
+
+popd
