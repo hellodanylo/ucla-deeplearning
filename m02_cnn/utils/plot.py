@@ -288,7 +288,6 @@ def draw_boxes(
     boxes: np.ndarray,  # = [image, [ymin, xmin, ymax, xmax]]
     class_names: Sequence[Text],
     scores: Sequence[float],
-    max_boxes: int = 10,
     min_score: float = 0.1,
     font_size: int = 20,
 ) -> np.ndarray:
@@ -304,7 +303,7 @@ def draw_boxes(
     font = ImageFont.truetype("./utils/Roboto-Regular.ttf", size=font_size)
     image_pil = Image.fromarray(np.uint8(image)).convert("RGB")
 
-    for i in range(min(boxes.shape[0], max_boxes)):
+    for i in range(boxes.shape[0]):
         if scores[i] < min_score:
             continue
 
