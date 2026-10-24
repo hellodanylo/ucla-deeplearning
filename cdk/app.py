@@ -23,7 +23,8 @@ def get_studio_image_tag():
 def main():
     app = App()
     build = BuildStack(app, 'CollegiumBuild')
-    sagemaker: SageMakerStack = SageMakerStack(app, 'CollegiumSageMaker', image_version=get_studio_image_tag())
+    # The domain uses the SOCI-indexed tag (lazy loading, faster app start), published by cdk/soci_index.sh
+    sagemaker: SageMakerStack = SageMakerStack(app, 'CollegiumSageMaker', image_version=f'{get_studio_image_tag()}-soci')
 
     ssm = boto3.client('ssm', region_name='us-west-2')
     config_json = ssm.get_parameter(Name=SSMParameter.TEAM_CONFIG.value)['Parameter']['Value']

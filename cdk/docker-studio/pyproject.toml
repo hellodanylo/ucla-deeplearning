@@ -22,6 +22,9 @@ dependencies = [
     "keras-cv==0.9.0",
     "torch",
     "torchvision",
+    "lightning",                           # PyTorch Lightning: Keras-like fit/callbacks for the PyTorch notebooks
+    "torchmetrics",
+    "torchinfo",                           # model summary (Keras model.summary() equivalent)
     "transformers",                        # PyTorch models (transformers v5 has no TF classes)
     "mlflow",
 
