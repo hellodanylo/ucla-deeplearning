@@ -19,6 +19,7 @@ from collegium.cdk.environment import BuildResources, SSMParameter
 
 class BuildVariable(Enum):
     COLLEGIUM_ECR = "COLLEGIUM_ECR"
+    COLLEGIUM_CDK_ECR = "COLLEGIUM_CDK_ECR"
 
 
 class BuildStack(Stack):
@@ -31,12 +32,27 @@ class BuildStack(Stack):
             repository_name=package_name,
         )
 
+        # SageMaker Studio image (cdk/docker-studio)
         ecr_repo: ecr.Repository = ecr.Repository(
             self, "ECRRepository", 
             repository_name=package_name,
             lifecycle_rules=[
                 ecr.LifecycleRule(
                     tag_status=ecr.TagStatus.ANY, 
+                    max_image_age=Duration.days(90),
+                    description="keep for 90 days"
+                ),
+            ],
+            removal_policy=RemovalPolicy.DESTROY,
+        )
+
+        # Deployment tooling image (cdk/docker-cdk)
+        ecr_repo_cdk: ecr.Repository = ecr.Repository(
+            self, "ECRRepositoryCdk",
+            repository_name=f"{package_name}-cdk",
+            lifecycle_rules=[
+                ecr.LifecycleRule(
+                    tag_status=ecr.TagStatus.ANY,
                     max_image_age=Duration.days(90),
                     description="keep for 90 days"
                 ),
@@ -105,6 +121,7 @@ class BuildStack(Stack):
                         role=role,  # type: ignore
                         environment_variables={
                             BuildVariable.COLLEGIUM_ECR.value: cb.BuildEnvironmentVariable(value=ecr_repo.repository_uri),
+                            BuildVariable.COLLEGIUM_CDK_ECR.value: cb.BuildEnvironmentVariable(value=ecr_repo_cdk.repository_uri),
                         }
                     ) 
                 ]),
@@ -120,7 +137,8 @@ class BuildStack(Stack):
         ssm.CfnParameter(
             self, 'BuildResources', 
             value=BuildResources(
-                collegium_ecr=ecr_repo.repository_uri
+                collegium_ecr=ecr_repo.repository_uri,
+                collegium_cdk_ecr=ecr_repo_cdk.repository_uri,
             ).to_json(),
             name=SSMParameter.BUILD_RESOURCES.value,
             type='String'

@@ -16,6 +16,8 @@ class SageMakerResources(JSONWizard):
 @dataclass
 class BuildResources(JSONWizard):
     collegium_ecr: str
+    # Absent until CollegiumBuild is redeployed with the collegium-cdk repository
+    collegium_cdk_ecr: str = ""
 
 
 @dataclass

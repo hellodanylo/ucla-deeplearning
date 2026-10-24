@@ -4,8 +4,6 @@ set -eux
 
 project_path="${0:a:h:h}"
 
-versioned_uri="${COLLEGIUM_ECR}:${CODEBUILD_RESOLVED_SOURCE_VERSION}"
-
 # Import the temporary credentials
 set +x;
 source $project_path/cdk/assume.sh
@@ -16,8 +14,8 @@ docker run \
     -e AWS_SECRET_ACCESS_KEY \
     -e AWS_SESSION_TOKEN \
     -e AWS_REGION \
+    -e AWS_DEFAULT_REGION=$AWS_REGION \
     -e CODEBUILD_RESOLVED_SOURCE_VERSION \
     --rm \
-    -w /app/collegium/cdk \
-    "$versioned_uri" \
-    zsh -c 'PATH=/opt/venv/cdk/bin:$PATH cdk deploy --all'
+    "${COLLEGIUM_CDK_ECR}:${CODEBUILD_RESOLVED_SOURCE_VERSION}" \
+    cdk deploy --all

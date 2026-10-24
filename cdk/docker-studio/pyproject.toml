@@ -1,0 +1,64 @@
+# Python environment of the SageMaker Studio JupyterLab image (cdk/docker-studio/Dockerfile).
+# Covers what the course notebooks and module helpers import; students can add more with pip.
+[project]
+name = "collegium-studio"
+version = "1.0"
+requires-python = "==3.12.*"
+dependencies = [
+    # JupyterLab app and SageMaker Studio integration
+    "jupyterlab>=4,<5",
+    "ipykernel",
+    "ipywidgets",
+    "jupyter-activity-monitor-extension",  # required by Studio idle shutdown
+    "jupyter-server-proxy",                # serves MLflow UI inside JupyterLab
+    "nbconvert",
+    "nbformat",
+    "pip",                                 # uv venvs ship without pip; students use %pip install
+
+    # Deep learning
+    "tensorflow[and-cuda]",
+    "keras",
+    "keras-hub",
+    "keras-cv==0.9.0",
+    "torch",
+    "torchvision",
+    "tf-keras",                            # Keras 2 shim used by transformers' TF models
+    "transformers<=4.54.1",                # pinned as in the previous image (TF model support)
+    "mlflow",
+
+    # Data science
+    "numpy",
+    "pandas",
+    "scipy",
+    "scikit-learn",
+    "statsmodels",
+    "matplotlib",
+    "seaborn",
+    "pillow",
+
+    # Utilities used by notebooks and helpers
+    "beautifulsoup4",
+    "boto3",
+    "cachetools",
+    "clize",
+    "lxml",                                # BeautifulSoup(..., "xml") in GANArxiv
+    "protobuf",
+    "pytest",
+    "requests",
+    "tqdm",
+]
+
+[tool.uv]
+package = false
+environments = ["sys_platform == 'linux' and platform_machine == 'x86_64'"]
+
+# CUDA 12 builds of PyTorch: shares nvidia-*-cu12 libraries with TensorFlow and supports the
+# pre-580 drivers that CUDA 13 (PyPI default) would require. Keep sm_75 (T4 on g4dn) in mind.
+[[tool.uv.index]]
+name = "pytorch-cu126"
+url = "https://download.pytorch.org/whl/cu126"
+explicit = true
+
+[tool.uv.sources]
+torch = { index = "pytorch-cu126" }
+torchvision = { index = "pytorch-cu126" }
