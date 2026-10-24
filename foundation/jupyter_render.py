@@ -13,15 +13,20 @@ from nbconvert import HTMLExporter
 from nbconvert.preprocessors.execute import ExecutePreprocessor
 from nbformat import NotebookNode
 
+# Course checkout: cloned by the Studio lifecycle script, or fetched by the CI test job.
+# The Studio image resolves `collegium.*` imports to this path.
+COLLEGIUM_ROOT = "/home/sagemaker-user/collegium"
 
-def find_notebooks(prefix: str = "/app/collegium") -> Sequence[str]:
+
+def find_notebooks(prefix: str = COLLEGIUM_ROOT) -> Sequence[str]:
     reports = (
         subprocess.run(["find", prefix, "-name", "*.ipynb"], capture_output=True)
         .stdout.decode()
         .split("\n")
     )
 
-    reports = [r for r in reports if "checkpoint" not in r and r != ""]
+    # Skip Jupyter checkpoints and copies that notebooks log as MLflow artifacts
+    reports = [r for r in reports if "checkpoint" not in r and "/mlruns/" not in r and r != ""]
 
     return reports
 
@@ -31,12 +36,13 @@ def get_s3():
     return boto3.client("s3")
 
 
-def render_notebook(absolute_path: str):
+def render_notebook(absolute_path: str, root: str = COLLEGIUM_ROOT):
     with open(absolute_path, "r") as f:
         notebook_str = f.read()
 
     s3 = get_s3()
-    ipynb_s3_path = absolute_path[1:]
+    # Keys predate the checkout location and are public URLs, so they stay under app/collegium/
+    ipynb_s3_path = os.path.join("app/collegium", os.path.relpath(absolute_path, root))
     s3.put_object(
         Bucket="danylo-ucla",
         ACL="public-read",
@@ -49,7 +55,7 @@ def render_notebook(absolute_path: str):
     exporter = HTMLExporter()
     html = exporter.from_notebook_node(notebook)[0]
 
-    html_s3_path = absolute_path[1:].split(".")[0] + ".html"
+    html_s3_path = ipynb_s3_path.split(".")[0] + ".html"
     s3.put_object(
         Bucket="danylo-ucla",
         Key=html_s3_path,
@@ -68,14 +74,14 @@ def execute_notebook(path: str):
     ep.preprocess(notebook, {"metadata": {"path": os.path.dirname(path)}})
 
 
-def jupyter_process(*modules, execute: bool = False, render: bool = False):
+def jupyter_process(*modules, execute: bool = False, render: bool = False, root: str = COLLEGIUM_ROOT):
     failed_notebooks = []
 
     user = subprocess.check_output('whoami').strip()
     subprocess.check_call(['sudo', 'chown', '-R', user, '/tmp'])
 
     for module in modules:
-        notebooks = sorted(find_notebooks(prefix=f"/app/collegium/{module}"))
+        notebooks = sorted(find_notebooks(prefix=os.path.join(root, module)))
 
         for report_path in notebooks:
             try:
@@ -83,7 +89,7 @@ def jupyter_process(*modules, execute: bool = False, render: bool = False):
                 if execute:
                     execute_notebook(report_path)
                 if render:
-                    render_notebook(report_path)
+                    render_notebook(report_path, root)
             except Exception as e:
                 failed_notebooks.append(report_path)
                 logging.exception(e)

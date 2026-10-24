@@ -4,20 +4,20 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import sklearn.metrics as metrics
+from keras import ops, config
 from statsmodels.regression.linear_model import OLS
-from tensorflow import Tensor
-# noinspection PyPep8Naming
-from tensorflow.python.keras import backend as K
 
 
-def r2_score(y_true: Tensor, y_hat: Tensor) -> Tensor:
-    ss_res = K.sum(K.square(y_true - y_hat))
-    ss_tot = K.sum(K.square(y_true - K.mean(y_true)))
-    return 1 - ss_res / (ss_tot + K.epsilon())
+# Backend-agnostic (Keras 3 ops): works with KERAS_BACKEND=tensorflow or torch.
+# Note: Keras evaluates these per batch, so r2_score is a batch-wise approximation.
+def r2_score(y_true, y_hat):
+    ss_res = ops.sum(ops.square(y_true - y_hat))
+    ss_tot = ops.sum(ops.square(y_true - ops.mean(y_true)))
+    return 1 - ss_res / (ss_tot + config.epsilon())
 
 
-def mean_error(y_true: Tensor, y_hat: Tensor) -> Tensor:
-    return K.mean(y_hat) - K.mean(y_true)
+def mean_error(y_true, y_hat):
+    return ops.mean(y_hat) - ops.mean(y_true)
 
 
 def nd_target_like_panel(

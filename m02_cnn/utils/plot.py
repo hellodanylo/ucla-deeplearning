@@ -1,15 +1,17 @@
 import math
 from io import BytesIO
+from pathlib import Path
 from typing import List, Text, Dict, Mapping, Tuple, Iterable, Sequence
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 import requests
-import tensorflow as tf
 from PIL import ImageDraw, ImageFont, Image
 from PIL.ImageFont import FreeTypeFont
 from cachetools import LRUCache, cached
+
+UTILS_DIR = Path(__file__).parent
 
 try:
     get_ipython().run_line_magic('config', 'InlineBackend.figure_format = "retina"')
@@ -18,6 +20,18 @@ except:
 
 def sigmoid(x: np.ndarray) -> np.ndarray:
     return 1 / (1 + np.exp(-x))
+
+
+def to_numpy(x) -> np.ndarray:
+    """
+    Converts a NumPy array, a Keras variable, or a backend tensor
+    (TensorFlow, or PyTorch also on GPU) to a NumPy array.
+    """
+    if isinstance(x, np.ndarray):
+        return x
+    import keras
+
+    return np.asarray(keras.ops.convert_to_numpy(x))
 
 
 def plot_conv_kernel(w: np.ndarray, labels: List[Text] = None, side_inches: int = 2):
@@ -35,6 +49,7 @@ def plot_conv_kernel(w: np.ndarray, labels: List[Text] = None, side_inches: int 
     :param labels: optional list of labels for each output channel
     """
 
+    w = to_numpy(w)
     if len(w.shape) == 3:
         w = np.expand_dims(w, -1)
     elif len(w.shape) != 4:
@@ -51,7 +66,7 @@ def plot_conv_kernel(w: np.ndarray, labels: List[Text] = None, side_inches: int 
         wt = w[:, :, :, i]
 
         # Rescaling so that sigmoid is saturated.
-        wt = wt / tf.math.reduce_std(wt)
+        wt = wt / np.std(wt)
         wt = sigmoid(wt)
 
         plt.subplot(rows, cols, i + 1)
@@ -72,10 +87,11 @@ def plot_activation_map(am: np.ndarray):
     
     :param am: the activation map of shape (height, width)
     """
+    am = to_numpy(am)
     std = am.std()
 
     if std != 0:
-        am /= std
+        am = am / std
 
     am = sigmoid(am)
 
@@ -127,7 +143,8 @@ def plot_gradient(grad: np.ndarray) -> None:
     
     :param grad: an array of shape (height, width)
     """
-    grad /= grad.std()
+    grad = to_numpy(grad)
+    grad = grad / grad.std()
     grad = sigmoid(grad)
     plt.imshow(grad)
     plt.xticks([])
@@ -297,10 +314,12 @@ def draw_boxes(
     Adapted from:
     https://colab.research.google.com/github/tensorflow/hub/blob/master/examples/colab/object_detection.ipynb
     """
-    cmap = mpl.cm.get_cmap("tab20")
+    image = to_numpy(image)
+    boxes = to_numpy(boxes)
+    cmap = mpl.colormaps["tab20"]
     colors = [tuple((np.array(cmap(i))[:3] * 255).astype(int)) for i in range(20)]
 
-    font = ImageFont.truetype("./utils/Roboto-Regular.ttf", size=font_size)
+    font = ImageFont.truetype(str(UTILS_DIR / "Roboto-Regular.ttf"), size=font_size)
     image_pil = Image.fromarray(np.uint8(image)).convert("RGB")
 
     for i in range(boxes.shape[0]):

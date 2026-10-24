@@ -17,7 +17,8 @@ def cross(aa: Sequence[int], bb: Sequence[int]):
 def evaluate_on_square(f, location=(0, 0), side=200, n=100):
     xd = np.linspace(location[0]-side/2, location[1]+side/2, n)
     xx = cross(xd, xd)
-    fs = np.array([f(x) for x in xx])
+    # float() also converts backend tensors (e.g. CUDA scalars on the torch backend)
+    fs = np.array([float(f(x)) for x in xx])
 
     return fs
 
