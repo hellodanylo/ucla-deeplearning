@@ -1,0 +1,24 @@
+[project]
+name = "collegium-cdk"
+version = "1.0"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "aws-cdk-lib==2.221.1",
+    "constructs==10.4.2",
+    "boto3==1.40.64",
+    "clize==5.0.2",
+    "dataclass-wizard==0.35.1",
+    # Needed by cli.py via collegium.foundation.cli
+    "cachetools==6.2.1",
+    "nbconvert==7.16.6",
+    "nbformat==5.10.4",
+    # Provides node/npm/npx for the `cdk` CLI (npx aws-cdk@2.1031.1)
+    "nodejs-wheel==22.*",
+    "collegium",
+]
+
+[tool.uv]
+package = false
+
+[tool.uv.sources]
+collegium = { path = "..", editable = true }

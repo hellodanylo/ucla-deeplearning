@@ -28,3 +28,5 @@ local
 **/carnet_dataset*
 **/carnet_model*
 
+.venv
+**/*.egg-info

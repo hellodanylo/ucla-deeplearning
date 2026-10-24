@@ -8,7 +8,7 @@
 .env
 .idea
 .vscode
-cdk.out
+**/cdk.out
 instructor
 local
 .empty
@@ -28,3 +28,6 @@ local
 **/carnet_dataset*
 **/carnet_model*
 .git
+**/.venv
+**/*.egg-info
+**/node_modules

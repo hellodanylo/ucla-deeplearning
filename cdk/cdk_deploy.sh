@@ -16,7 +16,8 @@ docker run \
     -e AWS_SECRET_ACCESS_KEY \
     -e AWS_SESSION_TOKEN \
     -e AWS_REGION \
+    -e CODEBUILD_RESOLVED_SOURCE_VERSION \
     --rm \
     -w /app/collegium/cdk \
     "$versioned_uri" \
-    npx cdk deploy --all
+    zsh -c 'PATH=/opt/venv/cdk/bin:$PATH cdk deploy --all'

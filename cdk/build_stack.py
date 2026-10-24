@@ -7,8 +7,6 @@ import aws_cdk.aws_codecommit as cc
 import aws_cdk.aws_codepipeline as cp
 import aws_cdk.aws_codepipeline_actions as cpa
 import aws_cdk.aws_iam as iam
-import aws_cdk.aws_events as e
-import aws_cdk.aws_events_targets as et
 import aws_cdk.aws_ssm as ssm
 import aws_cdk.aws_sns as sns
 from aws_cdk import Stack, Duration, RemovalPolicy
@@ -21,7 +19,6 @@ from collegium.cdk.environment import BuildResources, SSMParameter
 
 class BuildVariable(Enum):
     COLLEGIUM_ECR = "COLLEGIUM_ECR"
-    DOCTRINA_ECR = "DOCTRINA_ECR"
 
 
 class BuildStack(Stack):
@@ -46,8 +43,6 @@ class BuildStack(Stack):
             ],
             removal_policy=RemovalPolicy.DESTROY,
         )
-
-        ecr_doctrina = ecr.Repository.from_repository_name(self, "ECRRepositoryDoctrina", repository_name="doctrina")
 
         role: iam.Role = iam.Role(
             self, "IamRoleBuild", 
@@ -109,7 +104,6 @@ class BuildStack(Stack):
                         project=project,  # type: ignore
                         role=role,  # type: ignore
                         environment_variables={
-                            BuildVariable.DOCTRINA_ECR.value: cb.BuildEnvironmentVariable(value=ecr_doctrina.repository_uri, type=cb.BuildEnvironmentVariableType.PLAINTEXT),
                             BuildVariable.COLLEGIUM_ECR.value: cb.BuildEnvironmentVariable(value=ecr_repo.repository_uri),
                         }
                     ) 
@@ -121,31 +115,6 @@ class BuildStack(Stack):
             id="notify_success_or_failure",
             target=topic, 
             events=[cp.PipelineNotificationEvents.PIPELINE_EXECUTION_FAILED, cp.PipelineNotificationEvents.PIPELINE_EXECUTION_SUCCEEDED]
-        )
-
-        event_role = iam.Role(
-            self, "RoleEvent", 
-            role_name=f"{package_name}-event",
-            assumed_by=iam.ServicePrincipal("events.amazonaws.com")
-        )
-
-        e.Rule(
-            self, "EventRuleDoctrina", 
-            rule_name=f"doctrina-ecr-trigger-{package_name}-build",
-            event_pattern=e.EventPattern(
-                source=["aws.ecr"],
-                detail_type=["ECR Image Action"],
-                detail={
-                    "action-type": ["PUSH"],
-                    "result": ["SUCCESS"],
-                    "repository-name": [ecr_doctrina.repository_name],
-                    "image-tag": ["base-latest"],
-                }
-            ),
-            targets=[et.CodePipeline(
-                pipeline=pipeline, 
-                event_role=event_role  # type: ignore
-            )]
         )
 
         ssm.CfnParameter(
