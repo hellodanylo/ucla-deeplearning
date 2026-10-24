@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import uuid
-from typing import Dict, Optional
+from typing import Dict, Optional, Sequence
 
 import clize
 import boto3
@@ -14,9 +14,9 @@ GITHUB_REPO = 'https://github.com/hellodanylo/ucla-deeplearning'
 CHECKOUT = '/home/sagemaker-user/collegium'
 
 
-def sagemaker_jupyter_process(*, image_version: str, git_commit: str):
-    """Executes all module notebooks of `git_commit` (fetched from GitHub) in the Studio image `image_version`."""
-    job_prefix = f'collegium-test-{git_commit[:16]}'
+def sagemaker_jupyter_process(*, image_version: str, git_commit: str, backends: str = 'tensorflow,torch'):
+    """Executes all module notebooks of `git_commit` (fetched from GitHub) in the Studio image `image_version`,
+    as one training job per Keras backend (comma-separated `backends`), run in parallel."""
     script = ' && '.join([
         f'git init -q {CHECKOUT}',
         f'cd {CHECKOUT}',
@@ -25,12 +25,20 @@ def sagemaker_jupyter_process(*, image_version: str, git_commit: str):
         'python -m collegium.foundation.cli jupyter-process --execute m01_dnn m02_cnn m03_rnn m04_gan m05_ensemble',
     ])
     # Container arguments are limited to 256 characters each, environment values to 512
-    sagemaker_train('bash', '-c', 'eval "$COLLEGIUM_TEST_SCRIPT"', environment={'COLLEGIUM_TEST_SCRIPT': script},
-                    gpu=True, job_prefix=job_prefix, image_version=image_version)
+    jobs = [
+        start_training_job(
+            'bash', '-c', 'eval "$COLLEGIUM_TEST_SCRIPT"',
+            # Notebooks select the backend with os.environ.setdefault("KERAS_BACKEND", ...)
+            environment={'COLLEGIUM_TEST_SCRIPT': script, 'KERAS_BACKEND': backend},
+            job_prefix=f'collegium-test-{git_commit[:16]}-{backend[:5]}', image_version=image_version,
+        )
+        for backend in backends.split(',')
+    ]
+    exit(0 if wait_training_jobs(jobs) else 1)
 
 
-def sagemaker_train(*cmd, environment: Optional[Dict[str, str]] = None, gpu: bool = False,
-                    job_prefix: str = 'collegium', image_version: str = 'latest'):
+def start_training_job(*cmd, environment: Optional[Dict[str, str]] = None,
+                       job_prefix: str = 'collegium', image_version: str = 'latest') -> str:
     environment = environment or {}
     assert all(len(a) <= 256 for a in cmd), 'SageMaker limits each container argument to 256 characters'
     assert all(len(v) <= 512 for v in environment.values()), 'SageMaker limits environment values to 512 characters'
@@ -62,15 +70,20 @@ def sagemaker_train(*cmd, environment: Optional[Dict[str, str]] = None, gpu: boo
         },
     )
     print("Started", job_name)
-    sm.get_waiter('training_job_completed_or_stopped').wait(TrainingJobName=job_name)
-    
-    status = sm.describe_training_job(TrainingJobName=job_name)['TrainingJobStatus']
-    print("Finished", job_name, "with status", status)
+    return job_name
 
-    if status == "Completed":
-        exit(0)
-    else:
-        exit(1)
+
+def wait_training_jobs(job_names: Sequence[str]) -> bool:
+    """Waits for all jobs to finish; True if all completed successfully."""
+    sm = boto3.client('sagemaker', region_name='us-west-2')
+    ok = True
+    for job_name in job_names:
+        sm.get_waiter('training_job_completed_or_stopped').wait(
+            TrainingJobName=job_name, WaiterConfig={'Delay': 60, 'MaxAttempts': 240})
+        job = sm.describe_training_job(TrainingJobName=job_name)
+        print("Finished", job_name, "with status", job['TrainingJobStatus'], job.get('FailureReason', ''))
+        ok = ok and job['TrainingJobStatus'] == 'Completed'
+    return ok
 
 
 def sagemaker_process(*cmd, gpu: bool = False, job_prefix: str = 'collegium', image_version: str = 'latest'):
