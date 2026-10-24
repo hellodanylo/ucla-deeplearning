@@ -17,5 +17,5 @@ docker run \
     -e AWS_SESSION_TOKEN \
     -e AWS_REGION \
     -e AWS_DEFAULT_REGION=$AWS_REGION \
-    --rm "${COLLEGIUM_CDK_ECR}:${CODEBUILD_RESOLVED_SOURCE_VERSION}" \
+    --rm "${COLLEGIUM_CDK_ECR}:${CDK_IMAGE_TAG}" \
     python -m collegium.cdk.cli sagemaker-jupyter-process --image-version "${STUDIO_IMAGE_TAG}" --git-commit "${CODEBUILD_RESOLVED_SOURCE_VERSION}"

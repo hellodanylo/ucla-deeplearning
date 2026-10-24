@@ -27,5 +27,6 @@ RUN cd /app/collegium/cdk && \
     echo /app > /opt/venv/lib/python3.12/site-packages/app.pth && \
     npm install -g --prefix /opt/venv aws-cdk@${CDK_VERSION}
 
-COPY . /app/collegium
+# Only cdk/ is needed (the CDK app imports collegium.cdk.* only), so the image is tagged by its content
+COPY cdk /app/collegium/cdk
 WORKDIR /app/collegium/cdk

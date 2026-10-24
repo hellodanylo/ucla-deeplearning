@@ -7,25 +7,25 @@ project_path=${0:a:h:h}
 export DOCKER_BUILDKIT=1
 docker version
 
-# build <ecr-repo-uri> <tag> <dockerfile> <context>: tags :<tag> and :latest, using :latest as the layer cache
-build() {
-    docker buildx build \
-        --cache-from="${1}:latest" \
-        --cache-to="type=inline" \
-        --tag "${1}:${2}" \
-        -f "$3" \
-        "$4"
+# build_or_pull <ecr-repo-uri> <tag> <dockerfile> <context>
+# Tags are derived from the image's source content, so an existing tag is pulled instead of rebuilt.
+# Either way the image is also tagged :latest, which is the layer cache for future builds.
+build_or_pull() {
+    if docker manifest inspect "${1}:${2}" >/dev/null 2>&1; then
+        docker pull "${1}:${2}"
+    else
+        docker buildx build \
+            --cache-from="${1}:latest" \
+            --cache-to="type=inline" \
+            --tag "${1}:${2}" \
+            -f "$3" \
+            "$4"
+    fi
     docker tag "${1}:${2}" "${1}:latest"
 }
 
-# SageMaker Studio image: domain, unit tests, notebook tests.
-# Tagged by the content of cdk/docker-studio, so it is only rebuilt when the environment changes.
-if docker manifest inspect "${COLLEGIUM_ECR}:${STUDIO_IMAGE_TAG}" >/dev/null 2>&1; then
-    docker pull "${COLLEGIUM_ECR}:${STUDIO_IMAGE_TAG}"
-    docker tag "${COLLEGIUM_ECR}:${STUDIO_IMAGE_TAG}" "${COLLEGIUM_ECR}:latest"
-else
-    build "$COLLEGIUM_ECR" "$STUDIO_IMAGE_TAG" $project_path/cdk/docker-studio/Dockerfile $project_path/cdk/docker-studio
-fi
+# SageMaker Studio image: domain, unit tests, notebook tests
+build_or_pull "$COLLEGIUM_ECR" "$STUDIO_IMAGE_TAG" $project_path/cdk/docker-studio/Dockerfile $project_path/cdk/docker-studio
 
-# Deployment tooling image: cdk deploy, SageMaker job launcher (contains the repo, so tagged by commit)
-build "$COLLEGIUM_CDK_ECR" "$CODEBUILD_RESOLVED_SOURCE_VERSION" $project_path/cdk/docker-cdk/Dockerfile "$project_path"
+# Deployment tooling image: cdk deploy, SageMaker job launcher
+build_or_pull "$COLLEGIUM_CDK_ECR" "$CDK_IMAGE_TAG" $project_path/cdk/docker-cdk/Dockerfile "$project_path"
