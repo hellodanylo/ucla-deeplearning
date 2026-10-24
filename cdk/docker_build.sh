@@ -22,6 +22,7 @@ build() {
 # Tagged by the content of cdk/docker-studio, so it is only rebuilt when the environment changes.
 if docker manifest inspect "${COLLEGIUM_ECR}:${STUDIO_IMAGE_TAG}" >/dev/null 2>&1; then
     docker pull "${COLLEGIUM_ECR}:${STUDIO_IMAGE_TAG}"
+    docker tag "${COLLEGIUM_ECR}:${STUDIO_IMAGE_TAG}" "${COLLEGIUM_ECR}:latest"
 else
     build "$COLLEGIUM_ECR" "$STUDIO_IMAGE_TAG" $project_path/cdk/docker-studio/Dockerfile $project_path/cdk/docker-studio
 fi
