@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
 import uuid
+from typing import Dict, Optional
+
 import clize
 import boto3
 
@@ -22,10 +24,16 @@ def sagemaker_jupyter_process(*, image_version: str, git_commit: str):
         'git checkout -q FETCH_HEAD',
         'python -m collegium.foundation.cli jupyter-process --execute m01_dnn m02_cnn m03_rnn m04_gan m05_ensemble',
     ])
-    sagemaker_train('bash', '-c', script, gpu=True, job_prefix=job_prefix, image_version=image_version)
+    # Container arguments are limited to 256 characters each, environment values to 512
+    sagemaker_train('bash', '-c', 'eval "$COLLEGIUM_TEST_SCRIPT"', environment={'COLLEGIUM_TEST_SCRIPT': script},
+                    gpu=True, job_prefix=job_prefix, image_version=image_version)
 
 
-def sagemaker_train(*cmd, gpu: bool = False, job_prefix: str = 'collegium', image_version: str = 'latest'):
+def sagemaker_train(*cmd, environment: Optional[Dict[str, str]] = None, gpu: bool = False,
+                    job_prefix: str = 'collegium', image_version: str = 'latest'):
+    environment = environment or {}
+    assert all(len(a) <= 256 for a in cmd), 'SageMaker limits each container argument to 256 characters'
+    assert all(len(v) <= 512 for v in environment.values()), 'SageMaker limits environment values to 512 characters'
     sm = boto3.client('sagemaker', region_name='us-west-2')
     sagemaker_resources = load_sagemaker_resources()
     build_resources = load_build_resources()
@@ -37,8 +45,9 @@ def sagemaker_train(*cmd, gpu: bool = False, job_prefix: str = 'collegium', imag
         AlgorithmSpecification={
             'TrainingImage': f'{build_resources.collegium_ecr}:{image_version}',
             'TrainingInputMode': 'File',
-            'ContainerArguments': cmd,
+            'ContainerArguments': list(cmd),
         },
+        Environment=environment,
         ResourceConfig={
             'InstanceType': 'ml.g4dn.4xlarge',
             'InstanceCount': 1,
@@ -79,7 +88,7 @@ def sagemaker_process(*cmd, gpu: bool = False, job_prefix: str = 'collegium', im
         ProcessingJobName=job_name,
         AppSpecification={
             'ImageUri': f'{build_resources.collegium_ecr}:{image_version}',
-            'ContainerArguments': cmd,
+            'ContainerArguments': list(cmd),
         },
         RoleArn=sagemaker_resources.sagemaker_role_arn,
         ProcessingResources={
