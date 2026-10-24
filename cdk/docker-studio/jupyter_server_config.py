@@ -5,7 +5,7 @@ c.ServerProxy.servers = {
         'launcher_entry': {
             'enabled': True,
             'title': 'mlflow',
-            'icon_path': '/app/collegium/cdk/docker-studio/mlflow.svg'
+            'icon_path': '/opt/collegium-env/mlflow.svg'
         }
    }
 }

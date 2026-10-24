@@ -2,7 +2,8 @@
 
 set -eux
 
-for repo in "$COLLEGIUM_ECR" "$COLLEGIUM_CDK_ECR"; do
-    docker push "${repo}:${CODEBUILD_RESOLVED_SOURCE_VERSION}"
-    docker push "${repo}:latest"
-done
+# Pushing an existing tag again only re-uploads missing layers (none, if the build step pulled it)
+docker push "${COLLEGIUM_ECR}:${STUDIO_IMAGE_TAG}"
+docker push "${COLLEGIUM_ECR}:latest"
+docker push "${COLLEGIUM_CDK_ECR}:${CODEBUILD_RESOLVED_SOURCE_VERSION}"
+docker push "${COLLEGIUM_CDK_ECR}:latest"

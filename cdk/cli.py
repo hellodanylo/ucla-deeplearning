@@ -7,10 +7,22 @@ import boto3
 from collegium.cdk.environment import BuildResources, SSMParameter, SageMakerResources, load_build_resources, load_sagemaker_resources
 
 
-def sagemaker_jupyter_process(*, image_version: str = 'latest'):
-    job_prefix = f'collegium-test-{image_version[:16]}'
-    cmd = ['python', '-m', 'collegium.foundation.cli', 'jupyter-process', '--execute', 'm01_dnn', 'm02_cnn', 'm03_rnn', 'm04_gan', 'm05_ensemble']
-    sagemaker_train(*cmd, gpu=True, job_prefix=job_prefix, image_version=image_version)
+GITHUB_REPO = 'https://github.com/hellodanylo/ucla-deeplearning'
+# Must match COLLEGIUM_ROOT in foundation/jupyter_render.py and the import symlink in the Studio image
+CHECKOUT = '/home/sagemaker-user/collegium'
+
+
+def sagemaker_jupyter_process(*, image_version: str, git_commit: str):
+    """Executes all module notebooks of `git_commit` (fetched from GitHub) in the Studio image `image_version`."""
+    job_prefix = f'collegium-test-{git_commit[:16]}'
+    script = ' && '.join([
+        f'git init -q {CHECKOUT}',
+        f'cd {CHECKOUT}',
+        f'git fetch -q --depth 1 {GITHUB_REPO} {git_commit}',
+        'git checkout -q FETCH_HEAD',
+        'python -m collegium.foundation.cli jupyter-process --execute m01_dnn m02_cnn m03_rnn m04_gan m05_ensemble',
+    ])
+    sagemaker_train('bash', '-c', script, gpu=True, job_prefix=job_prefix, image_version=image_version)
 
 
 def sagemaker_train(*cmd, gpu: bool = False, job_prefix: str = 'collegium', image_version: str = 'latest'):

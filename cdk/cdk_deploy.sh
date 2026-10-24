@@ -15,7 +15,7 @@ docker run \
     -e AWS_SESSION_TOKEN \
     -e AWS_REGION \
     -e AWS_DEFAULT_REGION=$AWS_REGION \
-    -e CODEBUILD_RESOLVED_SOURCE_VERSION \
+    -e STUDIO_IMAGE_TAG \
     --rm \
     "${COLLEGIUM_CDK_ECR}:${CODEBUILD_RESOLVED_SOURCE_VERSION}" \
     cdk deploy --all

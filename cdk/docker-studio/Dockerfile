@@ -1,6 +1,8 @@
 # SageMaker Studio JupyterLab image without SageMaker Distribution or conda.
 # CUDA comes from the tensorflow[and-cuda] wheels; the driver is mounted by the host's NVIDIA runtime.
 # Studio requirements: https://docs.aws.amazon.com/sagemaker/latest/dg/studio-updated-byoi-specs.html
+# Build context is this directory. The image contains only the environment; course code comes from the
+# ~/collegium checkout (Studio lifecycle clone, or the CI test job's fetch of the tested commit).
 FROM public.ecr.aws/docker/library/ubuntu:24.04
 
 ARG NB_USER=sagemaker-user
@@ -17,6 +19,7 @@ RUN apt-get update -q && \
     ffmpeg \
     git \
     gnupg \
+    graphviz \
     htop \
     jq \
     less \
@@ -55,25 +58,28 @@ ENV UV_PYTHON_INSTALL_DIR=/opt/python \
     UV_COMPILE_BYTECODE=1 \
     VIRTUAL_ENV=/opt/venv \
     PATH=/opt/venv/bin:$PATH
-RUN install -d -o $NB_USER -g $NB_GID /opt/python /opt/venv /app
+RUN install -d -o $NB_USER -g $NB_GID /opt/python /opt/venv /opt/collegium-env
 
 USER $NB_USER
-COPY --chown=$NB_USER:$NB_GID cdk/docker-studio/pyproject.toml cdk/docker-studio/uv.lock /app/collegium/cdk/docker-studio/
-RUN cd /app/collegium/cdk/docker-studio && \
+COPY --chown=$NB_USER:$NB_GID pyproject.toml uv.lock /opt/collegium-env/
+# collegium.* imports resolve to ~/collegium (the repo root is the `collegium` namespace package) via a
+# symlink, so other files in the home directory don't shadow modules
+RUN cd /opt/collegium-env && \
     uv python install 3.12 && \
     uv sync --frozen --no-cache && \
-    echo /app > /opt/venv/lib/python3.12/site-packages/app.pth && \
+    mkdir /opt/collegium-env/path && ln -s /home/$NB_USER/collegium /opt/collegium-env/path/collegium && \
+    echo /opt/collegium-env/path > /opt/venv/lib/python3.12/site-packages/collegium.pth && \
     python -m ipykernel install --sys-prefix --name collegium --display-name collegium
 
 # The tensorflow 2.21 wheel dlopens libcusolver from a library whose RUNPATH lacks nvidia/cusolver/lib.
 # An ld.so.conf.d entry is not enough: SageMaker's NVIDIA runtime hook regenerates ld.so.cache without it.
 ENV LD_LIBRARY_PATH=/opt/venv/lib/python3.12/site-packages/nvidia/cusolver/lib
 
-COPY --chown=$NB_USER:$NB_GID cdk/docker-studio/triton_deepbind.py /opt/venv/lib/python3.12/site-packages/
+COPY --chown=$NB_USER:$NB_GID triton_deepbind.py /opt/venv/lib/python3.12/site-packages/
 RUN echo "import triton_deepbind" > /opt/venv/lib/python3.12/site-packages/triton_deepbind.pth
 
-COPY --chown=$NB_USER:$NB_GID cdk/docker-studio/jupyter_server_config.py /opt/venv/etc/jupyter/jupyter_server_config.py
-COPY --chown=$NB_USER:$NB_GID . /app/collegium
+COPY --chown=$NB_USER:$NB_GID jupyter_server_config.py /opt/venv/etc/jupyter/jupyter_server_config.py
+COPY --chown=$NB_USER:$NB_GID mlflow.svg /opt/collegium-env/mlflow.svg
 
 ENV SHELL=/bin/bash \
     PYTHONUNBUFFERED=1 \

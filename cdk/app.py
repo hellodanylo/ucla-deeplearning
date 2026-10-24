@@ -10,20 +10,20 @@ from sagemaker_stack import SageMakerStack
 import boto3
 
 
-def get_current_version():
-    version = os.environ.get('CODEBUILD_RESOLVED_SOURCE_VERSION')
-    if version:
-        return version
-    version = subprocess.check_output(['git', 'rev-parse', 'HEAD']).decode().strip()
-    return version
+def get_studio_image_tag():
+    # The Studio image is tagged by the git tree hash of cdk/docker-studio (same formula as cdk/build_main.sh),
+    # so it only changes when the image's environment changes
+    tag = os.environ.get('STUDIO_IMAGE_TAG')
+    if tag:
+        return tag
+    tree = subprocess.check_output(['git', 'rev-parse', 'HEAD:cdk/docker-studio']).decode().strip()
+    return f'env-{tree[:12]}'
 
 
 def main():
     app = App()
     build = BuildStack(app, 'CollegiumBuild')
-    version = get_current_version()
-
-    sagemaker: SageMakerStack = SageMakerStack(app, 'CollegiumSageMaker', image_version=version)
+    sagemaker: SageMakerStack = SageMakerStack(app, 'CollegiumSageMaker', image_version=get_studio_image_tag())
 
     ssm = boto3.client('ssm', region_name='us-west-2')
     config_json = ssm.get_parameter(Name=SSMParameter.TEAM_CONFIG.value)['Parameter']['Value']

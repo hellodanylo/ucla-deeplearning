@@ -9,7 +9,8 @@ set +x
 source $project_path/cdk/assume.sh
 set -x
 
-# The launcher runs in the CDK image; the training job executes the notebooks in the Studio image
+# The launcher runs in the CDK image; the training job fetches this commit from GitHub and
+# executes its notebooks in the Studio image
 docker run \
     -e AWS_ACCESS_KEY_ID \
     -e AWS_SECRET_ACCESS_KEY \
@@ -17,4 +18,4 @@ docker run \
     -e AWS_REGION \
     -e AWS_DEFAULT_REGION=$AWS_REGION \
     --rm "${COLLEGIUM_CDK_ECR}:${CODEBUILD_RESOLVED_SOURCE_VERSION}" \
-    python -m collegium.cdk.cli sagemaker-jupyter-process --image-version "${CODEBUILD_RESOLVED_SOURCE_VERSION}"
+    python -m collegium.cdk.cli sagemaker-jupyter-process --image-version "${STUDIO_IMAGE_TAG}" --git-commit "${CODEBUILD_RESOLVED_SOURCE_VERSION}"

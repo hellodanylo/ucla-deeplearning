@@ -22,8 +22,7 @@ dependencies = [
     "keras-cv==0.9.0",
     "torch",
     "torchvision",
-    "tf-keras",                            # Keras 2 shim used by transformers' TF models
-    "transformers<=4.54.1",                # pinned as in the previous image (TF model support)
+    "transformers",                        # PyTorch models (transformers v5 has no TF classes)
     "mlflow",
 
     # Data science
@@ -43,8 +42,10 @@ dependencies = [
     "clize",
     "lxml",                                # BeautifulSoup(..., "xml") in GANArxiv
     "protobuf",
+    "pydot",                               # keras.utils.plot_model (with apt graphviz)
     "pytest",
     "requests",
+    "s3fs>=2025.1",                        # pandas.read_*("s3://...") in assignments
     "tqdm",
 ]
 
