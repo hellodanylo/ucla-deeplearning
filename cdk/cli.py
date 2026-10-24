@@ -14,9 +14,18 @@ GITHUB_REPO = 'https://github.com/hellodanylo/ucla-deeplearning'
 CHECKOUT = '/home/sagemaker-user/collegium'
 
 
-def sagemaker_jupyter_process(*, image_version: str, git_commit: str, backends: str = 'tensorflow,torch'):
+TEST_KEY_TAG = 'collegium-test-key'
+TEST_BACKEND_TAG = 'collegium-test-backend'
+
+
+def sagemaker_jupyter_process(*, image_version: str, git_commit: str, backends: str = 'tensorflow',
+                              test_key: str = ''):
     """Executes all module notebooks of `git_commit` (fetched from GitHub) in the Studio image `image_version`,
-    as one training job per Keras backend (comma-separated `backends`), run in parallel."""
+    as one training job per Keras backend (comma-separated `backends`, e.g. `tensorflow,torch`), run in parallel.
+    CI uses the default (TensorFlow only).
+
+    test_key: identifies what the result depends on (image tag + notebook content, see cdk/build_main.sh). Jobs are
+    tagged with it, and a backend is skipped if a job with the same key and backend already completed."""
     script = ' && '.join([
         f'git init -q {CHECKOUT}',
         f'cd {CHECKOUT}',
@@ -25,19 +34,33 @@ def sagemaker_jupyter_process(*, image_version: str, git_commit: str, backends: 
         'python -m collegium.foundation.cli jupyter-process --execute m01_dnn m02_cnn m03_rnn m04_gan m05_ensemble',
     ])
     # Container arguments are limited to 256 characters each, environment values to 512
-    jobs = [
-        start_training_job(
+    jobs = []
+    for backend in backends.split(','):
+        if test_key and (passed := find_passed_test(test_key, backend)):
+            print(f'Skipping {backend}: {passed} already passed for test key {test_key}')
+            continue
+        jobs.append(start_training_job(
             'bash', '-c', 'eval "$COLLEGIUM_TEST_SCRIPT"',
             # Notebooks select the backend with os.environ.setdefault("KERAS_BACKEND", ...)
             environment={'COLLEGIUM_TEST_SCRIPT': script, 'KERAS_BACKEND': backend},
+            tags={TEST_KEY_TAG: test_key, TEST_BACKEND_TAG: backend} if test_key else None,
             job_prefix=f'collegium-test-{git_commit[:16]}-{backend[:5]}', image_version=image_version,
-        )
-        for backend in backends.split(',')
-    ]
+        ))
     exit(0 if wait_training_jobs(jobs) else 1)
 
 
-def start_training_job(*cmd, environment: Optional[Dict[str, str]] = None,
+def find_passed_test(test_key: str, backend: str) -> Optional[str]:
+    """Name of a completed notebook test job with this key and backend, if any."""
+    sm = boto3.client('sagemaker', region_name='us-west-2')
+    found = sm.search(Resource='TrainingJob', MaxResults=1, SearchExpression={'Filters': [
+        {'Name': f'Tags.{TEST_KEY_TAG}', 'Operator': 'Equals', 'Value': test_key},
+        {'Name': f'Tags.{TEST_BACKEND_TAG}', 'Operator': 'Equals', 'Value': backend},
+        {'Name': 'TrainingJobStatus', 'Operator': 'Equals', 'Value': 'Completed'},
+    ]})['Results']
+    return found[0]['TrainingJob']['TrainingJobName'] if found else None
+
+
+def start_training_job(*cmd, environment: Optional[Dict[str, str]] = None, tags: Optional[Dict[str, str]] = None,
                        job_prefix: str = 'collegium', image_version: str = 'latest') -> str:
     environment = environment or {}
     assert all(len(a) <= 256 for a in cmd), 'SageMaker limits each container argument to 256 characters'
@@ -68,6 +91,7 @@ def start_training_job(*cmd, environment: Optional[Dict[str, str]] = None,
         StoppingCondition={
              'MaxRuntimeInSeconds': 60 * 90,
         },
+        Tags=[{'Key': k, 'Value': v} for k, v in (tags or {}).items()],
     )
     print("Started", job_name)
     return job_name

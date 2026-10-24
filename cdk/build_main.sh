@@ -10,6 +10,10 @@ export STUDIO_IMAGE_TAG=env-$(git -C $project_path rev-parse HEAD:cdk/docker-stu
 # Tooling: git tree hash of cdk/ plus the root pyproject.toml blob (everything the image copies)
 export CDK_IMAGE_TAG=src-$(git -C $project_path rev-parse HEAD:cdk HEAD:pyproject.toml | git hash-object --stdin | cut -c1-12)
 
+# Notebook test key: Studio image + everything the notebooks execute (module folders and foundation/).
+# A backend's test is skipped if a job with this key already passed, e.g. for cdk-only commits.
+export NOTEBOOK_TEST_KEY=${STUDIO_IMAGE_TAG}-nb-$(git -C $project_path rev-parse HEAD:m01_dnn HEAD:m02_cnn HEAD:m03_rnn HEAD:m04_gan HEAD:m05_ensemble HEAD:foundation | git hash-object --stdin | cut -c1-12)
+
 $project_path/cdk/docker_login.sh
 $project_path/cdk/docker_build.sh
 $project_path/cdk/test_unit.sh
