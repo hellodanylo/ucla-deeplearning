@@ -43,6 +43,7 @@ dependencies = [
     "boto3",
     "cachetools",
     "clize",
+    "doctrina",                            # ML experiment pipelines (instructor dataset generation jobs)
     "lxml",                                # BeautifulSoup(..., "xml") in GANArxiv
     "protobuf",
     "pydot",                               # keras.utils.plot_model (with apt graphviz)
@@ -66,3 +67,4 @@ explicit = true
 [tool.uv.sources]
 torch = { index = "pytorch-cu126" }
 torchvision = { index = "pytorch-cu126" }
+doctrina = { git = "https://github.com/hellodanylo/doctrina", rev = "dd2fc17fce03cab97b4c3f3216f19acbcc30939a" }
