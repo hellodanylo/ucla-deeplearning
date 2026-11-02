@@ -27,6 +27,7 @@ dependencies = [
     "torchinfo",                           # model summary (Keras model.summary() equivalent)
     "transformers",                        # PyTorch models (transformers v5 has no TF classes)
     "mlflow",
+    "anomalib",                            # anomaly detection models (PaDiM, PatchCore) for the m01 anomaly baselines
 
     # Data science
     "numpy",
