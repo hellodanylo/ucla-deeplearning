@@ -27,6 +27,8 @@ local
 **/fakenet_model
 **/carnet_dataset*
 **/carnet_model*
+**/anomalib_dataset
+**/anomalib_results
 
 .venv
 **/*.egg-info

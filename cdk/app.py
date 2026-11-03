@@ -7,6 +7,7 @@ from build_stack import BuildStack
 from environment import SSMParameter
 from team_stack import TeamConfig, TeamStack, Member
 from sagemaker_stack import SageMakerStack
+from site_stack import SiteStack
 import boto3
 
 
@@ -30,6 +31,8 @@ def main():
     config_json = ssm.get_parameter(Name=SSMParameter.TEAM_CONFIG.value)['Parameter']['Value']
     team_config = TeamConfig.from_json(config_json)
     assert isinstance(team_config, TeamConfig)
+
+    SiteStack(app, 'CollegiumSite')
 
     iam_team = TeamStack(app, 'CollegiumTeam', sagemaker.domain.attr_domain_id, team_config)
 

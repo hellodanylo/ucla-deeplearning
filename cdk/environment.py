@@ -21,6 +21,14 @@ class BuildResources(JSONWizard):
 
 
 @dataclass
+class SiteResources(JSONWizard):
+    bucket: str
+    prefix: str
+    distribution_id: str
+    domain_name: str
+
+
+@dataclass
 class AppResources:
     ses_source: str
 
@@ -39,6 +47,9 @@ class SSMParameter(Enum):
 
     # Created by the Build stack.
     BUILD_RESOURCES = '/collegium/build-resources'
+
+    # Created by the Site stack (CloudFront for the rendered notebooks).
+    SITE_RESOURCES = '/collegium/site-resources'
 
 
 @dataclass
@@ -68,3 +79,7 @@ def load_team_config() -> TeamConfig:
     ssm = boto3.client('ssm', region_name='us-west-2')
     team_config = TeamConfig.from_dict(json.loads(ssm.get_parameter(Name=SSMParameter.TEAM_CONFIG.value)['Parameter']['Value']))
     return team_config
+
+def load_site_resources() -> SiteResources:
+    ssm = boto3.client('ssm', region_name='us-west-2')
+    return SiteResources.from_dict(json.loads(ssm.get_parameter(Name=SSMParameter.SITE_RESOURCES.value)['Parameter']['Value']))
