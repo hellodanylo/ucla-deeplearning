@@ -82,12 +82,12 @@ class MemberConstruct(Construct):
         )
 
         b.CfnBudget(
-            self, 'BudgetAnnual-r7',
+            self, 'BudgetAnnual-r8',
             budget=b.CfnBudget.BudgetDataProperty(
                 budget_type='COST',
                 time_unit='ANNUALLY',
                 budget_limit=b.CfnBudget.SpendProperty(amount=80, unit='USD'),
-                budget_name=f"{member.name}-full-r7",
+                budget_name=f"{member.name}-full-r8",
                 cost_filters={
                     "TagKeyValue": [
                         f"user:owner${member.name}"

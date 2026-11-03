@@ -9,6 +9,9 @@ set +x;
 source $project_path/cdk/assume.sh
 set -x;
 
+# either cdk runs interactively or
+# security changes must be pre-approved
+
 docker run \
     -e AWS_ACCESS_KEY_ID \
     -e AWS_SECRET_ACCESS_KEY \
@@ -17,5 +20,6 @@ docker run \
     -e AWS_DEFAULT_REGION=$AWS_REGION \
     -e STUDIO_IMAGE_TAG \
     --rm \
+    -it \
     "${COLLEGIUM_CDK_ECR}:${CDK_IMAGE_TAG}" \
     cdk deploy --all
