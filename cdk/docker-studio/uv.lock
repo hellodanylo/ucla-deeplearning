@@ -475,6 +475,7 @@ dependencies = [
     { name = "statsmodels", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
     { name = "tensorflow", extra = ["and-cuda"], marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
     { name = "torch", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
+    { name = "torchaudio", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
     { name = "torchinfo", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
     { name = "torchmetrics", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
     { name = "torchvision", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
@@ -519,6 +520,7 @@ requires-dist = [
     { name = "statsmodels" },
     { name = "tensorflow", extras = ["and-cuda"] },
     { name = "torch", index = "https://download.pytorch.org/whl/cu126" },
+    { name = "torchaudio", index = "https://download.pytorch.org/whl/cu126" },
     { name = "torchinfo" },
     { name = "torchmetrics" },
     { name = "torchvision", index = "https://download.pytorch.org/whl/cu126" },
@@ -3527,6 +3529,14 @@ dependencies = [
 ]
 wheels = [
     { url = "https://download-r2.pytorch.org/whl/cu126/torch-2.14.1%2Bcu126-cp312-cp312-manylinux_2_28_x86_64.whl", hash = "sha256:75727245346d8f92224a860bf40c56bd681edcfa0456d01d7dfcb0bf6f0cf86c", upload-time = "2026-09-30T19:57:48Z" },
+]
+
+[[package]]
+name = "torchaudio"
+version = "2.11.0+cu126"
+source = { registry = "https://download.pytorch.org/whl/cu126" }
+wheels = [
+    { url = "https://download-r2.pytorch.org/whl/cu126/torchaudio-2.11.0%2Bcu126-cp312-cp312-manylinux_2_28_x86_64.whl", hash = "sha256:fe8ba48c690cacc58087603c4d853580006e3d1c0ebe22c0d75f99a004bc981a", upload-time = "2026-03-23T15:50:21Z" },
 ]
 
 [[package]]

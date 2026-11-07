@@ -22,6 +22,8 @@ dependencies = [
     "keras-cv==0.9.0",
     "torch",
     "torchvision",
+    "torchaudio",                          # m03 Spectrogram (MelSpectrogram). 2.11 is the last release and works with
+                                           # all later torch versions (stable ABI): no need to keep the versions in step
     "lightning",                           # PyTorch Lightning: Keras-like fit/callbacks for the PyTorch notebooks
     "torchmetrics",
     "torchinfo",                           # model summary (Keras model.summary() equivalent)
@@ -68,4 +70,5 @@ explicit = true
 [tool.uv.sources]
 torch = { index = "pytorch-cu126" }
 torchvision = { index = "pytorch-cu126" }
+torchaudio = { index = "pytorch-cu126" }
 doctrina = { git = "https://github.com/hellodanylo/doctrina", rev = "dd2fc17fce03cab97b4c3f3216f19acbcc30939a" }
