@@ -25,13 +25,11 @@ class MemberConstruct(Construct):
                 actions=["license-manager:ListReceivedLicenses"],
                 resources=["*"],
             ),
+            # Course data: notebooks only read objects by exact key (s3:GetObject also covers HeadObject).
+            # Without s3:ListBucket, reading a key that doesn't exist fails with 403 AccessDenied instead of 404.
             iam.PolicyStatement(
-                actions=["s3:GetObject", "s3:HeadObject"],
-                resources=["arn:aws:s3:::danylo-ucla/*", "arn:aws:s3:::sagemaker-*/*"],
-            ),
-            iam.PolicyStatement(
-                actions=["s3:HeadBucket", "s3:ListBucket", "s3:Get*"],
-                resources=["arn:aws:s3:::danylo-ucla", "arn:aws:s3:::sagemaker-*"],
+                actions=["s3:GetObject"],
+                resources=["arn:aws:s3:::danylo-ucla/*"],
             ),
             iam.PolicyStatement(
                 actions=["sagemaker:GetSagemakerServicecatalog*"],
