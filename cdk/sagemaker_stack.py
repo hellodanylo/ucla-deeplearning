@@ -120,7 +120,18 @@ class SageMakerStack(Stack):
                         app_image_config_name=collegium_image.app_image.app_image_config_name,
                         image_name=collegium_image.image.image_name,
                         image_version_number=collegium_image.image_version.attr_version
-                    )]
+                    )],
+                    # Idle shutdown (needs jupyter-activity-monitor-extension in the image). Idle = no kernel or
+                    # terminal message for the timeout, so a cell running silently that long is stopped too.
+                    # Equal min/max enforces the timeout; running apps pick it up on restart.
+                    app_lifecycle_management=sm.CfnDomain.AppLifecycleManagementProperty(
+                        idle_settings=sm.CfnDomain.IdleSettingsProperty(
+                            lifecycle_management='ENABLED',
+                            idle_timeout_in_minutes=12 * 60,
+                            min_idle_timeout_in_minutes=12 * 60,
+                            max_idle_timeout_in_minutes=12 * 60,
+                        )
+                    ),
                 ),
             ),
             subnet_ids=vpc.select_subnets().subnet_ids,
