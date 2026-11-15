@@ -29,6 +29,7 @@ dependencies = [
     "torchinfo",                           # model summary (Keras model.summary() equivalent)
     "transformers",                        # PyTorch models (transformers v5 has no TF classes)
     "diffusers",                           # m04 Stable Diffusion 3.5 (pipelines, MMDiT transformer, VAE, schedulers)
+    "accelerate",                          # diffusers: low-memory loading (Wan 2.1 keeps some modules in fp32) and CPU offload
     "mlflow",
     "anomalib",                            # anomaly detection models (PaDiM, PatchCore) for the m01 anomaly baselines
 
