@@ -30,6 +30,7 @@ dependencies = [
     "transformers",                        # PyTorch models (transformers v5 has no TF classes)
     "diffusers",                           # m04 Stable Diffusion 3.5 (pipelines, MMDiT transformer, VAE, schedulers)
     "accelerate",                          # diffusers: low-memory loading (Wan 2.1 keeps some modules in fp32) and CPU offload
+    "ftfy",                                # diffusers Wan image-to-video: cleans the prompt text (required, not optional there)
     "mlflow",
     "anomalib",                            # anomaly detection models (PaDiM, PatchCore) for the m01 anomaly baselines
 
@@ -49,7 +50,7 @@ dependencies = [
     "cachetools",
     "clize",
     "doctrina",                            # ML experiment pipelines (instructor dataset generation jobs)
-    "lxml",                                # BeautifulSoup(..., "xml") in GANArxiv
+    "lxml",                                # BeautifulSoup(..., "xml") in ArxivMeta
     "protobuf",
     "pydot",                               # keras.utils.plot_model (with apt graphviz)
     "pytest",
