@@ -88,7 +88,7 @@ class BuildStack(Stack):
             ),
             role=role,  # type: ignore
             build_spec=cb.BuildSpec.from_source_filename("cdk/buildspec.yml"),
-            timeout=Duration.hours(2),
+            timeout=Duration.hours(4),  # image build (~25 min) + notebook test job (up to 3 h)
         )
 
         ssm_client = boto3.client('ssm', region_name=os.environ.get('AWS_REGION'))

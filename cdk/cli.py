@@ -89,7 +89,7 @@ def start_training_job(*cmd, environment: Optional[Dict[str, str]] = None, tags:
         },
         RoleArn=sagemaker_resources.sagemaker_role_arn,
         StoppingCondition={
-             'MaxRuntimeInSeconds': 60 * 90,
+             'MaxRuntimeInSeconds': 60 * 180,  # the notebook test job takes ~95 min on g4dn (Wan + SD notebooks)
         },
         Tags=[{'Key': k, 'Value': v} for k, v in (tags or {}).items()],
     )

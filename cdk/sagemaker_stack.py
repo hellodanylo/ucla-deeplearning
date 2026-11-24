@@ -32,7 +32,7 @@ class ImageConstruct(Construct):
 
         self.app_image = sm.CfnAppImageConfig(
             self, f'AppImageConfig', 
-            app_image_config_name=f'{image_name}-r2',
+            app_image_config_name=f'{image_name}-r3',
             jupyter_lab_app_image_config=sm.CfnAppImageConfig.JupyterLabAppImageConfigProperty(),
         )
 
