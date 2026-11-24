@@ -27,6 +27,9 @@ local
 **/fakenet_model
 **/carnet_dataset*
 **/carnet_model*
+**/sam3_model
+**/sam3_data
+**/vjepa2_data
 .git
 **/.venv
 **/*.egg-info

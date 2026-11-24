@@ -29,6 +29,10 @@ local
 **/carnet_model*
 **/anomalib_dataset
 **/anomalib_results
+**/sam3_model
+**/sd35_model
+**/sam3_data
+**/vjepa2_data
 
 .venv
 **/*.egg-info
